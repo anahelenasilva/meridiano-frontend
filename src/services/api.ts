@@ -48,5 +48,31 @@ export const apiService = {
 
   getHealth: () =>
     api.get('/health'),
+
+  getYoutubeTranscriptions: (params?: {
+    page?: number;
+    sort_by?: string;
+    direction?: 'asc' | 'desc';
+    channel_id?: string;
+    channel_name?: string;
+    search?: string;
+    start_date?: string;
+    end_date?: string;
+    preset?: string;
+  }) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) searchParams.append(key, value.toString());
+      });
+    }
+    return api.get(`/youtube/transcriptions?${searchParams.toString()}`);
+  },
+
+  getYoutubeTranscription: (id: number) =>
+    api.get(`/youtube/transcriptions/${id}`),
+
+  deleteYoutubeTranscription: (id: number) =>
+    api.delete(`/youtube/transcriptions/${id}`),
 };
 
