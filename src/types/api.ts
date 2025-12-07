@@ -78,3 +78,41 @@ export interface BriefingDetailResponse {
   };
 }
 
+export interface YoutubeTranscription {
+  id: number;
+  channelId: string;
+  channelName: string;
+  videoTitle: string;
+  postedAt?: Date;
+  videoUrl: string;
+  processedAt: Date;
+  transcriptionText: string;
+  transcriptionSummary?: string;
+}
+
+export interface YoutubeTranscriptionsResponse {
+  transcriptions: YoutubeTranscription[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total_pages: number;
+    total_transcriptions: number;
+  };
+  filters: {
+    sort_by: string;
+    direction: 'asc' | 'desc';
+    channel_id: string;
+    channel_name: string;
+    search_term: string;
+    start_date: string;
+    end_date: string;
+    preset: string;
+  };
+  available_channels: { id: string; name: string }[];
+}
+
+export interface YoutubeTranscriptionDetailResponse {
+  transcription: YoutubeTranscription;
+  related_transcriptions: YoutubeTranscription[];
+}
+
