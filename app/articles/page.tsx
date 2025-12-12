@@ -199,7 +199,7 @@ export default function ArticlesPage() {
                     e.preventDefault();
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function ArticlesPage() {
             <select
               value={filters.feed_profile}
               onChange={(e) => updateFilter('feed_profile', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
             >
               <option value="">All Profiles</option>
               {available_profiles.map((profile) => (
@@ -221,7 +221,7 @@ export default function ArticlesPage() {
             <select
               value={filters.category}
               onChange={(e) => updateFilter('category', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
             >
               <option value="">All Categories</option>
               {available_categories.map((category) => (
@@ -259,13 +259,13 @@ export default function ArticlesPage() {
               type="date"
               value={filters.start_date}
               onChange={(e) => updateFilter('start_date', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
             <input
               type="date"
               value={filters.end_date}
               onChange={(e) => updateFilter('end_date', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function ArticlesPage() {
           <select
             value={filters.sort_by}
             onChange={(e) => updateFilter('sort_by', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
           >
             <option value="published_date">Date</option>
             <option value="title">Title</option>
@@ -285,7 +285,7 @@ export default function ArticlesPage() {
           <select
             value={filters.direction}
             onChange={(e) => updateFilter('direction', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>
@@ -446,7 +446,7 @@ export default function ArticlesPage() {
                   value={articleUrl}
                   onChange={(e) => setArticleUrl(e.target.value)}
                   placeholder="https://example.com/article"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
                   disabled={addArticleMutation.isPending}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -465,7 +465,7 @@ export default function ArticlesPage() {
                   id="feed-profile"
                   value={articleFeedProfile}
                   onChange={(e) => setArticleFeedProfile(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
                   disabled={addArticleMutation.isPending}
                 >
                   <option value="">Select a profile</option>

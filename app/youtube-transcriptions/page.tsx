@@ -1,13 +1,14 @@
 'use client';
 
-import { apiService } from '@/src/services/api';
-import type { YoutubeTranscriptionsResponse } from '@/src/types/api';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, ExternalLink, Eye, Search, TrashIcon } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { apiService } from '@/src/services/api';
+import type { YoutubeTranscriptionsResponse } from '@/src/types/api';
 
 export default function YoutubeTranscriptionsPage() {
   const searchParams = useSearchParams();
@@ -158,7 +159,7 @@ export default function YoutubeTranscriptionsPage() {
                     e.preventDefault();
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -175,7 +176,7 @@ export default function YoutubeTranscriptionsPage() {
                   page: 1
                 }));
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
             >
               <option value="">All Channels</option>
               {available_channels.map((channel) => (
@@ -213,13 +214,13 @@ export default function YoutubeTranscriptionsPage() {
               type="date"
               value={filters.start_date}
               onChange={(e) => updateFilter('start_date', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
             <input
               type="date"
               value={filters.end_date}
               onChange={(e) => updateFilter('end_date', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
           </div>
         </div>
@@ -230,7 +231,7 @@ export default function YoutubeTranscriptionsPage() {
           <select
             value={filters.sort_by}
             onChange={(e) => updateFilter('sort_by', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
           >
             <option value="postedAt">Posted Date</option>
             <option value="processedAt">Processed Date</option>
@@ -240,7 +241,7 @@ export default function YoutubeTranscriptionsPage() {
           <select
             value={filters.direction}
             onChange={(e) => updateFilter('direction', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>

@@ -3,8 +3,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, FileText, Filter } from 'lucide-react';
 import moment from 'moment';
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
+
 import { apiService } from '@/src/services/api';
 import type { BriefingsResponse } from '@/src/types/api';
 
@@ -106,7 +107,7 @@ export default function HomePage() {
                 <select
                   value={selectedProfile}
                   onChange={(e) => setSelectedProfile(e.target.value)}
-                  className="min-w-[200px] bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:border-gray-300"
+                  className="min-w-[200px] bg-white border-2 border-gray-200 rounded-xl px-4 py-3 text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:border-gray-300"
                 >
                   <option value="">All Profiles</option>
                   {available_profiles.map((profile) => (
