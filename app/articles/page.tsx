@@ -1,20 +1,21 @@
 'use client';
 
-import { apiService } from '@/src/services/api';
-import type { ArticlesResponse } from '@/src/types/api';
-import { useQuery } from '@tanstack/react-query';
-import { Calendar, ExternalLink, Eye, Search, TrashIcon } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calendar, ExternalLink, Eye, Plus, Search, TrashIcon, X } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { apiService } from '@/src/services/api';
+import type { ArticlesResponse } from '@/src/types/api';
+
 export default function ArticlesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
-  // URL state management
   const [filters, setFilters] = useState({
     page: parseInt(searchParams.get('page') || '1'),
     sort_by: searchParams.get('sort_by') || 'published_date',
@@ -27,15 +28,18 @@ export default function ArticlesPage() {
     category: searchParams.get('category') || '',
   });
 
-  // Local search input state for debouncing
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [articleUrl, setArticleUrl] = useState('');
+  const [articleFeedProfile, setArticleFeedProfile] = useState('');
 
   const updateFilter = useCallback((key: string, value: string | number) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
-      ...(key !== 'page' && { page: 1 }) // Reset to page 1 when other filters change
+      ...(key !== 'page' && { page: 1 })
     }));
   }, []);
 
@@ -58,12 +62,12 @@ export default function ArticlesPage() {
     };
   }, [searchInput, filters.search, updateFilter]);
 
-  // Update URL when filters change (except for search input changes)
   useEffect(() => {
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value) params.set(key, value.toString());
     });
+
     router.replace(`/articles?${params.toString()}`, { scroll: false });
   }, [filters, router]);
 
@@ -75,19 +79,43 @@ export default function ArticlesPage() {
     },
   });
 
+  const addArticleMutation = useMutation({
+    mutationFn: ({ url, feedProfile }: { url: string; feedProfile: string }) => 
+      apiService.addArticle(url, feedProfile),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      setIsModalOpen(false);
+      setArticleUrl('');
+      setArticleFeedProfile('');
+      alert('Article added successfully!');
+    },
+    onError: (error: Error) => {
+      alert(`Error adding article: ${error.message || 'An error occurred'}`);
+    },
+  });
+
   const handlePresetDate = (preset: string) => {
     updateFilter('preset', preset);
-    // Clear individual date filters when using preset
     setFilters(prev => ({ ...prev, start_date: '', end_date: '', preset }));
   };
 
   const deleteArticle = async (articleId: number) => {
-    // Implement article deletion logic here
     await apiService.deleteArticle(articleId);
     alert('Article deleted successfully');
 
-    // Redirect to articles list after deletion
     router.push('/articles');
+  };
+
+  const handleAddArticle = () => {
+    if (!articleUrl.trim()) {
+      alert('Please enter a valid URL');
+      return;
+    }
+    if (!articleFeedProfile) {
+      alert('Please select a feed profile');
+      return;
+    }
+    addArticleMutation.mutate({ url: articleUrl, feedProfile: articleFeedProfile });
   };
 
   if (isLoading) {
@@ -142,6 +170,15 @@ export default function ArticlesPage() {
               Showing {(pagination.page - 1) * pagination.per_page + 1} - {Math.min(pagination.page * pagination.per_page, pagination.total_articles)} of {pagination.total_articles} articles
             </p>
           )}
+        </div>
+        <div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Article</span>
+          </button>
         </div>
       </div>
 
@@ -377,7 +414,96 @@ export default function ArticlesPage() {
           )}
         </div>
       )}
+
+      {/* Add Article Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Add Article</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
+                  Article URL
+                </label>
+                <input
+                  id="article-url"
+                  type="url"
+                  value={articleUrl}
+                  onChange={(e) => setArticleUrl(e.target.value)}
+                  placeholder="https://example.com/article"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={addArticleMutation.isPending}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddArticle();
+                    }
+                  }}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="feed-profile" className="block text-sm font-medium text-gray-700 mb-2">
+                  Feed Profile
+                </label>
+                <select
+                  id="feed-profile"
+                  value={articleFeedProfile}
+                  onChange={(e) => setArticleFeedProfile(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={addArticleMutation.isPending}
+                >
+                  <option value="">Select a profile</option>
+                  {available_profiles.map((profile) => (
+                    <option key={profile} value={profile}>
+                      {profile}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                  disabled={addArticleMutation.isPending}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={handleAddArticle}
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={addArticleMutation.isPending}
+                >
+                  {addArticleMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <span>Add Article</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-

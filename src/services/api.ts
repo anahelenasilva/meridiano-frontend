@@ -43,6 +43,9 @@ export const apiService = {
   deleteArticle: (id: number) =>
     api.delete(`/articles/${id}`),
 
+  addArticle: (url: string, feedProfile: string) =>
+    api.post('/articles', { url, feedProfile }),
+
   getProfiles: () =>
     api.get('/profiles'),
 
