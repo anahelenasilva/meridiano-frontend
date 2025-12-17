@@ -1,18 +1,19 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { Calendar, ExternalLink, Eye, Search, TrashIcon } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Calendar, ExternalLink, Eye, Plus, Search, TrashIcon, X } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { apiService } from '@/src/services/api';
-import type { YoutubeTranscriptionsResponse } from '@/src/types/api';
+import type { YoutubeChannel, YoutubeTranscriptionsResponse } from '@/src/types/api';
 
 export default function YoutubeTranscriptionsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // URL state management
   const [filters, setFilters] = useState({
@@ -30,6 +31,11 @@ export default function YoutubeTranscriptionsPage() {
   // Local search input state for debouncing
   const [searchInput, setSearchInput] = useState(filters.search);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [selectedChannelId, setSelectedChannelId] = useState('');
 
   const updateFilter = useCallback((key: string, value: string | number) => {
     setFilters(prev => ({
@@ -75,6 +81,29 @@ export default function YoutubeTranscriptionsPage() {
     },
   });
 
+  const { data: channelsData } = useQuery<YoutubeChannel[]>({
+    queryKey: ['youtube-channels'],
+    queryFn: async () => {
+      const response = await apiService.getYoutubeChannels();
+      return response.data;
+    },
+  });
+
+  const addVideoMutation = useMutation({
+    mutationFn: ({ url, channelId }: { url: string; channelId: string }) =>
+      apiService.addYoutubeTranscription(url, channelId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['youtube-transcriptions'] });
+      setIsModalOpen(false);
+      setVideoUrl('');
+      setSelectedChannelId('');
+      alert('Video added successfully! Transcription will be processed shortly.');
+    },
+    onError: (error: Error) => {
+      alert(`Error adding video: ${error.message || 'An error occurred'}`);
+    },
+  });
+
   const handlePresetDate = (preset: string) => {
     updateFilter('preset', preset);
     // Clear individual date filters when using preset
@@ -91,6 +120,18 @@ export default function YoutubeTranscriptionsPage() {
 
     // Reload the page
     window.location.reload();
+  };
+
+  const handleAddVideo = () => {
+    if (!videoUrl.trim()) {
+      alert('Please enter a valid URL');
+      return;
+    }
+    if (!selectedChannelId) {
+      alert('Please select a channel');
+      return;
+    }
+    addVideoMutation.mutate({ url: videoUrl, channelId: selectedChannelId });
   };
 
   if (isLoading) {
@@ -139,6 +180,15 @@ export default function YoutubeTranscriptionsPage() {
               Showing {(pagination.page - 1) * pagination.per_page + 1} - {Math.min(pagination.page * pagination.per_page, pagination.total_transcriptions)} of {pagination.total_transcriptions} transcriptions
             </p>
           )}
+        </div>
+        <div>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Video</span>
+          </button>
         </div>
       </div>
 
@@ -349,6 +399,96 @@ export default function YoutubeTranscriptionsPage() {
               Next
             </button>
           )}
+        </div>
+      )}
+
+      {/* Add Video Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Add YouTube Video</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="video-url" className="block text-sm font-medium text-gray-700 mb-2">
+                  Video URL
+                </label>
+                <input
+                  id="video-url"
+                  type="url"
+                  value={videoUrl}
+                  onChange={(e) => setVideoUrl(e.target.value)}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500 text-gray-700"
+                  disabled={addVideoMutation.isPending}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddVideo();
+                    }
+                  }}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="channel" className="block text-sm font-medium text-gray-700 mb-2">
+                  Channel
+                </label>
+                <select
+                  id="channel"
+                  value={selectedChannelId}
+                  onChange={(e) => setSelectedChannelId(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 [&:has(option:checked:not([value='']))]:text-gray-900"
+                  disabled={addVideoMutation.isPending}
+                >
+                  <option value="">Select a channel</option>
+                  {channelsData?.filter(channel => channel.enabled).map((channel) => (
+                    <option key={channel.id} value={channel.id}>
+                      {channel.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                  disabled={addVideoMutation.isPending}
+                >
+                  Close
+                </button>
+                <button
+                  onClick={handleAddVideo}
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={addVideoMutation.isPending}
+                >
+                  {addVideoMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <span>Add Video</span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

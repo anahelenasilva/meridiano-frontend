@@ -77,5 +77,11 @@ export const apiService = {
 
   deleteYoutubeTranscription: (id: number) =>
     api.delete(`/youtube/transcriptions/${id}`),
+
+  getYoutubeChannels: () =>
+    api.get('/youtube/channels'),
+
+  addYoutubeTranscription: (url: string, channelId: string) =>
+    api.post('/youtube/transcriptions', { url, channelId }),
 };
 

@@ -116,3 +116,11 @@ export interface YoutubeTranscriptionDetailResponse {
   related_transcriptions: YoutubeTranscription[];
 }
 
+export interface YoutubeChannel {
+  id: string;
+  url: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+}
+
