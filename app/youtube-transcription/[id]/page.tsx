@@ -1,5 +1,6 @@
 'use client';
 
+import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
 import { apiService } from '@/src/services/api';
 import type { YoutubeTranscriptionDetailResponse } from '@/src/types/api';
 import { useQuery } from '@tanstack/react-query';
@@ -85,6 +86,24 @@ export default function YoutubeTranscriptionDetailPage() {
 
       {/* Transcription Header */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        {/* Thumbnail */}
+        <div className="w-full aspect-video relative bg-gray-100">
+          <a
+            href={transcription.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full h-full"
+          >
+            <YoutubeThumbnail
+              videoUrl={transcription.videoUrl}
+              alt={transcription.videoTitle}
+              fill
+              className="object-contain hover:opacity-90 transition-opacity"
+              priority
+            />
+          </a>
+        </div>
+
         <div className="p-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
             {transcription.videoTitle}

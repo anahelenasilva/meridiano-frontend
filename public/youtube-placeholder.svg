@@ -1,0 +1,18 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1280" height="720" fill="#E5E7EB"/>
+  
+  <!-- YouTube Play Button -->
+  <g transform="translate(640, 360)">
+    <!-- Red Circle Background -->
+    <circle cx="0" cy="0" r="80" fill="#FF0000"/>
+    
+    <!-- White Play Triangle -->
+    <path d="M -25 -35 L -25 35 L 40 0 Z" fill="white"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="640" y="480" font-family="Arial, sans-serif" font-size="32" fill="#6B7280" text-anchor="middle">
+    YouTube Video
+  </text>
+</svg>

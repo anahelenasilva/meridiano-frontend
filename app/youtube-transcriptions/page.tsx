@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel, YoutubeTranscriptionsResponse } from '@/src/types/api';
 
@@ -311,6 +312,17 @@ export default function YoutubeTranscriptionsPage() {
               key={transcription.id}
               className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
+              <Link href={`/youtube-transcription/${transcription.id}`}>
+                <div className="h-48 overflow-hidden relative">
+                  <YoutubeThumbnail
+                    videoUrl={transcription.videoUrl}
+                    alt={transcription.videoTitle}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </Link>
+
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
