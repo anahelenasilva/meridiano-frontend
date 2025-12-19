@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, ExternalLink, Eye, Plus, Search, TrashIcon, X } from 'lucide-react';
+import { Calendar, ChevronDown, ExternalLink, Eye, Plus, Search, TrashIcon, X } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
 import { apiService } from '@/src/services/api';
-import type { YoutubeChannel, YoutubeTranscriptionsResponse } from '@/src/types/api';
+import type { YoutubeChannel, YoutubeTranscription, YoutubeTranscriptionsResponse } from '@/src/types/api';
 
 export default function YoutubeTranscriptionsPage() {
   const searchParams = useSearchParams();
@@ -38,12 +38,45 @@ export default function YoutubeTranscriptionsPage() {
   const [videoUrl, setVideoUrl] = useState('');
   const [selectedChannelId, setSelectedChannelId] = useState('');
 
+  // Channel grouping state - track which channels are expanded (default: all collapsed)
+  const [expandedChannels, setExpandedChannels] = useState<Set<string>>(new Set());
+
   const updateFilter = useCallback((key: string, value: string | number) => {
     setFilters(prev => ({
       ...prev,
       [key]: value,
       ...(key !== 'page' && { page: 1 }) // Reset to page 1 when other filters change
     }));
+  }, []);
+
+  // Helper function to group transcriptions by channel
+  const groupTranscriptionsByChannel = useCallback((transcriptions: YoutubeTranscription[]) => {
+    const grouped = new Map<string, YoutubeTranscription[]>();
+    
+    transcriptions.forEach((transcription) => {
+      const channelId = transcription.channelId;
+      if (!grouped.has(channelId)) {
+        grouped.set(channelId, []);
+      }
+      
+      grouped.get(channelId)!.push(transcription);
+    });
+
+    const groupedSorted = Array.from(grouped).sort((a, b) => b[1].length - a[1].length);
+    return groupedSorted;
+  }, []);
+
+  // Toggle channel expand/collapse
+  const toggleChannel = useCallback((channelId: string) => {
+    setExpandedChannels((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(channelId)) {
+        newSet.delete(channelId);
+      } else {
+        newSet.add(channelId);
+      }
+      return newSet;
+    });
   }, []);
 
   // Debounced search effect
@@ -305,7 +338,125 @@ export default function YoutubeTranscriptionsPage() {
         <div className="text-center py-12">
           <div className="text-gray-500 text-lg">No transcriptions found</div>
         </div>
+      ) : !filters.channel_id ? (
+        // Grouped view by channel when no channel filter is active
+        <div className="space-y-4">
+          {Array.from(groupTranscriptionsByChannel(transcriptions)).map(([channelId, channelTranscriptions]) => {
+            const isExpanded = expandedChannels.has(channelId);
+            const channelName = channelTranscriptions[0]?.channelName || 'Unknown Channel';
+            
+            return (
+              <div key={channelId} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                {/* Channel Header - Collapsible */}
+                <button
+                  onClick={() => toggleChannel(channelId)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                  aria-expanded={isExpanded}
+                  aria-controls={`channel-content-${channelId}`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>
+                      <ChevronDown className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <svg role="img" className='h-5 w-5 text-red-600' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                      <title>YouTube</title>
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                    </svg>
+                    <h2 className="text-xl font-bold text-gray-900">{channelName}</h2>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      {channelTranscriptions.length} {channelTranscriptions.length === 1 ? 'video' : 'videos'}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Channel Transcriptions - Expandable */}
+                {isExpanded && (
+                  <div 
+                    id={`channel-content-${channelId}`}
+                    className="p-4 pt-0 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-300"
+                  >
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                      {channelTranscriptions.map((transcription) => (
+                        <div
+                          key={transcription.id}
+                          className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                        >
+                          <Link href={`/youtube-transcription/${transcription.id}`}>
+                            <div className="h-48 overflow-hidden relative">
+                              <YoutubeThumbnail
+                                videoUrl={transcription.videoUrl}
+                                alt={transcription.videoTitle}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          </Link>
+
+                          <div className="p-6">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <Link
+                                  href={`/youtube-transcription/${transcription.id}`}
+                                  className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                                >
+                                  {transcription.videoTitle}
+                                </Link>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
+                              {transcription.postedAt && (
+                                <span>{moment(transcription.postedAt).format('MMM D, YYYY')}</span>
+                              )}
+                              <span className="text-xs text-gray-500">
+                                Processed: {moment(transcription.processedAt).format('MMM D, YYYY')}
+                              </span>
+                            </div>
+
+                            {transcription.transcriptionSummary && (
+                              <div className="text-gray-700 text-sm mb-4 line-clamp-3">
+                                {transcription.transcriptionSummary}
+                              </div>
+                            )}
+
+                            <div className="flex items-center space-x-3">
+                              <Link
+                                href={`/youtube-transcription/${transcription.id}`}
+                                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                              >
+                                <Eye className="h-4 w-4" />
+                                <span>View Details</span>
+                              </Link>
+                              <a
+                                href={transcription.videoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                                <span>Watch Video</span>
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => deleteTranscription(transcription.id)}
+                                className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                                <span>Delete</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : (
+        // Flat grid view when channel filter is active
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {transcriptions.map((transcription) => (
             <div
