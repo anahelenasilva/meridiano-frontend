@@ -393,7 +393,7 @@ export default function ArticlesPage() {
         <div className="flex items-center justify-center space-x-2">
           {pagination.page > 1 && (
             <button
-              onClick={() => updateFilter('page', pagination.page - 1)}
+              onClick={() => updateFilter('page', Number(pagination.page) - 1)}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
             >
               Previous
@@ -406,7 +406,7 @@ export default function ArticlesPage() {
 
           {pagination.page < pagination.total_pages && (
             <button
-              onClick={() => updateFilter('page', pagination.page + 1)}
+              onClick={() => updateFilter('page', Number(pagination.page) + 1)}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
             >
               Next
