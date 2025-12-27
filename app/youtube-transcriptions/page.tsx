@@ -5,13 +5,13 @@ import { Calendar, ChevronDown, ExternalLink, Eye, Plus, Search, TrashIcon, X } 
 import moment from 'moment';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel, YoutubeTranscription, YoutubeTranscriptionsResponse } from '@/src/types/api';
 
-export default function YoutubeTranscriptionsPage() {
+function YoutubeTranscriptionsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -655,5 +655,17 @@ export default function YoutubeTranscriptionsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function YoutubeTranscriptionsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-96">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <YoutubeTranscriptionsContent />
+    </Suspense>
   );
 }
