@@ -41,7 +41,6 @@ export default function ArticleDetailPage() {
   }
 
   if (error || !data || !data.article) {
-    console.log("data", JSON.stringify(data));
     return (
       <div className="text-center py-12">
         <div className="text-red-600 text-lg mb-4">
