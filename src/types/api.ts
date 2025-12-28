@@ -70,12 +70,10 @@ export interface ArticleDetailResponse {
 }
 
 export interface BriefingDetailResponse {
-  brief: {
-    id: number;
-    brief_markdown: string;
-    generated_at: Date;
-    feed_profile: string;
-  };
+  id: number;
+  brief_markdown: string;
+  generated_at: Date;
+  feed_profile: string;
 }
 
 export interface YoutubeTranscription {

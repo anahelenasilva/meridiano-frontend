@@ -1,23 +1,24 @@
 'use client';
 
+import { apiService } from '@/src/services/api';
+import type { BriefingDetailResponse } from '@/src/types/api';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import moment from 'moment';
-import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { apiService } from '@/src/services/api';
-import type { BriefingDetailResponse } from '@/src/types/api';
+import ReactMarkdown from 'react-markdown';
 
 export default function BriefingDetailPage() {
   const params = useParams();
   const id = params?.id as string;
   const briefingId = parseInt(id || '0');
 
-  const { data, isLoading, error } = useQuery<BriefingDetailResponse>({
+  const { data: brief, isLoading, error } = useQuery<BriefingDetailResponse>({
     queryKey: ['briefing', briefingId],
     queryFn: async () => {
       const response = await apiService.getBriefing(briefingId);
+      console.log("response", JSON.stringify(response.data));
       return response.data;
     },
     enabled: !isNaN(briefingId),
@@ -31,7 +32,7 @@ export default function BriefingDetailPage() {
     );
   }
 
-  if (error || !data) {
+  if (error || !brief) {
     return (
       <div className="text-center py-12">
         <div className="text-red-600 text-lg mb-4">Error loading briefing</div>
@@ -44,8 +45,6 @@ export default function BriefingDetailPage() {
       </div>
     );
   }
-
-  const { brief } = data;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
