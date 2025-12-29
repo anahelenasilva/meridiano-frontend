@@ -130,16 +130,17 @@ function YoutubeTranscriptionsContent() {
     );
   }
 
-  const { transcriptions,  available_channels } = data || {
+  const { transcriptions } = data || {
     transcriptions: [],
-    pagination: { page: 1, per_page: 20, total_pages: 0, total_transcriptions: 0 },
-    available_channels: []
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            YouTube Transcriptions
+          </h1>
         <div>
           <button
             onClick={() => setIsModalOpen(true)}
