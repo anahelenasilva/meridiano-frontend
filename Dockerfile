@@ -1,5 +1,5 @@
 # Next.js Dockerfile for Static Export
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Install pnpm (or npm/yarn)
 RUN npm install -g pnpm
@@ -27,7 +27,7 @@ FROM nginx:alpine
 
 # Copy built files from builder stage
 # Next.js static export outputs to 'out' directory by default
-COPY --from=builder /app/out /usr/share/nginx/html/app2
+COPY --from=builder /app/out /usr/share/nginx/html/meridian
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -37,7 +37,7 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://127.0.0.1/app2/ || exit 1
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1/meridian/ || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
