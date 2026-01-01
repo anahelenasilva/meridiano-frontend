@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: '/meridian',
-  output: 'export',
   images: {
     unoptimized: true,
     remotePatterns: [
