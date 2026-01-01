@@ -99,7 +99,7 @@ function ArticlesContent() {
     setFilters(prev => ({ ...prev, start_date: '', end_date: '', preset }));
   };
 
-  const deleteArticle = async (articleId: number) => {
+  const deleteArticle = async (articleId: string) => {
     await apiService.deleteArticle(articleId);
     alert('Article deleted successfully');
 

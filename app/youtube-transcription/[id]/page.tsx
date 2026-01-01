@@ -12,8 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 export default function YoutubeTranscriptionDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params?.id as string;
-  const transcriptionId = parseInt(id || '0');
+  const transcriptionId = params?.id as string;
 
   const { data, isLoading, error } = useQuery<YoutubeTranscriptionDetailResponse>({
     queryKey: ['youtube-transcription', transcriptionId],
@@ -21,7 +20,7 @@ export default function YoutubeTranscriptionDetailPage() {
       const response = await apiService.getYoutubeTranscription(transcriptionId);
       return response.data;
     },
-    enabled: !isNaN(transcriptionId),
+    enabled: !!transcriptionId,
   });
 
   const deleteTranscription = async () => {

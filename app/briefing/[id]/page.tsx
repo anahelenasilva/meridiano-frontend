@@ -11,8 +11,7 @@ import ReactMarkdown from 'react-markdown';
 
 export default function BriefingDetailPage() {
   const params = useParams();
-  const id = params?.id as string;
-  const briefingId = parseInt(id || '0');
+  const briefingId = params?.id as string;
 
   const { data: brief, isLoading, error } = useQuery<BriefingDetailResponse>({
     queryKey: ['briefing', briefingId],
@@ -21,7 +20,7 @@ export default function BriefingDetailPage() {
       console.log("response", JSON.stringify(response.data));
       return response.data;
     },
-    enabled: !isNaN(briefingId),
+    enabled: !!briefingId,
   });
 
   if (isLoading) {
