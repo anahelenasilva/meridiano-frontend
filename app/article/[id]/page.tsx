@@ -12,8 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 export default function ArticleDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params?.id as string;
-  const articleId = parseInt(id || '0');
+  const articleId = params?.id as string;
 
   const { data, isLoading, error } = useQuery<ArticleDetailResponse>({
     queryKey: ['article', articleId],
@@ -21,7 +20,7 @@ export default function ArticleDetailPage() {
       const response = await apiService.getArticle(articleId);
       return response.data;
     },
-    enabled: !isNaN(articleId),
+    enabled: !!articleId,
   });
 
   const deleteArticle = async () => {

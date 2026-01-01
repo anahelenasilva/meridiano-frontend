@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, ExternalLink, Eye, Plus, TrashIcon, X } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Suspense, useCallback, useState } from 'react';
 
 import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
@@ -12,7 +11,6 @@ import { apiService } from '@/src/services/api';
 import type { YoutubeChannel, YoutubeTranscription, YoutubeTranscriptionsResponse } from '@/src/types/api';
 
 function YoutubeTranscriptionsContent() {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   // Modal state
@@ -26,13 +24,13 @@ function YoutubeTranscriptionsContent() {
   // Helper function to group transcriptions by channel
   const groupTranscriptionsByChannel = useCallback((transcriptions: YoutubeTranscription[]) => {
     const grouped = new Map<string, YoutubeTranscription[]>();
-    
+
     transcriptions.forEach((transcription) => {
       const channelId = transcription.channelId;
       if (!grouped.has(channelId)) {
         grouped.set(channelId, []);
       }
-      
+
       grouped.get(channelId)!.push(transcription);
     });
 
@@ -84,11 +82,11 @@ function YoutubeTranscriptionsContent() {
     },
   });
 
-  const deleteTranscription = async (transcriptionId: number) => {
+  const deleteTranscription = async (transcriptionId: string) => {
     if (!confirm('Are you sure you want to delete this transcription?')) {
       return;
     }
-    
+
     await apiService.deleteYoutubeTranscription(transcriptionId);
     alert('Transcription deleted successfully');
 
@@ -138,9 +136,9 @@ function YoutubeTranscriptionsContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            YouTube Transcriptions
-          </h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          YouTube Transcriptions
+        </h1>
         <div>
           <button
             onClick={() => setIsModalOpen(true)}
@@ -163,7 +161,7 @@ function YoutubeTranscriptionsContent() {
           {Array.from(groupTranscriptionsByChannel(transcriptions)).map(([channelId, channelTranscriptions]) => {
             const isExpanded = expandedChannels.has(channelId);
             const channelName = channelTranscriptions[0]?.channelName || 'Unknown Channel';
-            
+
             return (
               <div key={channelId} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 {/* Channel Header - Collapsible */}
@@ -179,7 +177,7 @@ function YoutubeTranscriptionsContent() {
                     </div>
                     <svg role="img" className='h-5 w-5 text-red-600' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                       <title>YouTube</title>
-                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                     </svg>
                     <h2 className="text-xl font-bold text-gray-900">{channelName}</h2>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
@@ -190,7 +188,7 @@ function YoutubeTranscriptionsContent() {
 
                 {/* Channel Transcriptions - Expandable */}
                 {isExpanded && (
-                  <div 
+                  <div
                     id={`channel-content-${channelId}`}
                     className="p-4 pt-0 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-300"
                   >
@@ -274,7 +272,7 @@ function YoutubeTranscriptionsContent() {
             );
           })}
         </div>
-       )}
+      )}
 
       {/* Add Video Modal */}
       {isModalOpen && (

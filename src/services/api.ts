@@ -14,7 +14,7 @@ export const apiService = {
   getBriefings: (feedProfile?: string) =>
     api.get(`/briefings${feedProfile ? `?feed_profile=${feedProfile}` : ''}`),
 
-  getBriefing: (id: number) =>
+  getBriefing: (id: string) =>
     api.get(`/briefings/${id}`),
 
   getArticles: (params?: {
@@ -37,10 +37,10 @@ export const apiService = {
     return api.get(`/articles?${searchParams.toString()}`);
   },
 
-  getArticle: (id: number) =>
+  getArticle: (id: string) =>
     api.get(`/articles/${id}`),
 
-  deleteArticle: (id: number) =>
+  deleteArticle: (id: string) =>
     api.delete(`/articles/${id}`),
 
   addArticle: (url: string, feedProfile: string) =>
@@ -56,10 +56,10 @@ export const apiService = {
     return api.get(`/youtube/transcriptions`);
   },
 
-  getYoutubeTranscription: (id: number) =>
+  getYoutubeTranscription: (id: string) =>
     api.get(`/youtube/transcriptions/${id}`),
 
-  deleteYoutubeTranscription: (id: number) =>
+  deleteYoutubeTranscription: (id: string) =>
     api.delete(`/youtube/transcriptions/${id}`),
 
   getYoutubeChannels: () =>

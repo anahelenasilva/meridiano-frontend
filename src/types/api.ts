@@ -11,7 +11,7 @@ const ArticleCategory = {
 export type ArticleCategory = typeof ArticleCategory[keyof typeof ArticleCategory];
 
 export interface Article {
-  id: number;
+  id: string;
   url: string;
   title: string;
   published_date: string;
@@ -28,7 +28,7 @@ export interface Article {
 }
 
 export interface Briefing {
-  id: number;
+  id: string;
   title: string;
   content: string;
   generated_at: string;
@@ -70,14 +70,14 @@ export interface ArticleDetailResponse {
 }
 
 export interface BriefingDetailResponse {
-  id: number;
+  id: string;
   brief_markdown: string;
   generated_at: Date;
   feed_profile: string;
 }
 
 export interface YoutubeTranscription {
-  id: number;
+  id: string;
   channelId: string;
   channelName: string;
   videoTitle: string;
