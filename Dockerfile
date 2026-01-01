@@ -1,43 +1,40 @@
-# Next.js Dockerfile for Static Export
-FROM node:20-alpine AS builder
+# Next.js Dockerfile for Standalone Mode
+FROM node:20-alpine AS base
 
-# Install pnpm (or npm/yarn)
 RUN npm install -g pnpm
 
+FROM base AS deps
 WORKDIR /app
 
-# Copy package files
 COPY package.json pnpm-lock.yaml* ./
-
-# Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+FROM base AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build arguments for environment variables
 ARG NEXT_PUBLIC_API_BASE_URL
 ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 
-# Build Next.js static export
 RUN pnpm run build
 
-# Production stage with nginx
-FROM nginx:alpine
+FROM base AS runner
+WORKDIR /app
 
-# Copy built files from builder stage
-# Next.js static export outputs to 'out' directory by default
-COPY --from=builder /app/out /usr/share/nginx/html/meridian
+ENV NODE_ENV=production
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
-# Expose port
-EXPOSE 80
+EXPOSE 3006
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://127.0.0.1/meridian/ || exit 1
+ENV PORT=3006
+ENV HOSTNAME="0.0.0.0"
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1:3006/meridian/ || exit 1
+
+CMD ["node", "server.js"]

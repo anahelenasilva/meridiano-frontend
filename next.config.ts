@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   basePath: '/meridian',
+  output: 'standalone',
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -19,15 +20,6 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
   },
   trailingSlash: true,
-  async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiUrl}/api/:path*`,
-      },
-    ];
-  },
 };
 
 export default nextConfig;
