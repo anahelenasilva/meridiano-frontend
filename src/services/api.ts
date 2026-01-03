@@ -65,6 +65,9 @@ export const apiService = {
   getYoutubeChannels: () =>
     api.get('/youtube/channels'),
 
+  updateChannelEnabled: (channelId: string, enabled: boolean) =>
+    api.patch(`/youtube/channels/${channelId}`, { enabled }),
+
   addYoutubeTranscription: (url: string, channelId: string) =>
     api.post('/youtube/transcriptions', { url, channelId }),
 };

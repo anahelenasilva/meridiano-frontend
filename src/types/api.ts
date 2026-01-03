@@ -100,9 +100,11 @@ export interface YoutubeTranscriptionDetailResponse {
 
 export interface YoutubeChannel {
   id: string;
+  channelId: string;
   url: string;
   name: string;
   description: string;
   enabled: boolean;
+  maxVideos?: number | null;
 }
 
