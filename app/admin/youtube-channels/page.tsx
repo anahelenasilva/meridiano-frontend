@@ -1,14 +1,15 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Settings } from 'lucide-react';
-import { Suspense } from 'react';
+import { ExternalLink, Loader2, Settings } from 'lucide-react';
+import { Suspense, useState } from 'react';
 
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel } from '@/src/types/api';
 
 function YoutubeChannelsAdminContent() {
     const queryClient = useQueryClient();
+    const [pendingChannelId, setPendingChannelId] = useState<string | null>(null);
 
     const { data: channels, isLoading, error } = useQuery<YoutubeChannel[]>({
         queryKey: ['youtube-channels'],
@@ -23,14 +24,17 @@ function YoutubeChannelsAdminContent() {
             apiService.updateChannelEnabled(channelId, enabled),
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['youtube-channels'] });
+            setPendingChannelId(null);
             alert(response.data.message || 'Channel updated successfully!');
         },
         onError: (error: Error) => {
+            setPendingChannelId(null);
             alert(`Error updating channel: ${error.message || 'An error occurred'}`);
         },
     });
 
     const handleToggle = (channelId: string, currentEnabled: boolean) => {
+        setPendingChannelId(channelId);
         updateChannelMutation.mutate({ channelId, enabled: !currentEnabled });
     };
 
@@ -131,16 +135,20 @@ function YoutubeChannelsAdminContent() {
                                         </span>
                                         <button
                                             onClick={() => handleToggle(channel.channelId, channel.enabled)}
-                                            disabled={updateChannelMutation.isPending}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
+                                            disabled={pendingChannelId === channel.channelId}
+                                            className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
                                                 }`}
                                             role="switch"
                                             aria-checked={channel.enabled}
                                         >
-                                            <span
-                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
-                                                    }`}
-                                            />
+                                            {pendingChannelId === channel.channelId ? (
+                                                <Loader2 className="h-3 w-3 text-white animate-spin" />
+                                            ) : (
+                                                <span
+                                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
+                                                        }`}
+                                                />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -201,16 +209,20 @@ function YoutubeChannelsAdminContent() {
                                         </span>
                                         <button
                                             onClick={() => handleToggle(channel.channelId, channel.enabled)}
-                                            disabled={updateChannelMutation.isPending}
-                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
+                                            disabled={pendingChannelId === channel.channelId}
+                                            className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
                                                 }`}
                                             role="switch"
                                             aria-checked={channel.enabled}
                                         >
-                                            <span
-                                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
-                                                    }`}
-                                            />
+                                            {pendingChannelId === channel.channelId ? (
+                                                <Loader2 className="h-3 w-3 text-white animate-spin" />
+                                            ) : (
+                                                <span
+                                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
+                                                        }`}
+                                                />
+                                            )}
                                         </button>
                                     </div>
                                 </div>
@@ -234,4 +246,3 @@ export default function YoutubeChannelsAdminPage() {
         </Suspense>
     );
 }
-
