@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 // Use /api which will be proxied by Next.js rewrites to the backend
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'api';
 
 export const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/${API_BASE_URL}`,
   headers: {
     'Content-Type': 'application/json',
   },
