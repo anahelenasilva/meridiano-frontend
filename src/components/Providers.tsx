@@ -22,8 +22,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       <ToastContainer
-        newestOnTop={true}
-        rtl={false}
         pauseOnFocusLoss
         theme="light"
         limit={5}
