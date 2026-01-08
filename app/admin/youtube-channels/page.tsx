@@ -6,6 +6,8 @@ import { Suspense, useState } from 'react';
 
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel } from '@/src/types/api';
+import { toast } from '@/src/utils/toast';
+import { MESSAGES } from '@/src/constants/messages';
 
 function YoutubeChannelsAdminContent() {
     const queryClient = useQueryClient();
@@ -25,11 +27,11 @@ function YoutubeChannelsAdminContent() {
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: ['youtube-channels'] });
             setPendingChannelId(null);
-            alert(response.data.message || 'Channel updated successfully!');
+            toast.success(response.data.message || MESSAGES.SUCCESS.CHANNEL_UPDATED);
         },
         onError: (error: Error) => {
             setPendingChannelId(null);
-            alert(`Error updating channel: ${error.message || 'An error occurred'}`);
+            toast.error(`${MESSAGES.ERROR.CHANNEL_UPDATE} ${error.message || MESSAGES.ERROR.GENERIC}`);
         },
     });
 

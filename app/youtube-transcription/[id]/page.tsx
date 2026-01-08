@@ -8,6 +8,8 @@ import { ArrowLeft, Calendar, TrashIcon } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from '@/src/utils/toast';
+import { MESSAGES } from '@/src/constants/messages';
 
 export default function YoutubeTranscriptionDetailPage() {
   const params = useParams();
@@ -24,12 +26,12 @@ export default function YoutubeTranscriptionDetailPage() {
   });
 
   const deleteTranscription = async () => {
-    if (!confirm('Are you sure you want to delete this transcription?')) {
+    if (!confirm(MESSAGES.CONFIRM.DELETE_TRANSCRIPTION)) {
       return;
     }
     
     await apiService.deleteYoutubeTranscription(transcriptionId);
-    alert('Transcription deleted successfully');
+    toast.success(MESSAGES.SUCCESS.TRANSCRIPTION_DELETED);
 
     // Redirect to transcriptions list after deletion
     router.push('/youtube-transcriptions');

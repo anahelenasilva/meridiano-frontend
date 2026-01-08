@@ -8,6 +8,8 @@ import moment from 'moment';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from '@/src/utils/toast';
+import { MESSAGES } from '@/src/constants/messages';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -25,7 +27,7 @@ export default function ArticleDetailPage() {
 
   const deleteArticle = async () => {
     await apiService.deleteArticle(articleId);
-    alert('Article deleted successfully');
+    toast.success(MESSAGES.SUCCESS.ARTICLE_DELETED);
 
     // Redirect to articles list after deletion
     router.push('/articles');

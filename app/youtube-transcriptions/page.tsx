@@ -9,6 +9,8 @@ import { Suspense, useCallback, useState } from 'react';
 import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel, YoutubeTranscription, YoutubeTranscriptionsResponse } from '@/src/types/api';
+import { toast } from '@/src/utils/toast';
+import { MESSAGES } from '@/src/constants/messages';
 
 function YoutubeTranscriptionsContent() {
   const queryClient = useQueryClient();
@@ -75,20 +77,20 @@ function YoutubeTranscriptionsContent() {
       setIsModalOpen(false);
       setVideoUrl('');
       setSelectedChannelId('');
-      alert('Video added successfully! Transcription will be processed shortly.');
+      toast.success(MESSAGES.SUCCESS.VIDEO_ADDED);
     },
     onError: (error: Error) => {
-      alert(`Error adding video: ${error.message || 'An error occurred'}`);
+      toast.error(`${MESSAGES.ERROR.VIDEO_ADD} ${error.message || MESSAGES.ERROR.GENERIC}`);
     },
   });
 
   const deleteTranscription = async (transcriptionId: string) => {
-    if (!confirm('Are you sure you want to delete this transcription?')) {
+    if (!confirm(MESSAGES.CONFIRM.DELETE_TRANSCRIPTION)) {
       return;
     }
 
     await apiService.deleteYoutubeTranscription(transcriptionId);
-    alert('Transcription deleted successfully');
+    toast.success(MESSAGES.SUCCESS.TRANSCRIPTION_DELETED);
 
     // Reload the page
     window.location.reload();
@@ -96,11 +98,11 @@ function YoutubeTranscriptionsContent() {
 
   const handleAddVideo = () => {
     if (!videoUrl.trim()) {
-      alert('Please enter a valid URL');
+      toast.error(MESSAGES.VALIDATION.INVALID_URL);
       return;
     }
     if (!selectedChannelId) {
-      alert('Please select a channel');
+      toast.error(MESSAGES.VALIDATION.SELECT_CHANNEL);
       return;
     }
     addVideoMutation.mutate({ url: videoUrl, channelId: selectedChannelId });
