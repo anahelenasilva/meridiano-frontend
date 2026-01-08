@@ -12,9 +12,9 @@ export const MESSAGES = {
 
   // Error messages
   ERROR: {
-    CHANNEL_UPDATE: 'Error updating channel:',
-    VIDEO_ADD: 'Error adding video:',
-    ARTICLE_ADD: 'Error adding article:',
+    CHANNEL_UPDATE: 'Error updating channel: ',
+    VIDEO_ADD: 'Error adding video: ',
+    ARTICLE_ADD: 'Error adding article: ',
     GENERIC: 'An error occurred',
     LOADING_CHANNELS: 'Error loading channels',
     LOADING_TRANSCRIPTIONS: 'Error loading transcriptions',
