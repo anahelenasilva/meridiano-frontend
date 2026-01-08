@@ -1,15 +1,15 @@
 'use client';
 
+import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { ArticleDetailResponse } from '@/src/types/api';
+import { toast } from '@/src/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Calendar, ExternalLink, Tag, TrashIcon } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { toast } from '@/src/utils/toast';
-import { MESSAGES } from '@/src/constants/messages';
 
 export default function ArticleDetailPage() {
   const params = useParams();
@@ -26,11 +26,16 @@ export default function ArticleDetailPage() {
   });
 
   const deleteArticle = async () => {
-    await apiService.deleteArticle(articleId);
-    toast.success(MESSAGES.SUCCESS.ARTICLE_DELETED);
+    try {
+      await apiService.deleteArticle(articleId);
+      toast.success(MESSAGES.SUCCESS.ARTICLE_DELETED);
 
-    // Redirect to articles list after deletion
-    router.push('/articles');
+      // Redirect to articles list after deletion
+      router.push('/articles');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`${MESSAGES.ERROR.ARTICLE_DELETE}${errorMessage}`);
+    }
   };
 
   if (isLoading) {
@@ -114,11 +119,10 @@ export default function ArticleDetailPage() {
               Source: {article.feed_source}
             </div>
             {article.impact_rating && (
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${
-                article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm ${article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
                 article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
+                  'bg-gray-100 text-gray-800'
+                }`}>
                 Impact Rating: {article.impact_rating}/10
               </div>
             )}

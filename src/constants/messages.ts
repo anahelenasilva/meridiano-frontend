@@ -15,6 +15,8 @@ export const MESSAGES = {
     CHANNEL_UPDATE: 'Error updating channel: ',
     VIDEO_ADD: 'Error adding video: ',
     ARTICLE_ADD: 'Error adding article: ',
+    ARTICLE_DELETE: 'Error deleting article: ',
+    TRANSCRIPTION_DELETE: 'Error deleting transcription: ',
     GENERIC: 'An error occurred',
     LOADING_CHANNELS: 'Error loading channels',
     LOADING_TRANSCRIPTIONS: 'Error loading transcriptions',

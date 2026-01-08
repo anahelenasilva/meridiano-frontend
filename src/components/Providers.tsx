@@ -22,15 +22,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       {children}
       <ToastContainer
-        position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
         newestOnTop={true}
-        closeOnClick
         rtl={false}
         pauseOnFocusLoss
-        draggable
-        pauseOnHover
         theme="light"
         limit={5}
       />
