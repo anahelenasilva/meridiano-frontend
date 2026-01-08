@@ -39,13 +39,16 @@ pnpm install
 
 2. Configure the API endpoint (optional):
 
-Create a `.env.local` file in the root directory:
+The API URL is **automatically detected** based on your current hostname. This means:
+- Accessing via `http://localhost:3000` → API calls go to `http://localhost:3001`
+- Accessing via `http://192.168.1.18:3000` → API calls go to `http://192.168.1.18:3001`
+- Accessing via Tailscale `http://100.x.x.x:3000` → API calls go to `http://100.x.x.x:3001`
+
+If needed, you can override this by creating a `.env.local` file (used as fallback for SSR):
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3001
 ```
-
-If not set, the app will default to `http://localhost:3001` for API requests.
 
 3. Run the development server:
 
@@ -76,9 +79,12 @@ pnpm dev
 
 ## API Configuration
 
-The app uses Next.js rewrites to proxy API requests. By default, all requests to `/api/*` are forwarded to `http://localhost:3001/api/*`.
+The app **dynamically detects the API URL** based on the current hostname:
+- It automatically uses the same hostname as the frontend but with port `3001`
+- This works seamlessly with localhost, local network IPs, and Tailscale IPs
+- No configuration needed for different network environments!
 
-To change the backend URL, set the `NEXT_PUBLIC_API_BASE_URL` environment variable or modify `next.config.ts`.
+For server-side rendering (SSR), you can optionally set `NEXT_PUBLIC_API_BASE_URL` as a fallback in your `.env.local` file.
 
 ## Available Scripts
 

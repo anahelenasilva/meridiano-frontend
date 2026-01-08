@@ -1,10 +1,29 @@
 import axios from 'axios';
 
-// Use /api which will be proxied by Next.js rewrites to the backend
+/**
+ * Get the API base URL dynamically based on the current hostname
+ * This works for:
+ * - Tailscale access
+ * - Local network
+ * - Localhost
+ */
+export const getApiBaseUrl = (): string => {
+  // If running in browser, use current hostname
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = '3001'; // Your API port
+    return `${protocol}//${hostname}:${port}`;
+  }
+
+  // Fallback for server-side rendering (SSR)
+  return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+};
+
 const API_BASE_URL = 'api';
 
 export const api = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/${API_BASE_URL}`,
+  baseURL: `${getApiBaseUrl()}/${API_BASE_URL}`,
   headers: {
     'Content-Type': 'application/json',
   },
