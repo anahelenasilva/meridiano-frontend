@@ -4,10 +4,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ExternalLink, Loader2, Settings } from 'lucide-react';
 import { Suspense, useState } from 'react';
 
+import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { YoutubeChannel } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
-import { MESSAGES } from '@/src/constants/messages';
 
 function YoutubeChannelsAdminContent() {
     const queryClient = useQueryClient();
