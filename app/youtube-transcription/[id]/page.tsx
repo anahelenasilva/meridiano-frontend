@@ -1,8 +1,10 @@
 'use client';
 
 import { YoutubeThumbnail } from '@/src/components/YoutubeThumbnail';
+import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { YoutubeTranscriptionDetailResponse } from '@/src/types/api';
+import { toast } from '@/src/utils/toast';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Calendar, TrashIcon } from 'lucide-react';
 import moment from 'moment';
@@ -24,15 +26,20 @@ export default function YoutubeTranscriptionDetailPage() {
   });
 
   const deleteTranscription = async () => {
-    if (!confirm('Are you sure you want to delete this transcription?')) {
+    if (!confirm(MESSAGES.CONFIRM.DELETE_TRANSCRIPTION)) {
       return;
     }
-    
-    await apiService.deleteYoutubeTranscription(transcriptionId);
-    alert('Transcription deleted successfully');
 
-    // Redirect to transcriptions list after deletion
-    router.push('/youtube-transcriptions');
+    try {
+      await apiService.deleteYoutubeTranscription(transcriptionId);
+      toast.success(MESSAGES.SUCCESS.TRANSCRIPTION_DELETED);
+
+      // Redirect to transcriptions list after deletion
+      router.push('/youtube-transcriptions');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`${MESSAGES.ERROR.TRANSCRIPTION_DELETE}${errorMessage}`);
+    }
   };
 
   if (isLoading) {
@@ -111,7 +118,7 @@ export default function YoutubeTranscriptionDetailPage() {
           <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
             <div className="flex items-center space-x-2">
               {/* <Youtube className="h-4 w-4 text-red-600" /> */}
-              <svg role="img" className='h-4 w-4 text-red-600' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+              <svg role="img" className='h-4 w-4 text-red-600' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
                 {transcription.channelName}
               </span>
@@ -138,7 +145,7 @@ export default function YoutubeTranscriptionDetailPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
               >
-                <svg role="img" className='h-5 w-5' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <svg role="img" className='h-5 w-5' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>YouTube</title><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
                 {/* <Youtube className="h-5 w-5" /> */}
                 <span>Watch on YouTube</span>
               </a>

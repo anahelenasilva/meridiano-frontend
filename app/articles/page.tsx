@@ -10,6 +10,8 @@ import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
 import { apiService } from '@/src/services/api';
 import type { ArticlesResponse } from '@/src/types/api';
+import { toast } from '@/src/utils/toast';
+import { MESSAGES } from '@/src/constants/messages';
 
 function ArticlesContent() {
   const searchParams = useSearchParams();
@@ -87,10 +89,10 @@ function ArticlesContent() {
       setIsModalOpen(false);
       setArticleUrl('');
       setArticleFeedProfile('');
-      alert('Article added successfully!');
+      toast.success(MESSAGES.SUCCESS.ARTICLE_ADDED);
     },
     onError: (error: Error) => {
-      alert(`Error adding article: ${error.message || 'An error occurred'}`);
+      toast.error(`${MESSAGES.ERROR.ARTICLE_ADD} ${error.message || MESSAGES.ERROR.GENERIC}`);
     },
   });
 
@@ -101,18 +103,18 @@ function ArticlesContent() {
 
   const deleteArticle = async (articleId: string) => {
     await apiService.deleteArticle(articleId);
-    alert('Article deleted successfully');
+    toast.success(MESSAGES.SUCCESS.ARTICLE_DELETED);
 
     router.push('/articles');
   };
 
   const handleAddArticle = () => {
     if (!articleUrl.trim()) {
-      alert('Please enter a valid URL');
+      toast.error(MESSAGES.VALIDATION.INVALID_URL);
       return;
     }
     if (!articleFeedProfile) {
-      alert('Please select a feed profile');
+      toast.error(MESSAGES.VALIDATION.SELECT_FEED_PROFILE);
       return;
     }
     addArticleMutation.mutate({ url: articleUrl, feedProfile: articleFeedProfile });
