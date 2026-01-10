@@ -101,6 +101,9 @@ export const apiService = {
   getBookmarks: (userId: string, page: number = 1, perPage: number = 20) =>
     api.get(`/bookmarks?user_id=${userId}&page=${page}&per_page=${perPage}`),
 
+  checkBookmark: (userId: string, articleId: string) =>
+    api.get(`/bookmarks/check/${articleId}?user_id=${userId}`),
+
   removeBookmark: (userId: string, articleId: string) =>
     api.delete(`/bookmarks?user_id=${userId}&article_id=${articleId}`),
 };

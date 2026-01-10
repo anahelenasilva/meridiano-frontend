@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/src/contexts/AuthContext';
 import { apiService } from '@/src/services/api';
-import type { Bookmark as BookmarkType } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
@@ -23,20 +22,15 @@ export default function BookmarkButton({
     const { userId } = useAuth();
     const queryClient = useQueryClient();
 
-    // Query to check if article is bookmarked (if not provided via props)
     const { data: bookmarkStatus } = useQuery({
         queryKey: ['bookmark-status', userId, articleId],
         queryFn: async () => {
             if (!userId) return false;
             try {
-                const response = await apiService.getBookmarks(userId, 1, 100);
-                const isBookmarked = response.data.bookmarks.some(
-                    (bookmark: BookmarkType) => bookmark.article_id === articleId
-                );
-                return isBookmarked;
+                const response = await apiService.checkBookmark(userId, articleId);
+                return response.data.isBookmarked as boolean;
             } catch (error) {
                 console.error('Error checking bookmark status:', error);
-                toast.error('Failed to check bookmark status');
                 return false;
             }
         },
@@ -46,7 +40,6 @@ export default function BookmarkButton({
 
     const isBookmarked = initialIsBookmarked ?? bookmarkStatus ?? false;
 
-    // Add bookmark mutation
     const addBookmarkMutation = useMutation({
         mutationFn: () => {
             if (!userId) throw new Error('User not authenticated');
@@ -62,7 +55,6 @@ export default function BookmarkButton({
         },
     });
 
-    // Remove bookmark mutation
     const removeBookmarkMutation = useMutation({
         mutationFn: () => {
             if (!userId) throw new Error('User not authenticated');
