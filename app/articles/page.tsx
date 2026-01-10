@@ -8,10 +8,11 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 
+import BookmarkButton from '@/src/components/BookmarkButton';
+import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { ArticlesResponse } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
-import { MESSAGES } from '@/src/constants/messages';
 
 function ArticlesContent() {
   const searchParams = useSearchParams();
@@ -82,7 +83,7 @@ function ArticlesContent() {
   });
 
   const addArticleMutation = useMutation({
-    mutationFn: ({ url, feedProfile }: { url: string; feedProfile: string }) => 
+    mutationFn: ({ url, feedProfile }: { url: string; feedProfile: string }) =>
       apiService.addArticle(url, feedProfile),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['articles'] });
@@ -245,11 +246,10 @@ function ArticlesContent() {
                 <button
                   key={preset}
                   onClick={() => handlePresetDate(preset)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    filters.preset === preset
+                  className={`px-3 py-1 text-xs rounded-full transition-colors ${filters.preset === preset
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   {preset.replace('_', ' ').replace('last ', 'Last ')}
                 </button>
@@ -337,11 +337,10 @@ function ArticlesContent() {
                     {article.feed_profile}
                   </span>
                   {article.impact_rating && (
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${
-                      article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
-                      article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
+                        article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                      }`}>
                       Impact: {article.impact_rating}/10
                     </span>
                   )}
@@ -358,31 +357,34 @@ function ArticlesContent() {
                   </div>
                 )}
 
-                <div className="flex items-center space-x-3">
-                  <Link
-                    href={`/article/${article.id}`}
-                    className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span>Read More</span>
-                  </Link>
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Original</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => deleteArticle(article.id)}
-                    className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
-                  >
-                    <TrashIcon className="h-4 w-4" />
-                    <span>Delete</span>
-                  </button>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Link
+                      href={`/article/${article.id}`}
+                      className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                      <Eye className="h-4 w-4" />
+                      <span>Read More</span>
+                    </Link>
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      <span>Original</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => deleteArticle(article.id)}
+                      className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                  <BookmarkButton articleId={article.id} size="sm" />
                 </div>
               </div>
             </div>

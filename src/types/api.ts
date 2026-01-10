@@ -108,3 +108,22 @@ export interface YoutubeChannel {
   maxVideos?: number | null;
 }
 
+export interface Bookmark {
+  id: string;
+  user_id: string;
+  article_id: string;
+  created_at: Date;
+  article: Article;
+}
+
+export interface BookmarksResponse {
+  bookmarks: Bookmark[];
+  total: number;
+  page: number;
+  perPage: number;
+  totalPages: number;
+}
+
+export interface BookmarkCheckResponse {
+  isBookmarked: boolean;
+}

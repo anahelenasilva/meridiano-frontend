@@ -8,6 +8,10 @@ import axios from 'axios';
  * - Localhost
  */
 export const getApiBaseUrl = (): string => {
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+  }
+
   // If running in browser, use current hostname
   if (typeof window !== 'undefined') {
     const protocol = window.location.protocol;
@@ -89,5 +93,18 @@ export const apiService = {
 
   addYoutubeTranscription: (url: string, channelId: string) =>
     api.post('/youtube/transcriptions', { url, channelId }),
+
+  // Bookmark endpoints
+  addBookmark: (userId: string, articleId: string) =>
+    api.post('/bookmarks', { user_id: userId, article_id: articleId }),
+
+  getBookmarks: (userId: string, page: number = 1, perPage: number = 20) =>
+    api.get(`/bookmarks?user_id=${userId}&page=${page}&per_page=${perPage}`),
+
+  checkBookmark: (userId: string, articleId: string) =>
+    api.get(`/bookmarks/check/${articleId}?user_id=${userId}`),
+
+  removeBookmark: (userId: string, articleId: string) =>
+    api.delete(`/bookmarks?user_id=${userId}&article_id=${articleId}`),
 };
 

@@ -1,5 +1,6 @@
 'use client';
 
+import BookmarkButton from '@/src/components/BookmarkButton';
 import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { ArticleDetailResponse } from '@/src/types/api';
@@ -134,7 +135,7 @@ export default function ArticleDetailPage() {
           </div>
 
           <div className="flex items-center justify-between space-x-4">
-            <div>
+            <div className="flex items-center space-x-3">
               <a
                 href={article.url}
                 target="_blank"
@@ -144,6 +145,7 @@ export default function ArticleDetailPage() {
                 <ExternalLink className="h-5 w-5" />
                 <span>Read Original Article</span>
               </a>
+              <BookmarkButton articleId={article.id} showLabel={true} size="lg" />
             </div>
 
             <div>
