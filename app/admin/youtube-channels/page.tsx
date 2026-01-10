@@ -136,14 +136,14 @@ function YoutubeChannelsAdminContent() {
                                             {channel.enabled ? 'Enabled' : 'Disabled'}
                                         </span>
                                         <button
-                                            onClick={() => handleToggle(channel.channelId, channel.enabled)}
-                                            disabled={pendingChannelId === channel.channelId}
+                                            onClick={() => handleToggle(channel.id, channel.enabled)}
+                                            disabled={pendingChannelId === channel.id}
                                             className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
                                                 }`}
                                             role="switch"
                                             aria-checked={channel.enabled}
                                         >
-                                            {pendingChannelId === channel.channelId ? (
+                                            {pendingChannelId === channel.id ? (
                                                 <Loader2 className="h-3 w-3 text-white animate-spin" />
                                             ) : (
                                                 <span
@@ -210,19 +210,18 @@ function YoutubeChannelsAdminContent() {
                                             {channel.enabled ? 'Enabled' : 'Disabled'}
                                         </span>
                                         <button
-                                            onClick={() => handleToggle(channel.channelId, channel.enabled)}
-                                            disabled={pendingChannelId === channel.channelId}
+                                            onClick={() => handleToggle(channel.id, channel.enabled)}
+                                            disabled={pendingChannelId === channel.id}
                                             className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
                                                 }`}
                                             role="switch"
                                             aria-checked={channel.enabled}
                                         >
-                                            {pendingChannelId === channel.channelId ? (
+                                            {pendingChannelId === channel.id ? (
                                                 <Loader2 className="h-3 w-3 text-white animate-spin" />
                                             ) : (
                                                 <span
-                                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
-                                                        }`}
+                                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'}`}
                                                 />
                                             )}
                                         </button>
