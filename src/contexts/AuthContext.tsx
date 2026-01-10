@@ -18,26 +18,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Load user_id from localStorage on mount
     useEffect(() => {
-        const storedUserId = localStorage.getItem(USER_ID_KEY);
-        if (storedUserId) {
-            setTimeout(() => {
+        try {
+            const storedUserId = localStorage.getItem(USER_ID_KEY);
+            if (storedUserId) {
                 setUserIdState(storedUserId);
-            }, 0);
-        }
-
-        setTimeout(() => {
+            }
+        } catch (error) {
+            // Handle localStorage access errors (e.g., private browsing, security restrictions)
+            console.error('Failed to access localStorage:', error);
+        } finally {
             setIsInitialized(true);
-        }, 0);
+        }
     }, []);
 
     const setUserId = (userId: string) => {
         setUserIdState(userId);
-        localStorage.setItem(USER_ID_KEY, userId);
+        try {
+            localStorage.setItem(USER_ID_KEY, userId);
+        } catch (error) {
+            // Handle localStorage write errors (e.g., quota exceeded)
+            console.error('Failed to save userId to localStorage:', error);
+        }
     };
 
     const clearUserId = () => {
         setUserIdState(null);
-        localStorage.removeItem(USER_ID_KEY);
+        try {
+            localStorage.removeItem(USER_ID_KEY);
+        } catch (error) {
+            // Handle localStorage access errors
+            console.error('Failed to remove userId from localStorage:', error);
+        }
     };
 
     // Don't render children until we've checked localStorage
