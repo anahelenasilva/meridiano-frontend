@@ -10,6 +10,7 @@ import { ArrowLeft, Calendar, TrashIcon } from 'lucide-react';
 import moment from 'moment';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
 
 export default function YoutubeTranscriptionDetailPage() {
   const params = useParams();
@@ -170,8 +171,8 @@ export default function YoutubeTranscriptionDetailPage() {
         {transcription.transcriptionSummary && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-blue-600 mb-4">Summary</h2>
-            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-              {transcription.transcriptionSummary}
+            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+              <ReactMarkdown>{transcription.transcriptionSummary}</ReactMarkdown>
             </div>
           </div>
         )}
