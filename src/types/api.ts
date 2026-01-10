@@ -123,3 +123,7 @@ export interface BookmarksResponse {
   perPage: number;
   totalPages: number;
 }
+
+export interface BookmarkCheckResponse {
+  isBookmarked: boolean;
+}

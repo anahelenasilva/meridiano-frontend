@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/src/contexts/AuthContext';
 import { apiService } from '@/src/services/api';
+import type { BookmarkCheckResponse } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
@@ -22,20 +23,23 @@ export default function BookmarkButton({
     const { userId } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: bookmarkStatus } = useQuery({
+    const { data: bookmarkStatus } = useQuery<boolean>({
         queryKey: ['bookmark-status', userId, articleId],
-        queryFn: async () => {
+        queryFn: async (): Promise<boolean> => {
             if (!userId) return false;
             try {
                 const response = await apiService.checkBookmark(userId, articleId);
-                return response.data.isBookmarked as boolean;
+                return (response.data as BookmarkCheckResponse).isBookmarked;
             } catch (error) {
                 console.error('Error checking bookmark status:', error);
                 return false;
             }
         },
         enabled: !!userId && initialIsBookmarked === undefined,
-        staleTime: 30000, // Cache for 30 seconds
+        staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
+        cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+        refetchOnMount: false, // Don't refetch when component remounts if data is fresh
+        refetchOnWindowFocus: false, // Don't refetch on window focus
     });
 
     const isBookmarked = initialIsBookmarked ?? bookmarkStatus ?? false;
