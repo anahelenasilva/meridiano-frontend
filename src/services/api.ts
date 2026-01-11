@@ -33,7 +33,47 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config) => {
+    if (config.url?.includes('/auth/login')) {
+      return config;
+    }
+
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('meridiano_access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        localStorage.removeItem('meridiano_access_token');
+        localStorage.removeItem('meridiano_user');
+
+        const currentPath = window.location.pathname + window.location.search;
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 export const apiService = {
+  login: (email: string, password: string) =>
+    api.post('/auth/login', { email, password }),
+
   getBriefings: (feedProfile?: string) =>
     api.get(`/briefings${feedProfile ? `?feed_profile=${feedProfile}` : ''}`),
 
@@ -94,7 +134,6 @@ export const apiService = {
   addYoutubeTranscription: (url: string, channelId: string) =>
     api.post('/youtube/transcriptions', { url, channelId }),
 
-  // Bookmark endpoints
   addBookmark: (userId: string, articleId: string) =>
     api.post('/bookmarks', { user_id: userId, article_id: articleId }),
 
@@ -107,4 +146,3 @@ export const apiService = {
   removeBookmark: (userId: string, articleId: string) =>
     api.delete(`/bookmarks?user_id=${userId}&article_id=${articleId}`),
 };
-
