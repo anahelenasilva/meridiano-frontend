@@ -21,17 +21,17 @@ function ArticlesContent() {
 
   const [filters, setFilters] = useState({
     page: parseInt(searchParams.get('page') || '1'),
-    sort_by: searchParams.get('sort_by') || 'published_date',
+    sortBy: searchParams.get('sortBy') || 'published_date',
     direction: (searchParams.get('direction') || 'desc') as 'asc' | 'desc',
-    feed_profile: searchParams.get('feed_profile') || '',
-    search: searchParams.get('search') || '',
-    start_date: searchParams.get('start_date') || '',
-    end_date: searchParams.get('end_date') || '',
+    feedProfile: searchParams.get('feedProfile') || '',
+    searchTerm: searchParams.get('searchTerm') || '',
+    startDate: searchParams.get('startDate') || '',
+    endDate: searchParams.get('endDate') || '',
     preset: searchParams.get('preset') || '',
     category: searchParams.get('category') || '',
   });
 
-  const [searchInput, setSearchInput] = useState(filters.search);
+  const [searchInput, setSearchInput] = useState(filters.searchTerm);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,8 +53,8 @@ function ArticlesContent() {
     }
 
     debounceTimeout.current = setTimeout(() => {
-      if (searchInput !== filters.search) {
-        updateFilter('search', searchInput);
+      if (searchInput !== filters.searchTerm) {
+        updateFilter('searchTerm', searchInput);
       }
     }, 500); // 500ms delay
 
@@ -63,7 +63,7 @@ function ArticlesContent() {
         clearTimeout(debounceTimeout.current);
       }
     };
-  }, [searchInput, filters.search, updateFilter]);
+  }, [searchInput, filters.searchTerm, updateFilter]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -99,7 +99,7 @@ function ArticlesContent() {
 
   const handlePresetDate = (preset: string) => {
     updateFilter('preset', preset);
-    setFilters(prev => ({ ...prev, start_date: '', end_date: '', preset }));
+    setFilters(prev => ({ ...prev, startDate: '', endDate: '', preset }));
   };
 
   const deleteArticle = async (articleId: string) => {
@@ -157,9 +157,9 @@ function ArticlesContent() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Articles
-            {filters.feed_profile && (
+            {filters.feedProfile && (
               <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                {filters.feed_profile}
+                {filters.feedProfile}
               </span>
             )}
             {filters.category && (
@@ -202,14 +202,14 @@ function ArticlesContent() {
                     e.preventDefault();
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500 text-gray-700"
               />
             </div>
           </div>
           <div>
             <select
-              value={filters.feed_profile}
-              onChange={(e) => updateFilter('feed_profile', e.target.value)}
+              value={filters.feedProfile}
+              onChange={(e) => updateFilter('feedProfile', e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
             >
               <option value="">All Profiles</option>
@@ -247,8 +247,8 @@ function ArticlesContent() {
                   key={preset}
                   onClick={() => handlePresetDate(preset)}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${filters.preset === preset
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   {preset.replace('_', ' ').replace('last ', 'Last ')}
@@ -259,14 +259,14 @@ function ArticlesContent() {
           <div className="flex space-x-4">
             <input
               type="date"
-              value={filters.start_date}
-              onChange={(e) => updateFilter('start_date', e.target.value)}
+              value={filters.startDate}
+              onChange={(e) => updateFilter('startDate', e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
             <input
               type="date"
-              value={filters.end_date}
-              onChange={(e) => updateFilter('end_date', e.target.value)}
+              value={filters.endDate}
+              onChange={(e) => updateFilter('endDate', e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
             />
           </div>
@@ -276,8 +276,8 @@ function ArticlesContent() {
         <div className="flex items-center space-x-4">
           <span className="text-sm font-medium text-gray-700">Sort by:</span>
           <select
-            value={filters.sort_by}
-            onChange={(e) => updateFilter('sort_by', e.target.value)}
+            value={filters.sortBy}
+            onChange={(e) => updateFilter('sortBy', e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
           >
             <option value="published_date">Date</option>
@@ -338,8 +338,8 @@ function ArticlesContent() {
                   </span>
                   {article.impact_rating && (
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
-                        article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                      article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
                       }`}>
                       Impact: {article.impact_rating}/10
                     </span>
