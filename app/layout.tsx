@@ -1,4 +1,4 @@
-import Navbar from "@/src/components/Navbar";
+import LayoutWrapper from "@/src/components/LayoutWrapper";
 import Providers from "@/src/components/Providers";
 import { AuthProvider } from "@/src/contexts/AuthContext";
 import type { Metadata } from "next";
@@ -32,12 +32,9 @@ export default function RootLayout({
       >
         <Providers>
           <AuthProvider>
-            <div className="min-h-screen bg-gray-50">
-              <Navbar />
-              <main className="container mx-auto px-4 py-8">
-                {children}
-              </main>
-            </div>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
           </AuthProvider>
         </Providers>
       </body>

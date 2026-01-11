@@ -4,15 +4,14 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { toast } from '@/src/utils/toast';
 import { Bookmark, ChevronDown, FileText, Home, LogOut, Newspaper, Settings, User } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 const Navbar = () => {
   const pathname = usePathname();
-  const { userId, setUserId, clearUserId } = useAuth();
+  const router = useRouter();
+  const { user, isAuthenticated, logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isEditingUserId, setIsEditingUserId] = useState(false);
-  const [tempUserId, setTempUserId] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => {
@@ -26,7 +25,6 @@ const Navbar = () => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsUserMenuOpen(false);
-        setIsEditingUserId(false);
       }
     };
 
@@ -34,19 +32,11 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSetUserId = () => {
-    if (tempUserId.trim()) {
-      setUserId(tempUserId.trim());
-      setIsEditingUserId(false);
-      setTempUserId('');
-      toast.success('User ID updated');
-    }
-  };
-
-  const handleClearUserId = () => {
-    clearUserId();
+  const handleLogout = () => {
+    logout();
     setIsUserMenuOpen(false);
-    toast.success('User ID cleared');
+    toast.success('Logged out successfully');
+    router.push('/login');
   };
 
   return (
@@ -118,105 +108,49 @@ const Navbar = () => {
           </div>
 
           {/* User Menu */}
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${userId
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-            >
-              <User className="h-4 w-4" />
-              <span className="max-w-[100px] truncate">
-                {userId ? userId.substring(0, 8) + (userId.length > 8 ? '...' : '') : 'Set User ID'}
-              </span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
+          {isAuthenticated && user && (
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+              >
+                <User className="h-4 w-4" />
+                <span className="max-w-[150px] truncate">
+                  {user.username || user.email}
+                </span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
 
-            {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                {userId ? (
-                  <>
-                    <div className="px-4 py-3 border-b border-gray-200">
-                      <p className="text-xs text-gray-500 mb-1">Current User ID:</p>
-                      <p className="text-sm font-mono text-gray-900 truncate">{userId}</p>
-                    </div>
-                    <Link
-                      href="/bookmarks"
-                      onClick={() => setIsUserMenuOpen(false)}
-                      className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <Bookmark className="h-4 w-4" />
-                      <span>My Bookmarks</span>
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setIsEditingUserId(true);
-                        setTempUserId(userId);
-                      }}
-                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <User className="h-4 w-4" />
-                      <span>Change User ID</span>
-                    </button>
-                    <button
-                      onClick={handleClearUserId}
-                      className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      <span>Clear User ID</span>
-                    </button>
-                  </>
-                ) : (
-                  <div className="px-4 py-3">
-                    <p className="text-xs text-gray-500 mb-2">Set your user ID to use bookmarks:</p>
-                    <button
-                      onClick={() => setIsEditingUserId(true)}
-                      className="w-full px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                    >
-                      Set User ID
-                    </button>
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-xs text-gray-500 mb-1">Signed in as</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {user.username}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
                   </div>
-                )}
 
-                {isEditingUserId && (
-                  <div className="px-4 py-3 border-t border-gray-200">
-                    <p className="text-xs text-gray-500 mb-2">Enter User ID:</p>
-                    <input
-                      type="text"
-                      value={tempUserId}
-                      onChange={(e) => setTempUserId(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleSetUserId();
-                        }
-                      }}
-                      placeholder="Enter user ID"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-                      autoFocus
-                    />
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={handleSetUserId}
-                        className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsEditingUserId(false);
-                          setTempUserId('');
-                        }}
-                        className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                  <Link
+                    href="/bookmarks"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <Bookmark className="h-4 w-4" />
+                    <span>My Bookmarks</span>
+                  </Link>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </nav>
@@ -224,4 +158,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

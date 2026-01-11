@@ -125,5 +125,5 @@ export interface BookmarksResponse {
 }
 
 export interface BookmarkCheckResponse {
-  isBookmarked: boolean;
+  bookmarked: boolean;
 }
