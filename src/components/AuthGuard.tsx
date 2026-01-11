@@ -4,15 +4,15 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
+const PUBLIC_PATHS = ['/login'];
+
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
   useEffect(() => {
-    const publicPaths = ['/login'];
-    const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
-
     if (!isAuthenticated && !isPublicPath) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
@@ -21,10 +21,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     if (isAuthenticated && pathname === '/login') {
       router.push('/');
     }
-  }, [isAuthenticated, pathname, router]);
-
-  const publicPaths = ['/login'];
-  const isPublicPath = publicPaths.some(path => pathname.startsWith(path));
+  }, [isAuthenticated, pathname, router, isPublicPath]);
 
   if (!isAuthenticated && !isPublicPath) {
     return (
