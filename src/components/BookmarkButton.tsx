@@ -2,7 +2,6 @@
 
 import { useAuth } from '@/src/contexts/AuthContext';
 import { apiService } from '@/src/services/api';
-import type { BookmarkCheckResponse } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
@@ -33,8 +32,7 @@ export default function BookmarkButton({
 
       try {
         const response = await apiService.checkBookmark(userId, articleId);
-        const data = response.data as BookmarkCheckResponse;
-        return Boolean(data?.bookmarked ?? false);
+        return Boolean(response.data?.bookmarked);
       } catch (error) {
         console.error('Error checking bookmark status:', error);
         return false;
