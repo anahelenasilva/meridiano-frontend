@@ -75,7 +75,7 @@ function ArticlesContent() {
   }, [filters, router]);
 
   const { data, isLoading, error } = useQuery<ArticlesResponse>({
-    queryKey: ['articles', filters],
+    queryKey: ['articles', JSON.stringify(filters)],
     queryFn: async () => {
       const response = await apiService.getArticles(filters);
       return response.data;
