@@ -52,7 +52,6 @@ export default function YoutubeTranscriptionDetailPage() {
   }
 
   if (error || !data || !data.transcription) {
-    console.log("data", JSON.stringify(data));
     return (
       <div className="text-center py-12">
         <div className="text-red-600 text-lg mb-4">

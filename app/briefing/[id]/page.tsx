@@ -17,7 +17,6 @@ export default function BriefingDetailPage() {
     queryKey: ['briefing', briefingId],
     queryFn: async () => {
       const response = await apiService.getBriefing(briefingId);
-      console.log("response", JSON.stringify(response.data));
       return response.data;
     },
     enabled: !!briefingId,
