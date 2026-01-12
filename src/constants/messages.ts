@@ -6,6 +6,9 @@ export const MESSAGES = {
     TRANSCRIPTION_DELETED: 'Transcription deleted successfully',
     ARTICLE_ADDED: 'Article added successfully!',
     ARTICLE_DELETED: 'Article deleted successfully',
+    ARTICLE_BOOKMARKED: 'Article bookmarked',
+    ARTICLE_UNBOOKMARKED: 'Bookmark removed',
+    LOGGED_OUT: 'Logged out successfully',
   },
 
   ERROR: {
@@ -21,6 +24,9 @@ export const MESSAGES = {
     LOADING_ARTICLES: 'Error loading articles',
     LOADING_TRANSCRIPTION: 'Error loading transcription',
     LOADING_ARTICLE: 'Error loading article',
+    ARTICLE_BOOKMARK: 'Error bookmarking article:',
+    ARTICLE_UNBOOKMARK: 'Failed to remove bookmark:',
+    LOGIN_REQUIRED: 'User not authenticated',
   },
 
   VALIDATION: {

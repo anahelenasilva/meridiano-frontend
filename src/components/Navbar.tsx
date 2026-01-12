@@ -6,6 +6,7 @@ import { Bookmark, ChevronDown, FileText, Home, LogOut, Newspaper, Settings, Use
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { MESSAGES } from '../constants/messages';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -35,7 +36,7 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setIsUserMenuOpen(false);
-    toast.success('Logged out successfully');
+    toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
     router.push('/login');
   };
 

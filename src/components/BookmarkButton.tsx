@@ -5,6 +5,7 @@ import { apiService } from '@/src/services/api';
 import { toast } from '@/src/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 interface BookmarkButtonProps {
   articleId: string;
@@ -52,7 +53,7 @@ export default function BookmarkButton({
   const addBookmarkMutation = useMutation({
     mutationFn: () => {
       if (!userId) {
-        throw new Error('User not authenticated');
+        throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
       return apiService.addBookmark(userId, articleId);
@@ -60,17 +61,17 @@ export default function BookmarkButton({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookmark-status', userId, articleId] });
-      toast.success('Article bookmarked');
+      toast.success(MESSAGES.SUCCESS.ARTICLE_BOOKMARKED);
     },
     onError: (error: Error) => {
-      toast.error(`Failed to bookmark article: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.ARTICLE_BOOKMARK} ${error.message}`);
     },
   });
 
   const removeBookmarkMutation = useMutation({
     mutationFn: () => {
       if (!userId) {
-        throw new Error('User not authenticated');
+        throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
       return apiService.removeBookmark(userId, articleId);
@@ -78,10 +79,10 @@ export default function BookmarkButton({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookmark-status', userId, articleId] });
-      toast.success('Bookmark removed');
+      toast.success(MESSAGES.SUCCESS.ARTICLE_UNBOOKMARKED);
     },
     onError: (error: Error) => {
-      toast.error(`Failed to remove bookmark: ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.ARTICLE_UNBOOKMARK} ${error.message}`);
     },
   });
 
@@ -90,7 +91,7 @@ export default function BookmarkButton({
     e.stopPropagation();
 
     if (!userId) {
-      toast.error('Please log in to use bookmarks');
+      toast.error(MESSAGES.ERROR.LOGIN_REQUIRED);
       return;
     }
 
