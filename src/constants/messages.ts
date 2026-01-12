@@ -1,6 +1,7 @@
 export const MESSAGES = {
   SUCCESS: {
     CHANNEL_UPDATED: 'Channel updated successfully!',
+    CHANNEL_CREATED: 'Channel created successfully!',
     VIDEO_ADDED: 'Video added successfully! Transcription will be processed shortly.',
     TRANSCRIPTION_DELETED: 'Transcription deleted successfully',
     ARTICLE_ADDED: 'Article added successfully!',
@@ -9,6 +10,7 @@ export const MESSAGES = {
 
   ERROR: {
     CHANNEL_UPDATE: 'Error updating channel:',
+    CHANNEL_CREATE: 'Error creating channel:',
     VIDEO_ADD: 'Error adding video:',
     ARTICLE_ADD: 'Error adding article:',
     ARTICLE_DELETE: 'Error deleting article:',

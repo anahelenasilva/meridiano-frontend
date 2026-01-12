@@ -128,6 +128,15 @@ export const apiService = {
   getYoutubeChannels: () =>
     api.get('/youtube/channels'),
 
+  createYoutubeChannel: (data: {
+    channelId: string;
+    name: string;
+    url: string;
+    description: string;
+    enabled: boolean;
+    maxVideos?: number;
+  }) => api.post('/youtube/channels', data),
+
   updateChannelEnabled: (channelId: string, enabled: boolean) =>
     api.patch(`/youtube/channels/${channelId}`, { enabled }),
 
