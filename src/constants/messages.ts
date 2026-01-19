@@ -9,6 +9,7 @@ export const MESSAGES = {
     ARTICLE_BOOKMARKED: 'Article bookmarked',
     ARTICLE_UNBOOKMARKED: 'Bookmark removed',
     LOGGED_OUT: 'Logged out successfully',
+    MARKDOWN_UPLOADED: 'Markdown file uploaded successfully! Article will be processed shortly.',
   },
 
   ERROR: {
@@ -27,12 +28,16 @@ export const MESSAGES = {
     ARTICLE_BOOKMARK: 'Error bookmarking article:',
     ARTICLE_UNBOOKMARK: 'Failed to remove bookmark:',
     LOGIN_REQUIRED: 'User not authenticated',
+    MARKDOWN_UPLOAD: 'Error uploading markdown file:',
+    PRESIGNED_URL: 'Error getting upload URL:',
   },
 
   VALIDATION: {
     INVALID_URL: 'Please enter a valid URL',
     SELECT_CHANNEL: 'Please select a channel',
     SELECT_FEED_PROFILE: 'Please select a feed profile',
+    INVALID_FILE_TYPE: 'Please select a markdown (.md) file',
+    SELECT_FILE: 'Please select a file to upload',
   },
 
   CONFIRM: {

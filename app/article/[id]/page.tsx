@@ -88,17 +88,15 @@ export default function ArticleDetailPage() {
 
       {/* Article Header */}
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-        {article.image_url && (
-          <div className="h-64 md:h-96 overflow-hidden relative">
-            <Image
-              src={article.image_url}
-              alt={article.title}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-        )}
+        <div className="h-64 md:h-96 overflow-hidden relative">
+          <Image
+            src={article.image_url || '/default_article_cover.png'}
+            alt={article.title}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        </div>
 
         <div className="p-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
@@ -195,17 +193,15 @@ export default function ArticleDetailPage() {
                 key={relatedArticle.id}
                 className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
               >
-                {relatedArticle.image_url && (
-                  <div className="h-32 overflow-hidden rounded-md mb-3 relative">
-                    <Image
-                      src={relatedArticle.image_url}
-                      alt={relatedArticle.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                )}
+                <div className="h-32 overflow-hidden rounded-md mb-3 relative">
+                  <Image
+                    src={relatedArticle.image_url || '/default_article_cover.png'}
+                    alt={relatedArticle.title}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
                 <Link
                   href={`/article/${relatedArticle.id}`}
                   className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-2"

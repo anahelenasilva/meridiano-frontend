@@ -12,6 +12,7 @@ import BookmarkButton from '@/src/components/BookmarkButton';
 import { MESSAGES } from '@/src/constants/messages';
 import { apiService } from '@/src/services/api';
 import type { ArticlesResponse } from '@/src/types/api';
+import { uploadToS3, validateMarkdownFile } from '@/src/utils/s3';
 import { toast } from '@/src/utils/toast';
 
 function ArticlesContent() {
@@ -37,6 +38,9 @@ function ArticlesContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [articleUrl, setArticleUrl] = useState('');
   const [articleFeedProfile, setArticleFeedProfile] = useState('');
+  const [uploadMode, setUploadMode] = useState<'link' | 'upload'>('link');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const updateFilter = useCallback((key: string, value: string | number) => {
     setFilters(prev => ({
@@ -90,10 +94,41 @@ function ArticlesContent() {
       setIsModalOpen(false);
       setArticleUrl('');
       setArticleFeedProfile('');
+      setUploadMode('link');
+      setSelectedFile(null);
       toast.success(MESSAGES.SUCCESS.ARTICLE_ADDED);
     },
     onError: (error: Error) => {
       toast.error(`${MESSAGES.ERROR.ARTICLE_ADD} ${error.message || MESSAGES.ERROR.GENERIC}`);
+    },
+  });
+
+  const uploadMarkdownMutation = useMutation({
+    mutationFn: async ({ file, feedProfile }: { file: File; feedProfile: string }) => {
+      setIsUploading(true);
+      try {
+        const presignedUrlResponse = await apiService.getPresignedUrl(file.name);
+        const { url, fields } = presignedUrlResponse.data;
+        const s3Key = fields.key;
+
+        await uploadToS3(url, fields, file);
+
+        return await apiService.addArticleFromMarkdown(s3Key, feedProfile);
+      } finally {
+        setIsUploading(false);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['articles'] });
+      setIsModalOpen(false);
+      setArticleUrl('');
+      setArticleFeedProfile('');
+      setUploadMode('link');
+      setSelectedFile(null);
+      toast.success(MESSAGES.SUCCESS.MARKDOWN_UPLOADED);
+    },
+    onError: (error: Error) => {
+      toast.error(`${MESSAGES.ERROR.MARKDOWN_UPLOAD} ${error.message || MESSAGES.ERROR.GENERIC}`);
     },
   });
 
@@ -110,15 +145,40 @@ function ArticlesContent() {
   };
 
   const handleAddArticle = () => {
-    if (!articleUrl.trim()) {
-      toast.error(MESSAGES.VALIDATION.INVALID_URL);
-      return;
-    }
     if (!articleFeedProfile) {
       toast.error(MESSAGES.VALIDATION.SELECT_FEED_PROFILE);
       return;
     }
-    addArticleMutation.mutate({ url: articleUrl, feedProfile: articleFeedProfile });
+
+    if (uploadMode === 'link') {
+      if (!articleUrl.trim()) {
+        toast.error(MESSAGES.VALIDATION.INVALID_URL);
+        return;
+      }
+      addArticleMutation.mutate({ url: articleUrl, feedProfile: articleFeedProfile });
+    } else {
+      if (!selectedFile) {
+        toast.error(MESSAGES.VALIDATION.SELECT_FILE);
+        return;
+      }
+      if (!validateMarkdownFile(selectedFile)) {
+        toast.error(MESSAGES.VALIDATION.INVALID_FILE_TYPE);
+        return;
+      }
+      uploadMarkdownMutation.mutate({ file: selectedFile, feedProfile: articleFeedProfile });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!validateMarkdownFile(file)) {
+        toast.error(MESSAGES.VALIDATION.INVALID_FILE_TYPE);
+        e.target.value = '';
+        return;
+      }
+      setSelectedFile(file);
+    }
   };
 
   if (isLoading) {
@@ -307,17 +367,15 @@ function ArticlesContent() {
               key={article.id}
               className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
-              {article.image_url && (
-                <div className="h-48 overflow-hidden relative">
-                  <Image
-                    src={article.image_url}
-                    alt={article.title}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              )}
+              <div className="h-48 overflow-hidden relative">
+                <Image
+                  src={article.image_url || '/default_article_cover.png'}
+                  alt={article.title}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
 
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
@@ -441,25 +499,76 @@ function ArticlesContent() {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
-                  Article URL
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mode
                 </label>
-                <input
-                  id="article-url"
-                  type="url"
-                  value={articleUrl}
-                  onChange={(e) => setArticleUrl(e.target.value)}
-                  placeholder="https://example.com/article"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500  text-gray-700"
-                  disabled={addArticleMutation.isPending}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddArticle();
-                    }
-                  }}
-                />
+                <div className="flex space-x-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      value="link"
+                      checked={uploadMode === 'link'}
+                      onChange={(e) => setUploadMode(e.target.value as 'link' | 'upload')}
+                      className="mr-2"
+                      disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
+                    />
+                    <span className="text-gray-700">Link</span>
+                  </label>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      value="upload"
+                      checked={uploadMode === 'upload'}
+                      onChange={(e) => setUploadMode(e.target.value as 'link' | 'upload')}
+                      className="mr-2"
+                      disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
+                    />
+                    <span className="text-gray-700">Upload</span>
+                  </label>
+                </div>
               </div>
+
+              {uploadMode === 'link' ? (
+                <div>
+                  <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
+                    Article URL
+                  </label>
+                  <input
+                    id="article-url"
+                    type="url"
+                    value={articleUrl}
+                    onChange={(e) => setArticleUrl(e.target.value)}
+                    placeholder="https://example.com/article"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500  text-gray-700"
+                    disabled={addArticleMutation.isPending}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddArticle();
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label htmlFor="markdown-file" className="block text-sm font-medium text-gray-700 mb-2">
+                    Markdown File
+                  </label>
+                  <input
+                    id="markdown-file"
+                    type="file"
+                    accept=".md,.markdown"
+                    onChange={handleFileChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    disabled={uploadMarkdownMutation.isPending || isUploading}
+                  />
+                  {selectedFile && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {selectedFile.name}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label htmlFor="feed-profile" className="block text-sm font-medium text-gray-700 mb-2">
@@ -470,7 +579,7 @@ function ArticlesContent() {
                   value={articleFeedProfile}
                   onChange={(e) => setArticleFeedProfile(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 [&:has(option:checked:not([value='']))]:text-gray-900"
-                  disabled={addArticleMutation.isPending}
+                  disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                 >
                   <option value="">Select a profile</option>
                   {available_profiles.map((profile) => (
@@ -485,22 +594,22 @@ function ArticlesContent() {
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                  disabled={addArticleMutation.isPending}
+                  disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                 >
                   Close
                 </button>
                 <button
                   onClick={handleAddArticle}
                   className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={addArticleMutation.isPending}
+                  disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                 >
-                  {addArticleMutation.isPending ? (
+                  {(addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading) ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Adding...</span>
+                      <span>{uploadMode === 'upload' ? 'Uploading...' : 'Adding...'}</span>
                     </>
                   ) : (
-                    <span>Add Article</span>
+                    <span>{uploadMode === 'upload' ? 'Upload Article' : 'Add Article'}</span>
                   )}
                 </button>
               </div>

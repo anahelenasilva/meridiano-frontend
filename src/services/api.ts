@@ -109,6 +109,12 @@ export const apiService = {
   addArticle: (url: string, feedProfile: string) =>
     api.post('/articles', { url, feedProfile }),
 
+  getPresignedUrl: (fileName: string) =>
+    api.post('/articles/upload-url', { articleFileName: fileName, contentType: 'text/markdown' }),
+
+  addArticleFromMarkdown: (s3Key: string, feedProfile: string) =>
+    api.post('/articles/markdown', { s3Key, feedProfile }),
+
   getProfiles: () =>
     api.get('/profiles'),
 

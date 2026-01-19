@@ -119,17 +119,15 @@ function BookmarksContent() {
                 key={bookmark.id}
                 className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
               >
-                {article.image_url && (
-                  <div className="h-48 overflow-hidden relative">
-                    <Image
-                      src={article.image_url}
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                )}
+                <div className="h-48 overflow-hidden relative">
+                  <Image
+                    src={article.image_url || '/default_article_cover.png'}
+                    alt={article.title}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
 
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
