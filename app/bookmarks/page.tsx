@@ -83,12 +83,12 @@ function BookmarksContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            <BookmarkIcon className="inline-block h-8 w-8 mr-2 text-yellow-600" />
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <BookmarkIcon className="inline-block h-6 w-6 sm:h-8 sm:w-8 mr-2 text-yellow-600" />
             My Bookmarks
           </h1>
           {total > 0 && (
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               {total} bookmarked {total === 1 ? 'article' : 'articles'}
             </p>
           )}
@@ -129,19 +129,19 @@ function BookmarksContent() {
                   />
                 </div>
 
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <Link
                         href={`/article/${article.id}`}
-                        className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                        className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
                       >
                         {article.title}
                       </Link>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
+                  <div className="flex flex-wrap items-center gap-2 mb-3 text-sm text-gray-600">
                     <span>{moment(article.published_date).format('MMM D, YYYY')}</span>
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                       {article.feed_profile}
@@ -170,8 +170,8 @@ function BookmarksContent() {
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/article/${article.id}`}
                         className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
@@ -186,7 +186,7 @@ function BookmarksContent() {
                         className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
                       >
                         <ExternalLink className="h-4 w-4" />
-                        <span>Original</span>
+                        <span className="hidden sm:inline">Original</span>
                       </a>
                     </div>
                     <BookmarkButton articleId={article.id} isBookmarked={true} size="sm" />

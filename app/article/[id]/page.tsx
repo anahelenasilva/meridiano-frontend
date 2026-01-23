@@ -66,9 +66,9 @@ export default function ArticleDetailPage() {
   const { article, related_articles } = data;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
       {/* Navigation */}
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <Link
           href="/articles"
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -79,7 +79,7 @@ export default function ArticleDetailPage() {
         {article.feed_profile && (
           <Link
             href={`/articles?feed_profile=${article.feed_profile}`}
-            className="text-blue-600 hover:text-blue-800 transition-colors"
+            className="text-blue-600 hover:text-blue-800 transition-colors text-sm sm:text-base"
           >
             View more from {article.feed_profile}
           </Link>
@@ -98,15 +98,15 @@ export default function ArticleDetailPage() {
           />
         </div>
 
-        <div className="p-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+        <div className="p-4 sm:p-6 lg:p-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-6 leading-tight">
             {article.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
+          <div className="flex flex-wrap items-center gap-3 mb-6 text-sm text-gray-600">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4" />
-              <span>{moment(article.published_date).format('MMMM D, YYYY [at] h:mm A')}</span>
+              <span className="whitespace-nowrap">{moment(article.published_date).format('MMMM D, YYYY [at] h:mm A')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Tag className="h-4 w-4" />
@@ -132,13 +132,13 @@ export default function ArticleDetailPage() {
             )}
           </div>
 
-          <div className="flex items-center justify-between space-x-4">
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
               <a
                 href={article.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 <ExternalLink className="h-5 w-5" />
                 <span>Read Original Article</span>
@@ -150,7 +150,7 @@ export default function ArticleDetailPage() {
               <button
                 type="button"
                 onClick={deleteArticle}
-                className="inline-flex items-center space-x-2 px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                className="w-full sm:w-auto inline-flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
               >
                 <TrashIcon className="h-5 w-5" />
                 <span>Delete Article</span>
@@ -161,12 +161,12 @@ export default function ArticleDetailPage() {
       </div>
 
       {/* Article Content */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 lg:p-8">
         {article.processed_content_html && (
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-blue-600 mb-4">AI Summary</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-blue-600 mb-4">AI Summary</h2>
             <div
-              className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+              className="prose prose-sm sm:prose-lg max-w-none text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: article.processed_content_html }}
             />
           </div>
@@ -174,9 +174,9 @@ export default function ArticleDetailPage() {
 
         {article.content_html && (
           <div>
-            <h2 className="text-xl font-semibold text-blue-600 mb-4">Full Content</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-blue-600 mb-4">Full Content</h2>
             <div
-              className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+              className="prose prose-sm sm:prose-lg max-w-none text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: article.content_html }}
             />
           </div>
@@ -185,15 +185,15 @@ export default function ArticleDetailPage() {
 
       {/* Related Articles */}
       {related_articles.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Related Articles</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 lg:p-8">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-6">Related Articles</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {related_articles.map((relatedArticle) => (
               <div
                 key={relatedArticle.id}
-                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                className="border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
               >
-                <div className="h-32 overflow-hidden rounded-md mb-3 relative">
+                <div className="h-32 sm:h-40 overflow-hidden rounded-md mb-3 relative">
                   <Image
                     src={relatedArticle.image_url || '/default_article_cover.png'}
                     alt={relatedArticle.title}
@@ -204,15 +204,15 @@ export default function ArticleDetailPage() {
                 </div>
                 <Link
                   href={`/article/${relatedArticle.id}`}
-                  className="text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-2"
+                  className="text-base sm:text-lg font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-2 block"
                 >
                   {relatedArticle.title}
                 </Link>
-                <div className="text-sm text-gray-600 mb-3">
+                <div className="text-xs sm:text-sm text-gray-600 mb-3">
                   {moment(relatedArticle.published_date).format('MMM D, YYYY')} • {relatedArticle.feed_source}
                 </div>
                 {relatedArticle.processed_content && (
-                  <p className="text-sm text-gray-700 line-clamp-3">
+                  <p className="text-xs sm:text-sm text-gray-700 line-clamp-3">
                     {relatedArticle.processed_content}
                   </p>
                 )}

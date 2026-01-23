@@ -138,15 +138,15 @@ function YoutubeTranscriptionsContent() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           YouTube Transcriptions
         </h1>
         <div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm sm:text-base"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>Add Video</span>
           </button>
         </div>
@@ -169,20 +169,20 @@ function YoutubeTranscriptionsContent() {
                 {/* Channel Header - Collapsible */}
                 <button
                   onClick={() => toggleChannel(channelId)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                  className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-gray-50 transition-colors duration-200 text-left focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
                   aria-expanded={isExpanded}
                   aria-controls={`channel-content-${channelId}`}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>
-                      <ChevronDown className="h-5 w-5 text-gray-500" />
+                  <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
+                    <div className={`transform transition-transform duration-200 flex-shrink-0 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}>
+                      <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
                     </div>
-                    <svg role="img" className='h-5 w-5 text-red-600' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                    <svg role="img" className='h-4 w-4 sm:h-5 sm:w-5 text-red-600 flex-shrink-0' viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
                       <title>YouTube</title>
                       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                     </svg>
-                    <h2 className="text-xl font-bold text-gray-900">{channelName}</h2>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <h2 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 truncate">{channelName}</h2>
+                    <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 flex-shrink-0">
                       {channelTranscriptions.length} {channelTranscriptions.length === 1 ? 'video' : 'videos'}
                     </span>
                   </div>
@@ -192,16 +192,16 @@ function YoutubeTranscriptionsContent() {
                 {isExpanded && (
                   <div
                     id={`channel-content-${channelId}`}
-                    className="p-4 pt-0 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-300"
+                    className="p-3 sm:p-4 pt-0 border-t border-gray-100 animate-in fade-in slide-in-from-top-2 duration-300"
                   >
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-3 sm:mt-4">
                       {channelTranscriptions.map((transcription) => (
                         <div
                           key={transcription.id}
                           className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                         >
                           <Link href={`/youtube-transcription/${transcription.id}`}>
-                            <div className="h-48 overflow-hidden relative">
+                            <div className="h-40 sm:h-48 overflow-hidden relative">
                               <YoutubeThumbnail
                                 videoUrl={transcription.videoUrl}
                                 alt={transcription.videoTitle}
@@ -211,19 +211,19 @@ function YoutubeTranscriptionsContent() {
                             </div>
                           </Link>
 
-                          <div className="p-6">
-                            <div className="flex items-start justify-between mb-3">
+                          <div className="p-4 sm:p-6">
+                            <div className="flex items-start justify-between mb-2 sm:mb-3">
                               <div className="flex-1">
                                 <Link
                                   href={`/youtube-transcription/${transcription.id}`}
-                                  className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                                  className="text-base sm:text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
                                 >
                                   {transcription.videoTitle}
                                 </Link>
                               </div>
                             </div>
 
-                            <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-2 sm:mb-3 text-xs sm:text-sm text-gray-600">
                               {transcription.postedAt && (
                                 <span>{moment(transcription.postedAt).format('MMM D, YYYY')}</span>
                               )}
@@ -233,35 +233,37 @@ function YoutubeTranscriptionsContent() {
                             </div>
 
                             {transcription.transcriptionSummary && (
-                              <div className="text-gray-700 text-sm mb-4 line-clamp-3">
+                              <div className="text-gray-700 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3">
                                 {transcription.transcriptionSummary}
                               </div>
                             )}
 
-                            <div className="flex items-center space-x-3">
+                            <div className="flex flex-wrap items-center gap-2">
                               <Link
                                 href={`/youtube-transcription/${transcription.id}`}
-                                className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+                                className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-600 text-white text-xs sm:text-sm rounded-md hover:bg-blue-700 transition-colors"
                               >
-                                <Eye className="h-4 w-4" />
-                                <span>View Details</span>
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">View Details</span>
+                                <span className="sm:hidden">View</span>
                               </Link>
                               <a
                                 href={transcription.videoUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
+                                className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 text-gray-700 text-xs sm:text-sm rounded-md hover:bg-gray-50 transition-colors"
                               >
-                                <ExternalLink className="h-4 w-4" />
-                                <span>Watch Video</span>
+                                <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Watch Video</span>
+                                <span className="sm:hidden">Watch</span>
                               </a>
                               <button
                                 type="button"
                                 onClick={() => deleteTranscription(transcription.id)}
-                                className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                                className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
                               >
-                                <TrashIcon className="h-4 w-4" />
-                                <span>Delete</span>
+                                <TrashIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                                <span className="hidden sm:inline">Delete</span>
                               </button>
                             </div>
                           </div>
@@ -279,11 +281,11 @@ function YoutubeTranscriptionsContent() {
       {/* Add Video Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50 p-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
