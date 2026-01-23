@@ -45,8 +45,8 @@ export default function BriefingDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex items-center space-x-4">
+    <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <Link
           href="/"
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
@@ -56,49 +56,49 @@ export default function BriefingDetailPage() {
         </Link>
         <Link
           href={`/articles?feed_profile=${brief.feed_profile}`}
-          className="text-blue-600 hover:text-blue-800 transition-colors"
+          className="text-sm sm:text-base text-blue-600 hover:text-blue-800 transition-colors"
         >
           View related articles
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 lg:p-8">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
           {brief.feed_profile}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-600">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 sm:mb-6 text-sm text-gray-600">
           <div className="flex items-center space-x-2">
             <Calendar className="h-4 w-4" />
-            <span>{moment(brief.generated_at).format('MMMM D, YYYY [at] h:mm A')}</span>
+            <span className="whitespace-nowrap">{moment(brief.generated_at).format('MMMM D, YYYY [at] h:mm A')}</span>
           </div>
           <div className="flex items-center space-x-2">
             <Tag className="h-4 w-4" />
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+            <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm bg-blue-100 text-blue-800">
               {brief.feed_profile}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8">
-        <div className="font-medium text-3xl text-blue-900 mb-2">Executive Summary</div>
-        <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6 lg:p-8">
+        <div className="font-medium text-xl sm:text-2xl lg:text-3xl text-blue-900 mb-2 sm:mb-4">Executive Summary</div>
+        <div className="prose prose-sm sm:prose-base lg:prose-lg max-w-none text-gray-700 leading-relaxed">
           <ReactMarkdown>{brief.brief_markdown}</ReactMarkdown>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Link
             href={`/articles?feed_profile=${brief.feed_profile}`}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors"
           >
             View Related Articles
           </Link>
           <Link
             href={`/?feed_profile=${brief.feed_profile}`}
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-sm sm:text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
           >
             More Briefings from {brief.feed_profile}
           </Link>

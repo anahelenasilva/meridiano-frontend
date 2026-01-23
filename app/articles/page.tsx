@@ -389,7 +389,7 @@ function ArticlesContent() {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-4 mb-3 text-sm text-gray-600">
+                <div className="flex flex-wrap items-center gap-2 mb-3 text-sm text-gray-600">
                   <span>{moment(article.published_date).format('MMM D, YYYY')}</span>
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                     {article.feed_profile}
@@ -415,8 +415,8 @@ function ArticlesContent() {
                   </div>
                 )}
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Link
                       href={`/article/${article.id}`}
                       className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
@@ -431,7 +431,7 @@ function ArticlesContent() {
                       className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4" />
-                      <span>Original</span>
+                      <span className="hidden sm:inline">Original</span>
                     </a>
                     <button
                       type="button"
@@ -439,7 +439,7 @@ function ArticlesContent() {
                       className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
                     >
                       <TrashIcon className="h-4 w-4" />
-                      <span>Delete</span>
+                      <span className="hidden sm:inline">Delete</span>
                     </button>
                   </div>
                   <BookmarkButton articleId={article.id} size="sm" />
@@ -480,11 +480,11 @@ function ArticlesContent() {
       {/* Add Article Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50 p-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-4"
+            className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -590,29 +590,29 @@ function ArticlesContent() {
                 </select>
               </div>
 
-              <div className="flex items-center justify-end space-x-3">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
-                  disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
-                >
-                  Close
-                </button>
-                <button
-                  onClick={handleAddArticle}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
-                >
-                  {(addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading) ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>{uploadMode === 'upload' ? 'Uploading...' : 'Adding...'}</span>
-                    </>
-                  ) : (
-                    <span>{uploadMode === 'upload' ? 'Upload Article' : 'Add Article'}</span>
-                  )}
-                </button>
-              </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                    disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={handleAddArticle}
+                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
+                  >
+                    {(addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading) ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>{uploadMode === 'upload' ? 'Uploading...' : 'Adding...'}</span>
+                      </>
+                    ) : (
+                      <span>{uploadMode === 'upload' ? 'Upload Article' : 'Add Article'}</span>
+                    )}
+                  </button>
+                </div>
             </div>
           </div>
         </div>
