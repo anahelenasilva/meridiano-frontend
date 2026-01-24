@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, Loader2, Plus, Settings } from 'lucide-react';
+import { Check, ExternalLink, Loader2, Plus, Settings, X } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense, useState } from 'react';
 
@@ -142,24 +142,34 @@ function YoutubeChannelsAdminContent() {
                   </a>
 
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className={`text-sm font-medium transition-colors ${channel.enabled ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
                       {channel.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                     <button
                       onClick={() => handleToggle(channel.id, channel.enabled)}
                       disabled={pendingChannelId === channel.id}
-                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        channel.enabled
+                          ? 'bg-green-500 dark:bg-green-600 focus:ring-green-500 shadow-lg shadow-green-500/30 dark:shadow-green-600/30'
+                          : 'bg-gray-300 dark:bg-gray-600 focus:ring-gray-400'
+                      }`}
                       role="switch"
                       aria-checked={channel.enabled}
                     >
                       {pendingChannelId === channel.id ? (
-                        <Loader2 className="h-3 w-3 text-white animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 text-white animate-spin absolute" />
                       ) : (
                         <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                        />
+                          className={`inline-flex items-center justify-center h-5 w-5 transform rounded-full bg-white transition-all duration-200 shadow-md ${
+                            channel.enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        >
+                          {channel.enabled ? (
+                            <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
+                          ) : (
+                            <X className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </span>
                       )}
                     </button>
                   </div>
@@ -216,23 +226,34 @@ function YoutubeChannelsAdminContent() {
                   </a>
 
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <span className={`text-sm font-medium transition-colors ${channel.enabled ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
                       {channel.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                     <button
                       onClick={() => handleToggle(channel.id, channel.enabled)}
                       disabled={pendingChannelId === channel.id}
-                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        channel.enabled
+                          ? 'bg-green-500 dark:bg-green-600 focus:ring-green-500 shadow-lg shadow-green-500/30 dark:shadow-green-600/30'
+                          : 'bg-gray-300 dark:bg-gray-600 focus:ring-gray-400'
+                      }`}
                       role="switch"
                       aria-checked={channel.enabled}
                     >
                       {pendingChannelId === channel.id ? (
-                        <Loader2 className="h-3 w-3 text-white animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 text-white animate-spin absolute" />
                       ) : (
                         <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${channel.enabled ? 'translate-x-6' : 'translate-x-1'}`}
-                        />
+                          className={`inline-flex items-center justify-center h-5 w-5 transform rounded-full bg-white transition-all duration-200 shadow-md ${
+                            channel.enabled ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        >
+                          {channel.enabled ? (
+                            <Check className="h-3 w-3 text-green-600 dark:text-green-500" />
+                          ) : (
+                            <X className="h-3 w-3 text-gray-500 dark:text-gray-400" />
+                          )}
+                        </span>
                       )}
                     </button>
                   </div>
