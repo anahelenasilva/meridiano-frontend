@@ -5,7 +5,7 @@ import { toast } from '@/src/utils/toast';
 import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Newspaper, Settings, User, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, startTransition } from 'react';
 import { MESSAGES } from '../constants/messages';
 import ThemeToggle from './ThemeToggle';
 
@@ -17,6 +17,8 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const prevPathnameRef = useRef<string>(pathname);
+  const isMobileMenuOpenRef = useRef<boolean>(false);
 
   const isActive = (path: string) => {
     if (path === '/' && pathname === '/') return true;
@@ -47,7 +49,18 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
-    setIsMobileMenuOpen(false);
+    isMobileMenuOpenRef.current = isMobileMenuOpen;
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (prevPathnameRef.current !== pathname) {
+      if (isMobileMenuOpenRef.current) {
+        startTransition(() => {
+          setIsMobileMenuOpen(false);
+        });
+      }
+      prevPathnameRef.current = pathname;
+    }
   }, [pathname]);
 
   const handleLogout = () => {
