@@ -122,13 +122,13 @@ export default function BookmarkButton({
       onClick={handleToggleBookmark}
       disabled={isLoading || !userId}
       className={`flex items-center space-x-1 ${buttonSizeClasses[size]} border rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isBookmarked
-        ? 'bg-yellow-600 text-white hover:bg-yellow-700 border-yellow-600'
-        : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+        ? 'bg-yellow-600 dark:bg-yellow-500 text-white hover:bg-yellow-700 dark:hover:bg-yellow-600 border-yellow-600 dark:border-yellow-500'
+        : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600'
         }`}
       title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
     >
       {isLoading ? (
-        <div className={`animate-spin rounded-full border-b-2 ${isBookmarked ? 'border-white' : 'border-gray-700'} ${sizeClasses[size]}`}></div>
+        <div className={`animate-spin rounded-full border-b-2 ${isBookmarked ? 'border-white' : 'border-gray-700 dark:border-gray-300'} ${sizeClasses[size]}`}></div>
       ) : isBookmarked ? (
         <BookmarkCheck className={sizeClasses[size]} />
       ) : (

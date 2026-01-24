@@ -44,7 +44,7 @@ function YoutubeChannelsAdminContent() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -52,10 +52,10 @@ function YoutubeChannelsAdminContent() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <div className="text-red-600 text-lg mb-4">Error loading channels</div>
+        <div className="text-red-600 dark:text-red-400 text-lg mb-4">Error loading channels</div>
         <button
           onClick={() => window.location.reload()}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600"
         >
           Retry
         </button>
@@ -66,7 +66,7 @@ function YoutubeChannelsAdminContent() {
   if (!channels || channels.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-gray-500 text-lg">No channels found</div>
+        <div className="text-gray-500 dark:text-gray-400 text-lg">No channels found</div>
       </div>
     );
   }
@@ -80,27 +80,27 @@ function YoutubeChannelsAdminContent() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <Settings className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">YouTube Channels Admin</h1>
+          <Settings className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">YouTube Channels Admin</h1>
         </div>
         <Link
           href="/admin/youtube-channels/add"
-          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Channel
         </Link>
       </div>
 
-      <div className="text-sm text-gray-600 mb-4">
+      <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
         Manage YouTube channels. Enable or disable channels to control which ones are actively monitored.
       </div>
 
       {/* Enabled Channels Section */}
       {enabledChannels.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-800 text-xs font-bold">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 text-xs font-bold">
               {enabledChannels.length}
             </span>
             <span>Enabled Channels</span>
@@ -109,20 +109,20 @@ function YoutubeChannelsAdminContent() {
             {enabledChannels.map((channel) => (
               <div
                 key={channel.id}
-                className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-6"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow p-6"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{channel.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{channel.name}</h3>
                     {channel.description && (
-                      <p className="text-sm text-gray-600 mb-3">{channel.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{channel.description}</p>
                     )}
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-medium">Channel ID:</span>
-                      <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">{channel.channelId}</code>
+                      <code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs text-gray-800 dark:text-gray-300">{channel.channelId}</code>
                     </div>
                     {channel.maxVideos && (
-                      <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                      <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
                         <span className="font-medium">Max Videos:</span>
                         <span>{channel.maxVideos}</span>
                       </div>
@@ -130,25 +130,25 @@ function YoutubeChannelsAdminContent() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                   <a
                     href={channel.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                    className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
                     <ExternalLink className="h-4 w-4" />
                     <span>View Channel</span>
                   </a>
 
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {channel.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                     <button
                       onClick={() => handleToggle(channel.id, channel.enabled)}
                       disabled={pendingChannelId === channel.id}
-                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
+                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'
                         }`}
                       role="switch"
                       aria-checked={channel.enabled}
@@ -173,8 +173,8 @@ function YoutubeChannelsAdminContent() {
       {/* Disabled Channels Section */}
       {disabledChannels.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900 flex items-center space-x-2">
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-800 text-xs font-bold">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300 text-xs font-bold">
               {disabledChannels.length}
             </span>
             <span>Disabled Channels</span>
@@ -183,20 +183,20 @@ function YoutubeChannelsAdminContent() {
             {disabledChannels.map((channel) => (
               <div
                 key={channel.id}
-                className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-6 opacity-75"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow p-6 opacity-75"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{channel.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{channel.name}</h3>
                     {channel.description && (
-                      <p className="text-sm text-gray-600 mb-3">{channel.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">{channel.description}</p>
                     )}
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                       <span className="font-medium">Channel ID:</span>
-                      <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">{channel.channelId}</code>
+                      <code className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs text-gray-800 dark:text-gray-300">{channel.channelId}</code>
                     </div>
                     {channel.maxVideos && (
-                      <div className="flex items-center space-x-2 text-sm text-gray-500 mt-1">
+                      <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mt-1">
                         <span className="font-medium">Max Videos:</span>
                         <span>{channel.maxVideos}</span>
                       </div>
@@ -204,25 +204,25 @@ function YoutubeChannelsAdminContent() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                   <a
                     href={channel.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                    className="flex items-center space-x-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
                   >
                     <ExternalLink className="h-4 w-4" />
                     <span>View Channel</span>
                   </a>
 
                   <div className="flex items-center space-x-3">
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {channel.enabled ? 'Enabled' : 'Disabled'}
                     </span>
                     <button
                       onClick={() => handleToggle(channel.id, channel.enabled)}
                       disabled={pendingChannelId === channel.id}
-                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600' : 'bg-gray-200'
+                      className={`relative inline-flex h-6 w-11 items-center justify-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed ${channel.enabled ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'
                         }`}
                       role="switch"
                       aria-checked={channel.enabled}
@@ -250,7 +250,7 @@ export default function YoutubeChannelsAdminPage() {
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     }>
       <YoutubeChannelsAdminContent />

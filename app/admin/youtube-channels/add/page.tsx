@@ -164,30 +164,30 @@ export default function AddYoutubeChannelPage() {
       <div className="mb-6">
         <Link
           href="/admin/youtube-channels"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4 transition-colors"
+          className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Channels
         </Link>
         <div className="flex items-center space-x-3">
-          <Plus className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Add YouTube Channel</h1>
+          <Plus className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Add YouTube Channel</h1>
         </div>
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
           Add a new YouTube channel to monitor for transcriptions.
         </p>
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Channel ID */}
           <div>
             <label
               htmlFor="channelId"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Channel ID <span className="text-red-500">*</span>
+              Channel ID <span className="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="channelId"
@@ -196,13 +196,13 @@ export default function AddYoutubeChannelPage() {
               value={formData.channelId}
               onChange={handleChange}
               required
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 ${errors.channelId ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 ${errors.channelId ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               placeholder="UC..."
               disabled={createChannelMutation.isPending}
             />
             {errors.channelId && (
-              <p className="mt-1 text-sm text-red-600">{errors.channelId}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.channelId}</p>
             )}
           </div>
 
@@ -210,9 +210,9 @@ export default function AddYoutubeChannelPage() {
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Name <span className="text-red-500">*</span>
+              Name <span className="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="name"
@@ -221,13 +221,13 @@ export default function AddYoutubeChannelPage() {
               value={formData.name}
               onChange={handleChange}
               required
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 ${errors.name ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 ${errors.name ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               placeholder="Channel Name"
               disabled={createChannelMutation.isPending}
             />
             {errors.name && (
-              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
             )}
           </div>
 
@@ -235,9 +235,9 @@ export default function AddYoutubeChannelPage() {
           <div>
             <label
               htmlFor="url"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              URL <span className="text-red-500">*</span>
+              URL <span className="text-red-500 dark:text-red-400">*</span>
             </label>
             <input
               id="url"
@@ -246,13 +246,13 @@ export default function AddYoutubeChannelPage() {
               value={formData.url}
               onChange={handleChange}
               required
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 ${errors.url ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 ${errors.url ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               placeholder="https://youtube.com/channel/..."
               disabled={createChannelMutation.isPending}
             />
             {errors.url && (
-              <p className="mt-1 text-sm text-red-600">{errors.url}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.url}</p>
             )}
           </div>
 
@@ -260,9 +260,9 @@ export default function AddYoutubeChannelPage() {
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Description <span className="text-red-500">*</span>
+              Description <span className="text-red-500 dark:text-red-400">*</span>
             </label>
             <textarea
               id="description"
@@ -271,13 +271,13 @@ export default function AddYoutubeChannelPage() {
               onChange={handleChange}
               required
               rows={4}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 resize-none ${errors.description ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 resize-none ${errors.description ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               placeholder="Channel description"
               disabled={createChannelMutation.isPending}
             />
             {errors.description && (
-              <p className="mt-1 text-sm text-red-600">{errors.description}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>
             )}
           </div>
 
@@ -289,12 +289,12 @@ export default function AddYoutubeChannelPage() {
               type="checkbox"
               checked={formData.enabled}
               onChange={handleCheckboxChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 text-blue-600 dark:text-blue-500 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
               disabled={createChannelMutation.isPending}
             />
             <label
               htmlFor="enabled"
-              className="ml-2 block text-sm font-medium text-gray-700"
+              className="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Enabled
             </label>
@@ -304,7 +304,7 @@ export default function AddYoutubeChannelPage() {
           <div>
             <label
               htmlFor="maxVideos"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Max Videos (Optional)
             </label>
@@ -315,31 +315,31 @@ export default function AddYoutubeChannelPage() {
               min="1"
               value={formData.maxVideos}
               onChange={handleChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 ${errors.maxVideos ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 ${errors.maxVideos ? 'border-red-300 dark:border-red-600' : 'border-gray-300 dark:border-gray-600'
                 }`}
               placeholder="Leave empty to save as null (don't use this field)"
               disabled={createChannelMutation.isPending}
             />
             {errors.maxVideos && (
-              <p className="mt-1 text-sm text-red-600">{errors.maxVideos}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.maxVideos}</p>
             )}
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Maximum number of videos to process from this channel
             </p>
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <Link
               href="/admin/youtube-channels"
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 transition-colors"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={createChannelMutation.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 dark:bg-blue-500 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
             >
               {createChannelMutation.isPending ? (
                 <>

@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { MESSAGES } from '../constants/messages';
+import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -62,13 +63,13 @@ const Navbar = () => {
     const baseClasses = isMobile
       ? `flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors ${
           active
-            ? 'bg-blue-100 text-blue-700'
-            : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+            : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
         }`
       : `flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
           active
-            ? 'bg-blue-100 text-blue-700'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
         }`;
 
     if (href === '/youtube-transcriptions') {
@@ -92,13 +93,13 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4 lg:space-x-8">
             <Link href="/" className="flex items-center space-x-2">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">Meridiano</span>
+              <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Meridiano</span>
             </Link>
 
             <div className="hidden lg:flex space-x-4">
@@ -109,6 +110,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <ThemeToggle />
             {isAuthenticated && user && (
               <>
                 <div className="hidden lg:block relative" ref={menuRef}>
@@ -124,19 +126,19 @@ const Navbar = () => {
                   </button>
 
                   {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-50">
-                      <div className="px-4 py-3 border-b border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Signed in as</p>
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50">
+                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Signed in as</p>
+                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                           {user.username}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                       </div>
 
                       <Link
                         href="/bookmarks"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       >
                         <Bookmark className="h-4 w-4" />
                         <span>My Bookmarks</span>
@@ -144,7 +146,7 @@ const Navbar = () => {
 
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
                         <span>Sign Out</span>
@@ -155,7 +157,7 @@ const Navbar = () => {
 
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                  className="lg:hidden p-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   aria-label="Toggle menu"
                 >
                   {isMobileMenuOpen ? (
@@ -171,27 +173,30 @@ const Navbar = () => {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-gray-200 bg-white" ref={mobileMenuRef}>
+        <div className="lg:hidden border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800" ref={mobileMenuRef}>
           <div className="container mx-auto px-4 py-4 space-y-2">
+            <div className="px-4 py-2">
+              <ThemeToggle />
+            </div>
             {navLinks.map((link) => (
               <NavLink key={link.href} href={link.href} label={link.label} icon={link.icon} isMobile={true} />
             ))}
 
             {isAuthenticated && user && (
               <>
-                <div className="pt-4 mt-4 border-t border-gray-200">
+                <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="px-4 py-3 mb-2">
-                    <p className="text-xs text-gray-500 mb-1">Signed in as</p>
-                    <p className="text-sm font-semibold text-gray-900 truncate">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Signed in as</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                       {user.username}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                   </div>
 
                   <Link
                     href="/bookmarks"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                    className="flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     <Bookmark className="h-5 w-5" />
                     <span>My Bookmarks</span>
@@ -199,7 +204,7 @@ const Navbar = () => {
 
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
                     <LogOut className="h-5 w-5" />
                     <span>Sign Out</span>

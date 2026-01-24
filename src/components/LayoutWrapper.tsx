@@ -10,7 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {!isLoginPage && <Navbar />}
         <main className={isLoginPage ? "" : "container mx-auto px-4 py-4 sm:py-6 lg:py-8"}>
           {children}

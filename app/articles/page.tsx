@@ -184,7 +184,7 @@ function ArticlesContent() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -192,10 +192,10 @@ function ArticlesContent() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <div className="text-red-600 text-lg mb-4">Error loading articles</div>
+        <div className="text-red-600 dark:text-red-400 text-lg mb-4">Error loading articles</div>
         <button
           onClick={() => window.location.reload()}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600"
         >
           Retry
         </button>
@@ -215,21 +215,21 @@ function ArticlesContent() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             Articles
             {filters.feedProfile && (
-              <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
                 {filters.feedProfile}
               </span>
             )}
             {filters.category && (
-              <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300">
                 {filters.category}
               </span>
             )}
           </h1>
           {pagination.total_articles > 0 && (
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Showing {(pagination.page - 1) * pagination.per_page + 1} - {Math.min(pagination.page * pagination.per_page, pagination.total_articles)} of {pagination.total_articles} articles
             </p>
           )}
@@ -246,12 +246,12 @@ function ArticlesContent() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
         {/* Search and Profile */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           <div className="lg:col-span-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 placeholder="Search articles..."
@@ -262,7 +262,7 @@ function ArticlesContent() {
                     e.preventDefault();
                   }
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500 text-gray-700"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
               />
             </div>
           </div>
@@ -270,7 +270,7 @@ function ArticlesContent() {
             <select
               value={filters.feedProfile}
               onChange={(e) => updateFilter('feedProfile', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 dark:text-gray-300 [&:has(option:checked:not([value='']))]:text-gray-900 dark:[&:has(option:checked:not([value='']))]:text-gray-100 bg-white dark:bg-gray-700"
             >
               <option value="">All Profiles</option>
               {available_profiles.map((profile) => (
@@ -284,7 +284,7 @@ function ArticlesContent() {
             <select
               value={filters.category}
               onChange={(e) => updateFilter('category', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 [&:has(option:checked:not([value='']))]:text-gray-900"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-500 dark:text-gray-300 [&:has(option:checked:not([value='']))]:text-gray-900 dark:[&:has(option:checked:not([value='']))]:text-gray-100 bg-white dark:bg-gray-700"
             >
               <option value="">All Categories</option>
               {available_categories.map((category) => (
@@ -299,16 +299,16 @@ function ArticlesContent() {
         {/* Date Filters */}
         <div className="space-y-3">
           <div className="flex items-center space-x-4">
-            <Calendar className="h-5 w-5 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700">Date Range:</span>
+            <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Date Range:</span>
             <div className="flex space-x-2">
               {['yesterday', 'last_week', 'last_30d', 'last_3m'].map((preset) => (
                 <button
                   key={preset}
                   onClick={() => handlePresetDate(preset)}
                   className={`px-3 py-1 text-xs rounded-full transition-colors ${filters.preset === preset
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                 >
                   {preset.replace('_', ' ').replace('last ', 'Last ')}
@@ -321,24 +321,24 @@ function ArticlesContent() {
               type="date"
               value={filters.startDate}
               onChange={(e) => updateFilter('startDate', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700"
             />
             <input
               type="date"
               value={filters.endDate}
               onChange={(e) => updateFilter('endDate', e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500"
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700"
             />
           </div>
         </div>
 
         {/* Sorting */}
         <div className="flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700">Sort by:</span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by:</span>
           <select
             value={filters.sortBy}
             onChange={(e) => updateFilter('sortBy', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
           >
             <option value="published_date">Date</option>
             <option value="title">Title</option>
@@ -347,7 +347,7 @@ function ArticlesContent() {
           <select
             value={filters.direction}
             onChange={(e) => updateFilter('direction', e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
           >
             <option value="desc">Descending</option>
             <option value="asc">Ascending</option>
@@ -358,14 +358,14 @@ function ArticlesContent() {
       {/* Articles Grid */}
       {articles.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-500 text-lg">No articles found</div>
+          <div className="text-gray-500 dark:text-gray-400 text-lg">No articles found</div>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {articles.map((article) => (
             <div
               key={article.id}
-              className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+              className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
             >
               <div className="h-48 overflow-hidden relative">
                 <Image
@@ -382,35 +382,35 @@ function ArticlesContent() {
                   <div className="flex-1">
                     <Link
                       href={`/article/${article.id}`}
-                      className="text-lg font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2"
+                      className="text-lg font-semibold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2"
                     >
                       {article.title}
                     </Link>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 mb-3 text-sm text-gray-600">
+                <div className="flex flex-wrap items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
                   <span>{moment(article.published_date).format('MMM D, YYYY')}</span>
-                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300">
                     {article.feed_profile}
                   </span>
                   {article.impact_rating && (
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${article.impact_rating >= 8 ? 'bg-red-100 text-red-800' :
-                      article.impact_rating >= 6 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${article.impact_rating >= 8 ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-300' :
+                      article.impact_rating >= 6 ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300' :
+                        'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300'
                       }`}>
                       Impact: {article.impact_rating}/10
                     </span>
                   )}
                   {article.categories && article.categories.length > 0 && (
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs bg-cyan-200 text-cyan-800`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs bg-cyan-200 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-300`}>
                       Categories: {article.categories.join(', ')}
                     </span>
                   )}
                 </div>
 
                 {article.processed_content && (
-                  <div className="text-gray-700 text-sm mb-4 line-clamp-3">
+                  <div className="text-gray-700 dark:text-gray-300 text-sm mb-4 line-clamp-3">
                     {article.processed_content}
                   </div>
                 )}
@@ -428,7 +428,7 @@ function ArticlesContent() {
                       href={article.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-1 px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 transition-colors"
+                      className="flex items-center space-x-1 px-3 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <ExternalLink className="h-4 w-4" />
                       <span className="hidden sm:inline">Original</span>
@@ -436,7 +436,7 @@ function ArticlesContent() {
                     <button
                       type="button"
                       onClick={() => deleteArticle(article.id)}
-                      className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                      className="flex items-center space-x-1 px-3 py-2 text-sm border rounded-md bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
                     >
                       <TrashIcon className="h-4 w-4" />
                       <span className="hidden sm:inline">Delete</span>
@@ -456,20 +456,20 @@ function ArticlesContent() {
           {pagination.page > 1 && (
             <button
               onClick={() => updateFilter('page', Number(pagination.page) - 1)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Previous
             </button>
           )}
 
-          <span className="px-4 py-2 text-gray-700">
+          <span className="px-4 py-2 text-gray-700 dark:text-gray-300">
             Page {pagination.page} of {pagination.total_pages}
           </span>
 
           {pagination.page < pagination.total_pages && (
             <button
               onClick={() => updateFilter('page', Number(pagination.page) + 1)}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Next
             </button>
@@ -480,18 +480,18 @@ function ArticlesContent() {
       {/* Add Article Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-20 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-gray-500 bg-opacity-20 dark:bg-gray-900 dark:bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setIsModalOpen(false)}
         >
           <div
-            className="bg-white rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">Add Article</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add Article</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -499,7 +499,7 @@ function ArticlesContent() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Mode
                 </label>
                 <div className="flex space-x-4">
@@ -512,7 +512,7 @@ function ArticlesContent() {
                       className="mr-2"
                       disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                     />
-                    <span className="text-gray-700">Link</span>
+                    <span className="text-gray-700 dark:text-gray-300">Link</span>
                   </label>
                   <label className="flex items-center cursor-pointer">
                     <input
@@ -523,14 +523,14 @@ function ArticlesContent() {
                       className="mr-2"
                       disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                     />
-                    <span className="text-gray-700">Upload</span>
+                    <span className="text-gray-700 dark:text-gray-300">Upload</span>
                   </label>
                 </div>
               </div>
 
               {uploadMode === 'link' ? (
                 <div>
-                  <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="article-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Article URL
                   </label>
                   <input
@@ -539,7 +539,7 @@ function ArticlesContent() {
                     value={articleUrl}
                     onChange={(e) => setArticleUrl(e.target.value)}
                     placeholder="https://example.com/article"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500  text-gray-700"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:text-gray-500 dark:placeholder:text-gray-400 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
                     disabled={addArticleMutation.isPending}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -551,7 +551,7 @@ function ArticlesContent() {
                 </div>
               ) : (
                 <div>
-                  <label htmlFor="markdown-file" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="markdown-file" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Markdown File
                   </label>
                   <input
@@ -559,11 +559,11 @@ function ArticlesContent() {
                     type="file"
                     accept=".md,.markdown"
                     onChange={handleFileChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 dark:file:bg-blue-900 file:text-blue-700 dark:file:text-blue-300 hover:file:bg-blue-100 dark:hover:file:bg-blue-800"
                     disabled={uploadMarkdownMutation.isPending || isUploading}
                   />
                   {selectedFile && (
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                       Selected: {selectedFile.name}
                     </p>
                   )}
@@ -571,14 +571,14 @@ function ArticlesContent() {
               )}
 
               <div>
-                <label htmlFor="feed-profile" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="feed-profile" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Feed Profile
                 </label>
                 <select
                   id="feed-profile"
                   value={articleFeedProfile}
                   onChange={(e) => setArticleFeedProfile(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 [&:has(option:checked:not([value='']))]:text-gray-900"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 dark:text-gray-300 [&:has(option:checked:not([value='']))]:text-gray-900 dark:[&:has(option:checked:not([value='']))]:text-gray-100 bg-white dark:bg-gray-700"
                   disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                 >
                   <option value="">Select a profile</option>
@@ -593,7 +593,7 @@ function ArticlesContent() {
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     disabled={addArticleMutation.isPending || uploadMarkdownMutation.isPending || isUploading}
                   >
                     Close
