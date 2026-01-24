@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Meridiano - News Briefings",
+  title: "Meridiano",
   description: "AI-powered summaries and insights from your curated news feeds",
 };
 

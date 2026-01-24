@@ -25,10 +25,10 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { href: '/', label: 'Briefings', icon: Home },
+    { href: '/', label: 'Bookmarks', icon: Bookmark },
     { href: '/articles', label: 'Articles', icon: Newspaper },
-    { href: '/bookmarks', label: 'Bookmarks', icon: Bookmark },
     { href: '/youtube-transcriptions', label: 'YouTube', icon: null },
+    { href: '/briefings', label: 'Briefings', icon: FileText },
     { href: '/admin/youtube-channels', label: 'Admin', icon: Settings },
   ];
 
@@ -61,16 +61,14 @@ const Navbar = () => {
   const NavLink = ({ href, label, icon: Icon, isMobile = false }: { href: string; label: string; icon: typeof Home | null; isMobile?: boolean }) => {
     const active = isActive(href);
     const baseClasses = isMobile
-      ? `flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors ${
-          active
-            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-            : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
-        }`
-      : `flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-          active
-            ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
-        }`;
+      ? `flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium transition-colors ${active
+        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+        : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+      }`
+      : `flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${active
+        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+      }`;
 
     if (href === '/youtube-transcriptions') {
       return (

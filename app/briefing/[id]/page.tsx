@@ -35,7 +35,7 @@ export default function BriefingDetailPage() {
       <div className="text-center py-12">
         <div className="text-red-600 dark:text-red-400 text-lg mb-4">Error loading briefing</div>
         <Link
-          href="/"
+          href="/briefings"
           className="bg-blue-600 dark:bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-blue-600"
         >
           Back to Briefings
@@ -48,7 +48,7 @@ export default function BriefingDetailPage() {
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <Link
-          href="/"
+          href="/briefings"
           className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -97,7 +97,7 @@ export default function BriefingDetailPage() {
             View Related Articles
           </Link>
           <Link
-            href={`/?feed_profile=${brief.feed_profile}`}
+            href={`/briefings?feed_profile=${brief.feed_profile}`}
             className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 text-sm sm:text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
           >
             More Briefings from {brief.feed_profile}
