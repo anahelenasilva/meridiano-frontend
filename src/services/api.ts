@@ -12,6 +12,11 @@ export const getApiBaseUrl = (): string => {
     return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
   }
 
+  //not the best solution, but it works for now; will improve later
+  if (process.env.NEXT_PUBLIC_API_BASE_URL?.includes("railway.app")) {
+    return `${process.env.NEXT_PUBLIC_API_BASE_URL}`
+  }
+
   // If running in browser, use current hostname
   if (typeof window !== 'undefined') {
     const protocol = window.location.protocol;
