@@ -105,8 +105,14 @@ export const apiService = {
     return api.get(`/articles?${searchParams.toString()}`);
   },
 
-  getArticle: (id: string) =>
-    api.get(`/articles/${id}`),
+  getArticle: (id: string, includeAudio?: boolean) => {
+    const params = new URLSearchParams();
+    if (includeAudio) {
+      params.append('includeAudio', 'true');
+    }
+    const queryString = params.toString();
+    return api.get(`/articles/${id}${queryString ? `?${queryString}` : ''}`);
+  },
 
   deleteArticle: (id: string) =>
     api.delete(`/articles/${id}`),
@@ -165,4 +171,10 @@ export const apiService = {
 
   removeBookmark: (userId: string, articleId: string) =>
     api.delete(`/bookmarks?user_id=${userId}&article_id=${articleId}`),
+
+  generateArticleAudio: (articleId: string) =>
+    api.post(`/articles/${articleId}/audio`),
+
+  getAudioJobStatus: (articleId: string, jobId: string) =>
+    api.get(`/articles/${articleId}/audio/status/${jobId}`),
 };

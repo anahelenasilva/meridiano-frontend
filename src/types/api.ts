@@ -10,6 +10,14 @@ const ArticleCategory = {
 
 export type ArticleCategory = typeof ArticleCategory[keyof typeof ArticleCategory];
 
+export interface AudioData {
+  id: string;
+  s3_key: string;
+  file_size_bytes: number;
+  duration_seconds: number;
+  presigned_url: string;
+}
+
 export interface Article {
   id: string;
   url: string;
@@ -25,6 +33,7 @@ export interface Article {
   image_url: string;
   created_at: string;
   categories: ArticleCategory[];
+  audio?: AudioData;
 }
 
 export interface Briefing {
@@ -126,4 +135,27 @@ export interface BookmarksResponse {
 
 export interface BookmarkCheckResponse {
   bookmarked: boolean;
+}
+
+export interface GenerateAudioResponse {
+  jobId: string;
+  status: string;
+  message: string;
+}
+
+export interface AudioJobStatusResponse {
+  jobId: string;
+  state: 'completed' | 'failed' | 'unknown' | 'active' | 'waiting';
+  progress: number;
+  result?: {
+    audioKey: string;
+    duration: number;
+  };
+  error?: string;
+  data?: {
+    sourceType: string;
+    sourceId: string;
+    text: string;
+    date: string;
+  };
 }

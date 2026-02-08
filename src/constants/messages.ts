@@ -10,6 +10,7 @@ export const MESSAGES = {
     ARTICLE_UNBOOKMARKED: 'Bookmark removed',
     LOGGED_OUT: 'Logged out successfully',
     MARKDOWN_UPLOADED: 'Markdown file uploaded successfully! Article will be processed shortly.',
+    AUDIO_GENERATION_QUEUED: 'Audio generation started. This may take a moment...',
   },
 
   ERROR: {
@@ -30,6 +31,9 @@ export const MESSAGES = {
     LOGIN_REQUIRED: 'User not authenticated',
     MARKDOWN_UPLOAD: 'Error uploading markdown file:',
     PRESIGNED_URL: 'Error getting upload URL:',
+    AUDIO_GENERATION: 'Error generating audio:',
+    AUDIO_GENERATION_FAILED: 'Audio generation failed',
+    AUDIO_STATUS_CHECK: 'Error checking audio status:',
   },
 
   VALIDATION: {
