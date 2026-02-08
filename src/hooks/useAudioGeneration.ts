@@ -127,7 +127,7 @@ export function useAudioGeneration({
   }, [jobState, jobId, articleId, pollingInterval, maxAttempts, maxConsecutiveErrors, queryClient]);
 
   const generateAudio = useCallback(async () => {
-    if (isGenerating) {
+    if (isGenerating || !articleId) {
       return;
     }
 
