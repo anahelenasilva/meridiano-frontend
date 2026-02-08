@@ -139,7 +139,6 @@ export interface BookmarkCheckResponse {
 
 export interface GenerateAudioResponse {
   jobId: string;
-  status: string;
   message: string;
 }
 
