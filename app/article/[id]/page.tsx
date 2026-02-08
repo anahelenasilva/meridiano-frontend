@@ -1,12 +1,14 @@
 'use client';
 
+import AudioPlayer from '@/src/components/AudioPlayer';
 import BookmarkButton from '@/src/components/BookmarkButton';
 import { MESSAGES } from '@/src/constants/messages';
+import { useAudioGeneration } from '@/src/hooks/useAudioGeneration';
 import { apiService } from '@/src/services/api';
 import type { ArticleDetailResponse } from '@/src/types/api';
 import { toast } from '@/src/utils/toast';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Calendar, ExternalLink, Tag, TrashIcon } from 'lucide-react';
+import { ArrowLeft, Calendar, ExternalLink, Loader2, Music, RefreshCw, Tag, TrashIcon } from 'lucide-react';
 import moment from 'moment';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,11 +22,20 @@ export default function ArticleDetailPage() {
   const { data, isLoading, error } = useQuery<ArticleDetailResponse>({
     queryKey: ['article', articleId],
     queryFn: async () => {
-      const response = await apiService.getArticle(articleId);
+      const response = await apiService.getArticle(articleId, true);
       return response.data;
     },
     enabled: !!articleId,
   });
+
+  const {
+    generateAudio,
+    isGenerating,
+    jobState,
+    progress,
+    error: generationError,
+    reset,
+  } = useAudioGeneration({ articleId });
 
   const deleteArticle = async () => {
     try {
@@ -159,6 +170,68 @@ export default function ArticleDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Audio Player or Generate Audio Button */}
+      {article.audio ? (
+        <AudioPlayer audio={article.audio} />
+      ) : (
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Music className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Audio Article
+            </h3>
+          </div>
+
+          {jobState === 'failed' ? (
+            <div className="space-y-4">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 text-red-700 dark:text-red-400">
+                {generationError || 'Audio generation failed. Please try again.'}
+              </div>
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center justify-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                <RefreshCw className="h-4 w-4" />
+                <span>Try Again</span>
+              </button>
+            </div>
+          ) : isGenerating ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 text-gray-600 dark:text-gray-400">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>
+                  {jobState === 'queuing'
+                    ? 'Queuing audio generation...'
+                    : `Generating audio... ${progress}%`}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Generate an audio version of this article for easy listening.
+              </p>
+              <button
+                type="button"
+                onClick={generateAudio}
+                disabled={isGenerating}
+                className="inline-flex items-center justify-center space-x-2 px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Music className="h-5 w-5" />
+                <span>Generate Audio</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Article Content */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6 lg:p-8">
