@@ -5,6 +5,8 @@ import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
+import DOMPurify from "dompurify";
+import { useMemo } from "react";
 
 export default function ArticleDetail() {
   const { id } = useParams();
@@ -65,6 +67,16 @@ export default function ArticleDetail() {
   const content = article.processed_content || article.raw_content || "";
   const displayDate = article.published_date ? format(new Date(article.published_date), "MMM d, yyyy") : "";
   const displayImage = getArticleImage(article);
+
+  const sanitizedProcessedContentHtml = useMemo(
+    () => (article.processed_content_html ? DOMPurify.sanitize(article.processed_content_html) : ""),
+    [article.processed_content_html]
+  );
+
+  const sanitizedContentHtml = useMemo(
+    () => (article.content_html ? DOMPurify.sanitize(article.content_html) : ""),
+    [article.content_html]
+  );
 
   return (
     <div className="max-w-6xl mx-auto flex gap-8 px-4 py-6">
@@ -146,13 +158,13 @@ export default function ArticleDetail() {
           <h2 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">AI Summary</h2>
 
           <div className="prose-custom text-foreground/70 text-[17px] whitespace-pre-line mt-6 rounded-lg border border-border bg-card p-4 text-sm mb-6"
-            dangerouslySetInnerHTML={{ __html: article.processed_content_html }}
+            dangerouslySetInnerHTML={{ __html: sanitizedProcessedContentHtml }}
           />
         </div>
 
         {article.content_html && (
           <div className="prose-custom text-foreground/90 leading-[1.8] text-[17px] whitespace-pre-line mt-6"
-            dangerouslySetInnerHTML={{ __html: article.content_html }}>
+            dangerouslySetInnerHTML={{ __html: sanitizedContentHtml }}>
           </div>
         )}
 
