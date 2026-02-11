@@ -1,10 +1,10 @@
 'use client';
 
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ThemeProvider, useTheme } from '@/src/contexts/ThemeContext';
 
 function ToastContainerWrapper() {
   const { resolvedTheme } = useTheme();

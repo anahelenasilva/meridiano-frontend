@@ -1,6 +1,6 @@
 'use client';
 
-import type { AudioData } from '@/src/types/api';
+import { AudioData } from '@/types/api';
 import { Music } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 

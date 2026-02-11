@@ -1,13 +1,8 @@
 'use client';
 
-import { api } from '@/src/services/api';
+import { login, setAuthToken, clearAuthToken } from '@/services/api';
+import { User } from '@/types/auth';
 import React, { Component, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-
-interface User {
-  id: string;
-  email: string;
-  username: string;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -18,9 +13,6 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const ACCESS_TOKEN_KEY = 'meridiano_access_token';
-const USER_KEY = 'meridiano_user';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -88,33 +80,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load auth data from localStorage on mount
   useEffect(() => {
     try {
-      const storedToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-      const storedUser = localStorage.getItem(USER_KEY);
+      const storedToken = localStorage.getItem('auth_token');
+      const storedUser = localStorage.getItem('meridiano_user');
 
-      if (storedToken && storedUser) {
-        setAccessToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      // Check for partial storage state (token exists but user missing/invalid)
+      if (storedToken && !storedUser) {
+        // Clear partial storage - token alone doesn't mean authenticated
+        clearAuthToken();
+        localStorage.removeItem('auth_token');
+        setAccessToken(null);
+        setUser(null);
+      } else if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          // Validate that user has required fields
+          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id) {
+            setAccessToken(storedToken);
+            setUser(parsedUser);
+          } else {
+            // Invalid user structure - clear both
+            clearAuthToken();
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('meridiano_user');
+            setAccessToken(null);
+            setUser(null);
+          }
+        } catch {
+          // Corrupted user data - clear both
+          clearAuthToken();
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('meridiano_user');
+          setAccessToken(null);
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Failed to load auth data from localStorage:', error);
       // Clear potentially corrupted data
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      try {
+        clearAuthToken();
+        localStorage.removeItem('meridiano_user');
+      } catch {
+        // ignore
+      }
+      setAccessToken(null);
+      setUser(null);
     } finally {
       setIsInitialized(true);
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
-    const { access_token, user: userData } = response.data;
+  const loginFn = async (email: string, password: string) => {
+    const response = await login(email, password);
+    const { access_token, user: userData } = response;
 
     setAccessToken(access_token);
     setUser(userData);
 
     try {
-      localStorage.setItem(ACCESS_TOKEN_KEY, access_token);
-      localStorage.setItem(USER_KEY, JSON.stringify(userData));
+      setAuthToken(access_token);
+      localStorage.setItem('meridiano_user', JSON.stringify(userData));
     } catch (error) {
       console.error('Failed to save auth data to localStorage:', error);
     }
@@ -125,14 +150,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessToken(null);
 
     try {
-      localStorage.removeItem(ACCESS_TOKEN_KEY);
-      localStorage.removeItem(USER_KEY);
+      clearAuthToken();
+      localStorage.removeItem('meridiano_user');
     } catch (error) {
       console.error('Failed to clear auth data from localStorage:', error);
     }
   };
 
-  const isAuthenticated = !!(user && accessToken);
+  // Derive isAuthenticated from in-memory state (user !== null)
+  const isAuthenticated = user !== null;
 
   // Don't render children until we've checked localStorage
   if (!isInitialized) {
@@ -150,7 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           user,
           accessToken,
           isAuthenticated,
-          login,
+          login: loginFn,
           logout,
         }}
       >
