@@ -1,180 +1,211 @@
-import axios from 'axios';
+import {
+  ArticleDetailResponse,
+  ArticlesQueryParams,
+  ArticlesResponse,
+  BookmarksResponse,
+  Briefing,
+  BriefingsResponse,
+  YouTubeChannel,
+  YouTubeTranscriptionDetailResponse,
+  YouTubeTranscriptionsResponse
+} from "@/types";
 
-/**
- * Get the API base URL dynamically based on the current hostname
- * This works for:
- * - Tailscale access
- * - Local network
- * - Localhost
- */
-export const getApiBaseUrl = (): string => {
-  if (process.env.NODE_ENV === 'development') {
-    return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+function getAuthToken(): string | null {
+  return localStorage.getItem("auth_token");
+}
+
+export function setAuthToken(token: string) {
+  localStorage.setItem("auth_token", token);
+}
+
+export function clearAuthToken() {
+  localStorage.removeItem("auth_token");
+}
+
+export function isAuthenticated(): boolean {
+  return !!getAuthToken();
+}
+
+function redirectToLogin(): void {
+  clearAuthToken();
+  try {
+    localStorage.removeItem("meridiano_user");
+  } catch {
+    // ignore
+  }
+  const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+  window.location.href = `/login?redirect=${redirect}`;
+}
+
+async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string> || {}),
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  //not the best solution, but it works for now; will improve later
-  if (process.env.NEXT_PUBLIC_API_BASE_URL?.includes("railway.app")) {
-    return `${process.env.NEXT_PUBLIC_API_BASE_URL}`
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (res.status === 401 && token) {
+    redirectToLogin();
+    throw new Error("Session expired");
   }
 
-  // If running in browser, use current hostname
-  if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    const port = '3001'; // Your API port
-    return `${protocol}//${hostname}:${port}`;
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`API error ${res.status}: ${body}`);
   }
 
-  // Fallback for server-side rendering (SSR)
-  return process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-};
+  return res.json();
+}
 
-const API_BASE_URL = 'api';
+function toQuery(params: Record<string, unknown>): string {
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== "");
+  if (entries.length === 0) return "";
+  return "?" + new URLSearchParams(entries.map(([k, v]) => [k, String(v)])).toString();
+}
 
-export const api = axios.create({
-  baseURL: `${getApiBaseUrl()}/${API_BASE_URL}`,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// ===== Auth =====
+export async function login(email: string, password: string) {
+  return apiFetch<{ access_token: string; user: { id: string; email: string; username: string } }>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
 
-api.interceptors.request.use(
-  (config) => {
-    if (config.url?.includes('/auth/login')) {
-      return config;
-    }
+// ===== Profiles =====
+export async function fetchProfiles() {
+  return apiFetch<string[]>("/api/profiles");
+}
 
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('meridiano_access_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
+// ===== Articles =====
+export async function fetchArticles(params: ArticlesQueryParams = {}) {
+  return apiFetch<ArticlesResponse>(`/api/articles${toQuery(params as Record<string, unknown>)}`);
+}
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+export async function fetchArticle(id: string, includeAudio = true) {
+  return apiFetch<ArticleDetailResponse>(`/api/articles/${id}?includeAudio=${includeAudio}`);
+}
+
+export async function deleteArticle(id: string) {
+  return apiFetch<{ success: boolean }>(`/api/articles/${id}`, { method: "DELETE" });
+}
+
+export async function createArticleByLink(url: string, feedProfile?: string) {
+  return apiFetch<{ id: string }>("/api/articles", {
+    method: "POST",
+    body: JSON.stringify({ url, feedProfile }),
+  });
+}
+
+export async function uploadArticleMarkdown(file: File, feedProfile?: string) {
+  const token = getAuthToken();
+  const formData = new FormData();
+  formData.append("file", file);
+  if (feedProfile) formData.append("feedProfile", feedProfile);
+
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_BASE_URL}/api/articles/upload`, {
+    method: "POST",
+    headers,
+    body: formData,
+  });
+
+  if (res.status === 401 && token) {
+    redirectToLogin();
+    throw new Error("Session expired");
   }
-);
 
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-        localStorage.removeItem('meridiano_access_token');
-        localStorage.removeItem('meridiano_user');
-
-        const currentPath = window.location.pathname + window.location.search;
-        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
-      }
-    }
-
-    return Promise.reject(error);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`API error ${res.status}: ${body}`);
   }
-);
 
-export const apiService = {
-  login: (email: string, password: string) =>
-    api.post('/auth/login', { email, password }),
+  return res.json() as Promise<{ id: string }>;
+}
 
-  getBriefings: (feedProfile?: string) =>
-    api.get(`/briefings${feedProfile ? `?feed_profile=${feedProfile}` : ''}`),
+// ===== Bookmarks =====
 
-  getBriefing: (id: string) =>
-    api.get(`/briefings/${id}`),
+export async function fetchBookmarks(userId: string, page = 1, perPage = 20) {
+  return apiFetch<BookmarksResponse>(`/api/bookmarks${toQuery({ user_id: userId, page, per_page: perPage })}`);
+}
 
-  getArticles: (params?: {
-    page?: number;
-    sort_by?: string;
-    direction?: 'asc' | 'desc';
-    feed_profile?: string;
-    search?: string;
-    start_date?: string;
-    end_date?: string;
-    preset?: string;
-    category?: string;
-  }) => {
-    const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value) searchParams.append(key, value.toString());
-      });
-    }
-    return api.get(`/articles?${searchParams.toString()}`);
-  },
+export async function addBookmark(userId: string, articleId: string) {
+  console.log("addBookmark", userId, articleId);
+  return apiFetch<{ id: string }>("/api/bookmarks", {
+    method: "POST",
+    body: JSON.stringify({ user_id: userId, article_id: articleId }),
+  });
+}
 
-  getArticle: (id: string, includeAudio?: boolean) => {
-    const params = new URLSearchParams();
-    if (includeAudio) {
-      params.append('includeAudio', 'true');
-    }
-    const queryString = params.toString();
-    return api.get(`/articles/${id}${queryString ? `?${queryString}` : ''}`);
-  },
+export async function removeBookmark(userId: string, articleId: string) {
+  return apiFetch<{ success: boolean }>(`/api/bookmarks${toQuery({ user_id: userId, article_id: articleId })}`, {
+    method: "DELETE",
+  });
+}
 
-  deleteArticle: (id: string) =>
-    api.delete(`/articles/${id}`),
+export async function checkBookmark(articleId: string, userId: string) {
+  return apiFetch<{ bookmarked: boolean }>(`/api/bookmarks/check/${articleId}${toQuery({ user_id: userId })}`);
+}
 
-  addArticle: (url: string, feedProfile: string) =>
-    api.post('/articles', { url, feedProfile }),
+// ===== Briefings =====
 
-  getPresignedUrl: (fileName: string) =>
-    api.post('/articles/upload-url', { articleFileName: fileName, contentType: 'text/markdown' }),
 
-  addArticleFromMarkdown: (s3Key: string, feedProfile: string) =>
-    api.post('/articles/markdown', { s3Key, feedProfile }),
+export async function fetchBriefings(feedProfile?: string) {
+  return apiFetch<BriefingsResponse>(`/api/briefings${toQuery({ feedProfile: feedProfile || "" })}`);
+}
 
-  getProfiles: () =>
-    api.get('/profiles'),
+export async function fetchBriefing(id: string) {
+  return apiFetch<Briefing>(`/api/briefings/${id}`);
+}
 
-  getHealth: () =>
-    api.get('/health'),
+// ===== YouTube Channels =====
+export async function fetchChannels() {
+  return apiFetch<YouTubeChannel[]>("/api/youtube/channels");
+}
 
-  getYoutubeTranscriptions: () => {
-    return api.get(`/youtube/transcriptions`);
-  },
+export async function createChannel(data: { channelId: string; name: string; url: string; description?: string; enabled?: boolean; maxVideos?: number }) {
+  return apiFetch<YouTubeChannel>("/api/youtube/channels", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
 
-  getYoutubeTranscription: (id: string) =>
-    api.get(`/youtube/transcriptions/${id}`),
+export async function updateChannelEnabled(channelId: string, enabled: boolean) {
+  return apiFetch<{ success: boolean }>(`/api/youtube/channels/${channelId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ enabled }),
+  });
+}
 
-  deleteYoutubeTranscription: (id: string) =>
-    api.delete(`/youtube/transcriptions/${id}`),
+// ===== YouTube Transcriptions =====
 
-  getYoutubeChannels: () =>
-    api.get('/youtube/channels'),
+export async function fetchTranscriptions() {
+  return apiFetch<YouTubeTranscriptionsResponse>("/api/youtube/transcriptions");
+}
 
-  createYoutubeChannel: (data: {
-    channelId: string;
-    name: string;
-    url: string;
-    description: string;
-    enabled: boolean;
-    maxVideos?: number;
-  }) => api.post('/youtube/channels', data),
+export async function fetchTranscription(id: string) {
+  return apiFetch<YouTubeTranscriptionDetailResponse>(`/api/youtube/transcriptions/${id}`);
+}
 
-  updateChannelEnabled: (channelId: string, enabled: boolean) =>
-    api.patch(`/youtube/channels/${channelId}`, { enabled }),
+export async function createTranscription(url: string, channelId?: string) {
+  return apiFetch<{ jobId: string; message: string }>("/api/youtube/transcriptions", {
+    method: "POST",
+    body: JSON.stringify({ url, channelId }),
+  });
+}
 
-  addYoutubeTranscription: (url: string, channelId: string) =>
-    api.post('/youtube/transcriptions', { url, channelId }),
-
-  addBookmark: (userId: string, articleId: string) =>
-    api.post('/bookmarks', { user_id: userId, article_id: articleId }),
-
-  getBookmarks: (userId: string, page: number = 1, perPage: number = 20) =>
-    api.get(`/bookmarks?user_id=${userId}&page=${page}&per_page=${perPage}`),
-
-  checkBookmark: (userId: string, articleId: string) =>
-    api.get(`/bookmarks/check/${articleId}?user_id=${userId}`),
-
-  removeBookmark: (userId: string, articleId: string) =>
-    api.delete(`/bookmarks?user_id=${userId}&article_id=${articleId}`),
-
-  generateArticleAudio: (articleId: string) =>
-    api.post(`/articles/${articleId}/audio`),
-
-  getAudioJobStatus: (articleId: string, jobId: string) =>
-    api.get(`/articles/${articleId}/audio/status/${jobId}`),
-};
+export async function deleteTranscription(id: string) {
+  return apiFetch<{ success: boolean }>(`/api/youtube/transcriptions/${id}`, { method: "DELETE" });
+}

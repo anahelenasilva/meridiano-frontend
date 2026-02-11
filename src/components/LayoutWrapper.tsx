@@ -1,21 +1,20 @@
-'use client';
-
-import { usePathname } from "next/navigation";
+import { useLocation } from "react-router-dom";
 import AuthGuard from "./AuthGuard";
-import Navbar from "./Navbar";
+import Layout from "./Layout";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const isLoginPage = pathname === '/login';
+  const location = useLocation();
+  const isLoginPage = location.pathname === "/login";
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        {!isLoginPage && <Navbar />}
-        <main className={isLoginPage ? "" : "container mx-auto px-4 py-4 sm:py-6 lg:py-8"}>
-          {children}
-        </main>
-      </div>
+      {isLoginPage ? (
+        <div className="min-h-screen bg-background">{children}</div>
+      ) : (
+        <Layout>
+          <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+        </Layout>
+      )}
     </AuthGuard>
   );
 }

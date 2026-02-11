@@ -1,27 +1,28 @@
 'use client';
 
-import { useAuth } from '@/src/contexts/AuthContext';
-import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 const PUBLIC_PATHS = ['/login'];
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const pathname = location.pathname;
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
   useEffect(() => {
     if (!isAuthenticated && !isPublicPath) {
-      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      navigate(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
 
     // If authenticated and trying to access login page, redirect to home
     if (isAuthenticated && pathname === '/login') {
-      router.push('/');
+      navigate('/');
     }
-  }, [isAuthenticated, pathname, router, isPublicPath]);
+  }, [isAuthenticated, pathname, navigate, isPublicPath]);
 
   if (!isAuthenticated && !isPublicPath) {
     return (

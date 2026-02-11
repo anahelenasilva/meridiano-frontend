@@ -1,28 +1,27 @@
 'use client';
 
-import { useAuth } from '@/src/contexts/AuthContext';
-import { toast } from '@/src/utils/toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/utils/toast';
 import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Newspaper, Settings, User, X } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState, startTransition } from 'react';
 import { MESSAGES } from '../constants/messages';
 import ThemeToggle from './ThemeToggle';
 
 const Navbar = () => {
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const prevPathnameRef = useRef<string>(pathname);
+  const prevPathnameRef = useRef<string>(location.pathname);
   const isMobileMenuOpenRef = useRef<boolean>(false);
 
   const isActive = (path: string) => {
-    if (path === '/' && pathname === '/') return true;
-    if (path !== '/' && pathname.startsWith(path)) return true;
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
     return false;
   };
 
@@ -53,22 +52,22 @@ const Navbar = () => {
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
-    if (prevPathnameRef.current !== pathname) {
+    if (prevPathnameRef.current !== location.pathname) {
       if (isMobileMenuOpenRef.current) {
         startTransition(() => {
           setIsMobileMenuOpen(false);
         });
       }
-      prevPathnameRef.current = pathname;
+      prevPathnameRef.current = location.pathname;
     }
-  }, [pathname]);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
     setIsUserMenuOpen(false);
     setIsMobileMenuOpen(false);
     toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
-    router.push('/login');
+    navigate('/login');
   };
 
   const NavLink = ({ href, label, icon: Icon, isMobile = false }: { href: string; label: string; icon: typeof Home | null; isMobile?: boolean }) => {
@@ -85,21 +84,21 @@ const Navbar = () => {
 
     if (href === '/youtube-transcriptions') {
       return (
-        <Link href={href} className={baseClasses}>
+        <button onClick={() => navigate(href)} className={baseClasses}>
           <svg role="img" className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <title>YouTube</title>
             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
           </svg>
           <span>{label}</span>
-        </Link>
+        </button>
       );
     }
 
     return (
-      <Link href={href} className={baseClasses}>
+      <button onClick={() => navigate(href)} className={baseClasses}>
         {Icon && <Icon className={isMobile ? 'h-5 w-5' : 'h-4 w-4'} />}
         <span>{label}</span>
-      </Link>
+      </button>
     );
   };
 
@@ -108,10 +107,10 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center space-x-4 lg:space-x-8">
-            <Link href="/" className="flex items-center space-x-2">
+            <button onClick={() => navigate('/')} className="flex items-center space-x-2">
               <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Meridiano</span>
-            </Link>
+            </button>
 
             <div className="hidden lg:flex space-x-4">
               {navLinks.map((link) => (
@@ -146,14 +145,13 @@ const Navbar = () => {
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                       </div>
 
-                      <Link
-                        href="/bookmarks"
-                        onClick={() => setIsUserMenuOpen(false)}
-                        className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                      <button
+                        onClick={() => navigate('/bookmarks')}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       >
                         <Bookmark className="h-4 w-4" />
                         <span>My Bookmarks</span>
-                      </Link>
+                      </button>
 
                       <button
                         onClick={handleLogout}
@@ -204,14 +202,16 @@ const Navbar = () => {
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
                   </div>
 
-                  <Link
-                    href="/bookmarks"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  <button
+                    onClick={() => {
+                      navigate('/bookmarks');
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     <Bookmark className="h-5 w-5" />
                     <span>My Bookmarks</span>
-                  </Link>
+                  </button>
 
                   <button
                     onClick={handleLogout}
