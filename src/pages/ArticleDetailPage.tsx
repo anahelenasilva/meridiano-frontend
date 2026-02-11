@@ -32,7 +32,24 @@ export default function ArticleDetail() {
 
   // Fetch all articles for prev/next and related
   const { data: allData } = useArticles({ perPage: 50 });
-  const allArticles = allData?.articles ?? [];
+
+  // Memoized sanitized content (must be at top level, not after early returns)
+  const sanitizedProcessedContentHtml = useMemo(
+    () => {
+      // These will be undefined until article is loaded
+      if (!data?.article?.processed_content_html) return "";
+      return DOMPurify.sanitize(data.article.processed_content_html);
+    },
+    [data?.article?.processed_content_html]
+  );
+
+  const sanitizedContentHtml = useMemo(
+    () => {
+      if (!data?.article?.content_html) return "";
+      return DOMPurify.sanitize(data.article.content_html);
+    },
+    [data?.article?.content_html]
+  );
 
   if (isLoading) {
     return (
@@ -56,6 +73,7 @@ export default function ArticleDetail() {
     );
   }
 
+  const allArticles = allData?.articles ?? [];
   const articleIndex = allArticles.findIndex((a) => a.id === id);
   const prevArticle = articleIndex > 0 ? allArticles[articleIndex - 1] : null;
   const nextArticle = articleIndex < allArticles.length - 1 ? allArticles[articleIndex + 1] : null;
@@ -64,19 +82,8 @@ export default function ArticleDetail() {
     .filter((a) => a.id !== article.id && primaryCategory && a.categories?.includes(primaryCategory))
     .slice(0, 3);
 
-  const content = article.processed_content || article.raw_content || "";
   const displayDate = article.published_date ? format(new Date(article.published_date), "MMM d, yyyy") : "";
   const displayImage = getArticleImage(article);
-
-  const sanitizedProcessedContentHtml = useMemo(
-    () => (article.processed_content_html ? DOMPurify.sanitize(article.processed_content_html) : ""),
-    [article.processed_content_html]
-  );
-
-  const sanitizedContentHtml = useMemo(
-    () => (article.content_html ? DOMPurify.sanitize(article.content_html) : ""),
-    [article.content_html]
-  );
 
   return (
     <div className="max-w-6xl mx-auto flex gap-8 px-4 py-6">
