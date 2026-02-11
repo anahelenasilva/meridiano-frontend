@@ -1,6 +1,6 @@
 'use client';
 
-import { login, setAuthToken, clearAuthToken, isAuthenticated as checkIsAuthenticated } from '@/services/api';
+import { login, setAuthToken, clearAuthToken } from '@/services/api';
 import { User } from '@/types/auth';
 import React, { Component, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
@@ -83,15 +83,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedToken = localStorage.getItem('auth_token');
       const storedUser = localStorage.getItem('meridiano_user');
 
-      if (storedToken && storedUser) {
-        setAccessToken(storedToken);
-        setUser(JSON.parse(storedUser));
+      // Check for partial storage state (token exists but user missing/invalid)
+      if (storedToken && !storedUser) {
+        // Clear partial storage - token alone doesn't mean authenticated
+        clearAuthToken();
+        localStorage.removeItem('auth_token');
+        setAccessToken(null);
+        setUser(null);
+      } else if (storedToken && storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          // Validate that user has required fields
+          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id) {
+            setAccessToken(storedToken);
+            setUser(parsedUser);
+          } else {
+            // Invalid user structure - clear both
+            clearAuthToken();
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('meridiano_user');
+            setAccessToken(null);
+            setUser(null);
+          }
+        } catch {
+          // Corrupted user data - clear both
+          clearAuthToken();
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('meridiano_user');
+          setAccessToken(null);
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Failed to load auth data from localStorage:', error);
       // Clear potentially corrupted data
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('meridiano_user');
+      try {
+        clearAuthToken();
+        localStorage.removeItem('meridiano_user');
+      } catch {
+        // ignore
+      }
+      setAccessToken(null);
+      setUser(null);
     } finally {
       setIsInitialized(true);
     }
@@ -124,7 +157,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isAuthenticated = checkIsAuthenticated();
+  // Derive isAuthenticated from in-memory state (user !== null)
+  const isAuthenticated = user !== null;
 
   // Don't render children until we've checked localStorage
   if (!isInitialized) {
