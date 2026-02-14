@@ -1,3 +1,4 @@
+import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -42,14 +43,21 @@ export default function YoutubeTranscriptionDetailPage() {
         <ArrowLeft className="h-4 w-4" /> Back
       </Link>
 
-      <div className="aspect-video rounded-lg overflow-hidden bg-muted mb-6">
-        <iframe
-          src={`https://www.youtube.com/embed/${video.videoId}`}
-          title={video.videoTitle}
-          className="h-full w-full"
-          allowFullScreen
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        />
+      <div className="w-full aspect-video relative bg-gray-100 dark:bg-gray-900 mb-6">
+        <a
+          href={video.videoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full h-full"
+        >
+          <YoutubeThumbnail
+            videoUrl={video.videoUrl}
+            alt={video.videoTitle}
+            fill
+            className="object-contain hover:opacity-90 transition-opacity"
+            priority
+          />
+        </a>
       </div>
 
       <p className="text-xs font-medium uppercase tracking-widest text-primary mb-3">

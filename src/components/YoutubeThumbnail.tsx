@@ -1,7 +1,4 @@
-'use client';
-
-import { getThumbnailFromVideoUrl } from '@/src/utils/youtube';
-import Image from 'next/image';
+import { getThumbnailFromVideoUrl } from '@/utils/youtube';
 import { useEffect, useReducer, useRef } from 'react';
 
 interface YoutubeThumbnailProps {
@@ -90,28 +87,25 @@ export function YoutubeThumbnail({
 
   if (fill) {
     return (
-      <Image
+      <img
         src={thumbnailUrl}
         alt={alt}
-        fill
-        className={className}
+        className={`absolute inset-0 h-full w-full object-cover ${className}`}
         onError={handleError}
-        unoptimized
-        priority={priority}
+        loading={priority ? 'eager' : 'lazy'}
       />
     );
   }
 
   return (
-    <Image
+    <img
       src={thumbnailUrl}
       alt={alt}
       width={width || 640}
       height={height || 360}
       className={className}
       onError={handleError}
-      unoptimized
-      priority={priority}
+      loading={priority ? 'eager' : 'lazy'}
     />
   );
 }
