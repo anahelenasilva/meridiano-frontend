@@ -1,4 +1,5 @@
 import ArticleCard from "@/components/ArticleCard";
+import { BackButton } from "@/components/BackButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
 import { getArticleImage } from "@/utils/get-article-image";
@@ -117,6 +118,7 @@ export default function ArticleDetail() {
 
       {/* Main content */}
       <article className="flex-1 min-w-0 max-w-2xl">
+        <BackButton to="/articles" />
         <p className="text-xs font-medium uppercase tracking-widest text-primary mb-4">{article.feed_source}</p>
 
         <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight mb-3">{article.title}</h1>

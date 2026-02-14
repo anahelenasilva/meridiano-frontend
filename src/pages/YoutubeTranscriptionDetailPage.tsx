@@ -1,7 +1,8 @@
+import { BackButton } from "@/components/BackButton";
 import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
 import { format } from "date-fns";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { Link, useParams } from "react-router-dom";
@@ -36,12 +37,7 @@ export default function YoutubeTranscriptionDetailPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      <Link
-        to="/youtube-transcriptions"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back
-      </Link>
+      <BackButton to="/youtube-transcriptions" />
 
       <div className="w-full aspect-video relative bg-gray-100 dark:bg-gray-900 mb-6">
         <a
