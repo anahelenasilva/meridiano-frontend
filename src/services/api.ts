@@ -10,8 +10,6 @@ import {
   YouTubeTranscriptionsResponse
 } from "@/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
-
 function getAuthToken(): string | null {
   return localStorage.getItem("auth_token");
 }
@@ -26,6 +24,35 @@ export function clearAuthToken() {
 
 export function isAuthenticated(): boolean {
   return !!getAuthToken();
+}
+
+export const getApiBaseUrl = (): string => {
+  console.log('getApiBaseUrl envs', {
+    mode: import.meta.env.MODE,
+    dev: import.meta.env.DEV,
+    prod: import.meta.env.PROD,
+    typeofWindow: typeof window,
+  });
+
+  if (import.meta.env.MODE === 'development') {
+    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+  }
+
+  //not the best solution, but it works for now; will improve later
+  if (import.meta.env.VITE_API_BASE_URL?.includes("railway.app")) {
+    return `${import.meta.env.VITE_API_BASE_URL}`
+  }
+
+  // If running in browser, use current hostname
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    const port = '3001'; // Your API port
+    return `${protocol}//${hostname}:${port}`;
+  }
+
+  // Fallback for server-side rendering (SSR)
+  return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 }
 
 function redirectToLogin(): void {
@@ -50,7 +77,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers,
   });
@@ -116,7 +143,7 @@ export async function uploadArticleMarkdown(file: File, feedProfile?: string) {
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE_URL}/api/articles/upload`, {
+  const res = await fetch(`${getApiBaseUrl()}/api/articles/upload`, {
     method: "POST",
     headers,
     body: formData,
