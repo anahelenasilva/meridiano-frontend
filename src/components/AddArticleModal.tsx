@@ -137,7 +137,7 @@ export default function AddArticleModal({
               <Label className="text-muted-foreground mb-2 block">
                 Markdown File
               </Label>
-              <div className="flex items-center gap-3 rounded-md border border-input bg-background p-2">
+              <div className="flex min-w-0 items-center gap-3 rounded-md border border-input bg-background p-2">
                 <Button
                   size="sm"
                   variant="default"
@@ -146,7 +146,7 @@ export default function AddArticleModal({
                 >
                   Choose File
                 </Button>
-                <span className="text-sm text-muted-foreground truncate">
+                <span className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
                   {selectedFile ? selectedFile.name : "No file chosen"}
                 </span>
                 <input
