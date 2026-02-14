@@ -1,11 +1,14 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTranscriptions } from "@/hooks/useApi";
 import { format } from "date-fns";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import AddTranscriptionModal from "@/components/AddTranscriptionModal";
 
 export default function YoutubeTranscriptionsPage() {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { data, isLoading } = useTranscriptions();
   const videos = data?.transcriptions ?? [];
 
@@ -34,7 +37,18 @@ export default function YoutubeTranscriptionsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
-      <h1 className="font-serif text-2xl font-bold mb-6">YouTube Transcriptions</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <h1 className="font-serif text-2xl font-bold">YouTube Transcriptions</h1>
+        <Button onClick={() => setIsAddModalOpen(true)} size="sm">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Video
+        </Button>
+      </div>
+
+      <AddTranscriptionModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+      />
 
       {grouped.length === 0 && (
         <p className="text-center text-muted-foreground py-12">No transcriptions found.</p>

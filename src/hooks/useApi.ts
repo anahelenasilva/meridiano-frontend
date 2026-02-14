@@ -3,6 +3,7 @@ import {
   checkBookmark,
   createArticleByLink,
   createChannel,
+  createTranscription,
   deleteArticle,
   deleteTranscription,
   fetchArticle,
@@ -210,6 +211,18 @@ export function useTranscription(
     queryKey: ["youtube-transcription", id],
     queryFn: () => fetchTranscription(id as string),
     enabled: Boolean(id),
+  });
+}
+
+export function useAddTranscription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ url, channelId }: { url: string; channelId?: string }) =>
+      createTranscription(url, channelId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
+    },
   });
 }
 
