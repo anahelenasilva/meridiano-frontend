@@ -1,5 +1,3 @@
-'use client';
-
 import { AudioData } from '@/types/api';
 import { Music } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';

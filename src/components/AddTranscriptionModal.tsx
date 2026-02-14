@@ -21,15 +21,11 @@ import {
 import { Loader2 } from "lucide-react";
 import { toast } from "@/utils/toast";
 import { MESSAGES } from "@/constants/messages";
+import { getErrorMessage } from "@/utils/api-error";
 
 interface AddTranscriptionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return MESSAGES.ERROR.GENERIC;
 }
 
 export default function AddTranscriptionModal({

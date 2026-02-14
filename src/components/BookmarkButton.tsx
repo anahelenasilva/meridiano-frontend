@@ -1,11 +1,10 @@
-'use client';
-
-import { useAuth } from '@/src/contexts/AuthContext';
-import { apiService } from '@/src/services/api';
-import { toast } from '@/src/utils/toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { apiService } from '@/services/api';
+import { toast } from '@/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { MESSAGES } from '../constants/messages';
+import { getErrorMessage } from '@/utils/api-error';
 
 interface BookmarkButtonProps {
   articleId: string;
@@ -64,7 +63,7 @@ export default function BookmarkButton({
       toast.success(MESSAGES.SUCCESS.ARTICLE_BOOKMARKED);
     },
     onError: (error: Error) => {
-      toast.error(`${MESSAGES.ERROR.ARTICLE_BOOKMARK} ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.ARTICLE_BOOKMARK} ${getErrorMessage(error)}`);
     },
   });
 
@@ -82,7 +81,7 @@ export default function BookmarkButton({
       toast.success(MESSAGES.SUCCESS.ARTICLE_UNBOOKMARKED);
     },
     onError: (error: Error) => {
-      toast.error(`${MESSAGES.ERROR.ARTICLE_UNBOOKMARK} ${error.message}`);
+      toast.error(`${MESSAGES.ERROR.ARTICLE_UNBOOKMARK} ${getErrorMessage(error)}`);
     },
   });
 

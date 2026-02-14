@@ -1,5 +1,3 @@
-'use client';
-
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/utils/toast';
 import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Newspaper, Settings, User, X } from 'lucide-react';

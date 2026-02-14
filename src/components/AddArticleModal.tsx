@@ -24,15 +24,11 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { toast } from "@/utils/toast";
+import { getErrorMessage } from "@/utils/api-error";
 
 interface AddArticleModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  return "Failed to add article";
 }
 
 export default function AddArticleModal({

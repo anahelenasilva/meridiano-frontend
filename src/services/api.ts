@@ -9,6 +9,7 @@ import {
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
 } from "@/types";
+import { parseErrorResponse } from "@/utils/api-error";
 
 function getAuthToken(): string | null {
   return localStorage.getItem("auth_token");
@@ -89,7 +90,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`API error ${res.status}: ${body}`);
+    throw parseErrorResponse(res.status, res.statusText, body);
   }
 
   return res.json();
@@ -156,7 +157,7 @@ export async function uploadArticleMarkdown(file: File, feedProfile?: string) {
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`API error ${res.status}: ${body}`);
+    throw parseErrorResponse(res.status, res.statusText, body);
   }
 
   return res.json() as Promise<{ id: string }>;
