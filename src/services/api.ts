@@ -28,13 +28,6 @@ export function isAuthenticated(): boolean {
 }
 
 export const getApiBaseUrl = (): string => {
-  console.log('getApiBaseUrl envs', {
-    mode: import.meta.env.MODE,
-    dev: import.meta.env.DEV,
-    prod: import.meta.env.PROD,
-    typeofWindow: typeof window,
-  });
-
   if (import.meta.env.MODE === 'development') {
     return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
   }
