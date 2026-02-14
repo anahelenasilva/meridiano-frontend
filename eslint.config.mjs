@@ -1,9 +1,9 @@
-import { defineConfig, globalIgnores } from "eslint/config";
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tailwindcss from "eslint-plugin-tailwindcss";
+import { defineConfig, globalIgnores } from "eslint/config";
+import tseslint from "typescript-eslint";
 
 const eslintConfig = defineConfig([
   js.configs.recommended,
@@ -23,6 +23,12 @@ const eslintConfig = defineConfig([
       // Tailwind CSS plugin rules
       ...tailwindcss.configs.recommended.rules,
     },
+    "tailwindcss/no-custom-classname": [
+      "warn",
+      {
+        whitelist: ["code-annotation"],
+      },
+    ],
   },
   globalIgnores(["dist/**", "node_modules/**"]),
 ]);
