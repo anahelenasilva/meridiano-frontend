@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "serve": "vite preview --port 8080 --host ::",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "lint:biome": "biome check ."
   },
   "dependencies": {
