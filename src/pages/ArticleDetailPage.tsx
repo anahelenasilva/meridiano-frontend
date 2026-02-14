@@ -4,10 +4,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
 import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
-import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
 import DOMPurify from "dompurify";
+import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useMemo } from "react";
+import { Link, useParams } from "react-router-dom";
 
 export default function ArticleDetail() {
   const { id } = useParams();
@@ -151,7 +151,17 @@ export default function ArticleDetail() {
         </div>
 
         <div className="border-t border-border pt-6 mb-6">
-          <img src={displayImage} alt={article.title} className="w-full rounded-lg object-cover mb-6 max-h-96" />
+          <div className="w-full aspect-video relative bg-gray-100 dark:bg-gray-900 mb-6">
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full h-full"
+            >
+
+              <img src={displayImage} alt={article.title} className="w-full rounded-lg object-cover mb-6 max-h-96" />
+            </a>
+          </div>
         </div>
 
         {audio?.presigned_url && (
