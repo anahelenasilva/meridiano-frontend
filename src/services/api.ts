@@ -128,32 +128,52 @@ export async function createArticleByLink(url: string, feedProfile?: string) {
   });
 }
 
-export async function uploadArticleMarkdown(file: File, feedProfile?: string) {
-  const token = getAuthToken();
-  const formData = new FormData();
-  formData.append("file", file);
-  if (feedProfile) formData.append("feedProfile", feedProfile);
+export interface PresignedUrlResponse {
+  url: string;
+  fields: Record<string, string>;
+}
 
-  const headers: Record<string, string> = {};
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${getApiBaseUrl()}/api/articles/upload`, {
+export async function getPresignedUrl(filename: string): Promise<PresignedUrlResponse> {
+  return apiFetch<PresignedUrlResponse>("/api/articles/upload-url", {
     method: "POST",
-    headers,
+    body: JSON.stringify({
+      articleFileName: filename,
+      contentType: "text/markdown",
+    }),
+  });
+}
+
+export async function addArticleFromMarkdown(s3Key: string, feedProfile?: string): Promise<{ jobId: string; message: string }> {
+  return apiFetch<{ jobId: string; message: string }>("/api/articles/markdown", {
+    method: "POST",
+    body: JSON.stringify({ s3Key, feedProfile }),
+  });
+}
+
+export async function uploadArticleMarkdown(file: File, feedProfile?: string): Promise<{ jobId: string; message: string }> {
+  // Step 1: Get presigned URL from the API
+  const presignedUrlResponse = await getPresignedUrl(file.name);
+  const { url, fields } = presignedUrlResponse;
+  const s3Key = fields.key;
+
+  // Step 2: Upload directly to S3
+  const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  formData.append("file", file);
+
+  const s3Response = await fetch(url, {
+    method: "POST",
     body: formData,
   });
 
-  if (res.status === 401 && token) {
-    redirectToLogin();
-    throw new Error("Session expired");
+  if (!s3Response.ok) {
+    throw new Error(`S3 upload failed: ${s3Response.statusText}`);
   }
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw parseErrorResponse(res.status, res.statusText, body);
-  }
-
-  return res.json() as Promise<{ id: string }>;
+  // Step 3: Call API to process the markdown from S3
+  return addArticleFromMarkdown(s3Key, feedProfile);
 }
 
 // ===== Bookmarks =====

@@ -25,6 +25,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { toast } from "@/utils/toast";
 import { getErrorMessage } from "@/utils/api-error";
+import { validateMarkdownFile } from "@/utils/s3";
 
 interface AddArticleModalProps {
   open: boolean;
@@ -49,15 +50,24 @@ export default function AddArticleModal({
 
   const handleAddArticle = async () => {
     try {
+      if (!articleProfile) {
+        toast.error("Please select a feed profile");
+        return;
+      }
+
       if (addMode === "link") {
+        if (!articleUrl.trim()) {
+          toast.error("Please enter a valid URL");
+          return;
+        }
         await createByLink.mutateAsync({
           url: articleUrl,
-          feedProfile: articleProfile || undefined,
+          feedProfile: articleProfile,
         });
       } else if (selectedFile) {
         await uploadMarkdown.mutateAsync({
           file: selectedFile,
-          feedProfile: articleProfile || undefined,
+          feedProfile: articleProfile,
         });
       }
       toast.success("Article added successfully");
@@ -65,6 +75,7 @@ export default function AddArticleModal({
       setArticleUrl("");
       setSelectedFile(null);
       setArticleProfile("");
+      setAddMode("link");
     } catch (e) {
       toast.error(getErrorMessage(e));
     }
@@ -141,11 +152,19 @@ export default function AddArticleModal({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".md,.markdown,.txt"
+                  accept=".md,.markdown"
                   className="hidden"
-                  onChange={(e) =>
-                    setSelectedFile(e.target.files?.[0] ?? null)
-                  }
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (!validateMarkdownFile(file)) {
+                        toast.error("Invalid file type. Please select a .md or .markdown file.");
+                        e.target.value = "";
+                        return;
+                      }
+                      setSelectedFile(file);
+                    }
+                  }}
                 />
               </div>
             </div>
@@ -177,6 +196,7 @@ export default function AddArticleModal({
           <Button
             onClick={handleAddArticle}
             disabled={
+              !articleProfile ||
               (addMode === "link" && !articleUrl) ||
               (addMode === "upload" && !selectedFile) ||
               createByLink.isPending ||
