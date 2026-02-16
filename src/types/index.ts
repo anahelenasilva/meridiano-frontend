@@ -27,10 +27,12 @@ export interface ArticleAudio {
 
 export interface ArticlesResponse {
   articles: Article[];
-  total: number;
-  page: number;
-  perPage: number;
-  totalPages: number;
+  pagination?: {
+    page: number;
+    per_page: number;
+    total_pages: number;
+    total_articles: number;
+  };
 }
 
 export interface ArticleDetailResponse {

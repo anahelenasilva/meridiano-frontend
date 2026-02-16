@@ -10,6 +10,14 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -71,8 +79,10 @@ export default function ArticlesPage() {
   const { add, remove } = useToggleBookmark(userId);
 
   const articles = data?.articles ?? [];
-  const total = data?.total ?? 0;
-  const perPage = data?.perPage ?? 20;
+  const total = data?.pagination?.total_articles ?? 0;
+  const perPage = data?.pagination?.per_page ?? 20;
+  const totalPages = data?.pagination?.total_pages ?? 0;
+  const currentPage = data?.pagination?.page ?? 1;
   const profiles = profilesData ?? [];
 
   const bookmarkedIds = new Set(
@@ -117,8 +127,8 @@ export default function ArticlesPage() {
     ...new Set(articles.flatMap((a) => a.categories || [])),
   ].sort();
 
-  const startItem = (page - 1) * perPage + 1;
-  const endItem = Math.min(page * perPage, total);
+  const startItem = (currentPage - 1) * perPage + 1;
+  const endItem = Math.min(currentPage * perPage, total);
 
   if (error) {
     return (
@@ -312,6 +322,56 @@ export default function ArticlesPage() {
           <p className="py-12 text-center text-muted-foreground">
             No articles found.
           </p>
+        )}
+
+        {!isLoading && totalPages > 1 && (
+          <Pagination className="mt-6">
+            <PaginationContent>
+              {currentPage > 1 && (
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage(Number(currentPage) - 1)}
+                    className="cursor-pointer"
+                  />
+                </PaginationItem>
+              )}
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter((p) => {
+                  // Show first page, last page, current page, and pages around current
+                  if (p === 1 || p === totalPages) return true;
+                  if (Math.abs(p - currentPage) <= 1) return true;
+                  return false;
+                })
+                .map((p, idx, arr) => (
+                  <span key={p}>
+                    {idx > 0 && arr[idx - 1] !== p - 1 && (
+                      <PaginationItem>
+                        <span className="px-2">...</span>
+                      </PaginationItem>
+                    )}
+                    <PaginationItem>
+                      <PaginationLink
+                        onClick={() => setPage(Number(p))}
+                        isActive={Number(p) === Number(currentPage)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </span>
+                ))}
+
+              {currentPage < totalPages && (
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage(Number(currentPage) + 1)}
+                    className="cursor-pointer"
+                  />
+                </PaginationItem>
+              )}
+            </PaginationContent>
+          </Pagination>
         )}
       </div>
 
