@@ -1,11 +1,13 @@
-import { useState, useRef } from "react";
-import {
-  useProfiles,
-  useCreateArticleByLink,
-  useUploadArticleMarkdown,
-} from "@/hooks/useApi";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -15,17 +17,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
-import { toast } from "@/utils/toast";
+  useCreateArticleByLink,
+  useProfiles,
+  useUploadArticleMarkdown,
+} from "@/hooks/useApi";
 import { getErrorMessage } from "@/utils/api-error";
 import { validateMarkdownFile } from "@/utils/s3";
+import { toast } from "@/utils/toast";
+import { Loader2 } from "lucide-react";
+import { useRef, useState } from "react";
 
 interface AddArticleModalProps {
   open: boolean;
@@ -83,7 +83,7 @@ export default function AddArticleModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Add Article</DialogTitle>
           <DialogDescription>
@@ -91,7 +91,7 @@ export default function AddArticleModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
           <div>
             <Label className="text-muted-foreground mb-2 block">Mode</Label>
             <div className="flex items-center gap-4">
@@ -133,11 +133,11 @@ export default function AddArticleModal({
           )}
 
           {addMode === "upload" && (
-            <div>
+            <div className="min-w-0">
               <Label className="text-muted-foreground mb-2 block">
                 Markdown File
               </Label>
-              <div className="flex min-w-0 items-center gap-3 rounded-md border border-input bg-background p-2">
+              <div className="flex min-w-0 items-center gap-3 overflow-hidden rounded-md border border-input bg-background p-2">
                 <Button
                   size="sm"
                   variant="default"
@@ -189,7 +189,7 @@ export default function AddArticleModal({
           </div>
         </div>
 
-        <DialogFooter className="mt-4">
+        <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
