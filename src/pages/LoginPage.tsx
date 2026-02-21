@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { toast } from '@/utils/toast';
 import { MESSAGES } from '@/constants/messages';
-import { FileText } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { ApiError, getErrorMessage } from '@/utils/api-error';
+import { toast } from '@/utils/toast';
+import { FileText } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -29,7 +29,7 @@ export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps)
       navigate(redirectTo);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
-      
+
       // Check for specific error types
       if (error instanceof ApiError) {
         // Check for 401 status first (invalid credentials)
@@ -37,17 +37,17 @@ export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps)
           toast.error(MESSAGES.ERROR.LOGIN_FAILED);
           return;
         }
-        
+
         // Email not verified - use tighter match (verify or not verified)
-        if (errorMessage.toLowerCase().includes('verify') || 
-            errorMessage.toLowerCase().includes('not verified')) {
+        if (errorMessage.toLowerCase().includes('verify') ||
+          errorMessage.toLowerCase().includes('not verified')) {
           toast.error(MESSAGES.ERROR.EMAIL_NOT_VERIFIED);
           return;
         }
       }
-      
+
       // Fallback to generic error message
-      toast.error(MESSAGES.ERROR.LOGIN_FAILED);
+      toast.error(MESSAGES.ERROR.GENERIC);
     } finally {
       setIsLoading(false);
     }
