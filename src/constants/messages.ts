@@ -1,5 +1,6 @@
 export const MESSAGES = {
   SUCCESS: {
+    LOGGED_IN: 'Logged in successfully',
     CHANNEL_UPDATED: 'Channel updated successfully!',
     CHANNEL_CREATED: 'Channel created successfully!',
     VIDEO_ADDED: 'Video added successfully! Transcription will be processed shortly.',
@@ -29,6 +30,8 @@ export const MESSAGES = {
     ARTICLE_BOOKMARK: 'Error bookmarking article:',
     ARTICLE_UNBOOKMARK: 'Failed to remove bookmark:',
     LOGIN_REQUIRED: 'User not authenticated',
+    LOGIN_FAILED: 'Invalid email or password',
+    EMAIL_NOT_VERIFIED: 'Please verify your email before logging in',
     MARKDOWN_UPLOAD: 'Error uploading markdown file:',
     PRESIGNED_URL: 'Error getting upload URL:',
     AUDIO_GENERATION: 'Error generating audio:',

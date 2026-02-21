@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/utils/toast';
 import { MESSAGES } from '@/constants/messages';
 import { FileText } from 'lucide-react';
+import { ApiError, getErrorMessage } from '@/utils/api-error';
 
 interface LoginPageProps {
   onLogin: () => void;
@@ -26,7 +27,26 @@ export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps)
       toast.success(MESSAGES.SUCCESS.LOGGED_IN);
       onLogin();
       navigate(redirectTo);
-    } catch {
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      
+      // Check for specific error types
+      if (error instanceof ApiError) {
+        // Email not verified
+        if (errorMessage.toLowerCase().includes('verify') || 
+            errorMessage.toLowerCase().includes('email')) {
+          toast.error(MESSAGES.ERROR.EMAIL_NOT_VERIFIED);
+          return;
+        }
+        
+        // Invalid credentials (wrong password)
+        if (error.status === 401) {
+          toast.error(MESSAGES.ERROR.LOGIN_FAILED);
+          return;
+        }
+      }
+      
+      // Fallback to generic error message
       toast.error(MESSAGES.ERROR.LOGIN_FAILED);
     } finally {
       setIsLoading(false);
