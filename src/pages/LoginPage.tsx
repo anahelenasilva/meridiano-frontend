@@ -32,16 +32,16 @@ export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps)
       
       // Check for specific error types
       if (error instanceof ApiError) {
-        // Email not verified
-        if (errorMessage.toLowerCase().includes('verify') || 
-            errorMessage.toLowerCase().includes('email')) {
-          toast.error(MESSAGES.ERROR.EMAIL_NOT_VERIFIED);
+        // Check for 401 status first (invalid credentials)
+        if (error.status === 401) {
+          toast.error(MESSAGES.ERROR.LOGIN_FAILED);
           return;
         }
         
-        // Invalid credentials (wrong password)
-        if (error.status === 401) {
-          toast.error(MESSAGES.ERROR.LOGIN_FAILED);
+        // Email not verified - use tighter match (verify or not verified)
+        if (errorMessage.toLowerCase().includes('verify') || 
+            errorMessage.toLowerCase().includes('not verified')) {
+          toast.error(MESSAGES.ERROR.EMAIL_NOT_VERIFIED);
           return;
         }
       }
