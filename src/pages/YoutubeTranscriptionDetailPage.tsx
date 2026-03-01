@@ -1,16 +1,19 @@
 import { BackButton } from "@/components/BackButton";
 import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
+import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Headphones, Loader2 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import { Link, useParams } from "react-router-dom";
 
 export default function YoutubeTranscriptionDetailPage() {
   const { id } = useParams();
   const { data, isLoading } = useTranscription(id);
-  const [summaryOpen, setSummaryOpen] = useState(true);
+  const { generateAudio, isGenerating } = useAudioGeneration({
+    sourceType: "transcription",
+    sourceId: id,
+  });
 
   if (isLoading) {
     return (
@@ -62,6 +65,32 @@ export default function YoutubeTranscriptionDetailPage() {
 
       <h1 className="font-serif text-3xl font-bold leading-tight mb-2">{video.videoTitle}</h1>
       <p className="text-sm text-muted-foreground mb-6">{displayDate}</p>
+
+      {data?.audio && data.audio.presigned_url ? (
+        <div className="rounded-lg border border-border bg-secondary/50 p-4 space-y-3 mb-6">
+          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Listen to transcription</p>
+          <audio controls className="w-full" src={data.audio.presigned_url}>
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-border bg-secondary/50 p-4 mb-6">
+          <button
+            type="button"
+            onClick={() => void generateAudio()}
+            disabled={isGenerating}
+            className="flex items-center gap-2 px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label={isGenerating ? "Generating audio..." : "Generate audio"}
+          >
+            {isGenerating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Headphones className="h-4 w-4" />
+            )}
+            <span>{isGenerating ? "Generating..." : "Generate Audio"}</span>
+          </button>
+        </div>
+      )}
 
       {video.transcriptionSummary && (
         <div>

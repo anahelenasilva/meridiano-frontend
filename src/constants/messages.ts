@@ -11,7 +11,7 @@ export const MESSAGES = {
     ARTICLE_UNBOOKMARKED: 'Bookmark removed',
     LOGGED_OUT: 'Logged out successfully',
     MARKDOWN_UPLOADED: 'Markdown file uploaded successfully! Article will be processed shortly.',
-    AUDIO_GENERATION_QUEUED: 'Audio generation started. This may take a moment...',
+    AUDIO_GENERATION_QUEUED: 'Audio is being generated. Please refresh the page soon.',
   },
 
   ERROR: {

@@ -10,7 +10,8 @@
     "serve": "vite preview --port 8080 --host ::",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "lint:biome": "biome check ."
+    "lint:biome": "biome check .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

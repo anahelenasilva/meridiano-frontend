@@ -78,6 +78,14 @@ export interface YouTubeChannel {
   maxVideos: number;
 }
 
+export interface TranscriptionAudio {
+  id: string;
+  s3_key: string;
+  file_size_bytes: number;
+  duration_seconds?: number;
+  presigned_url: string;
+}
+
 export interface YouTubeTranscription {
   id: string;
   videoId: string;
@@ -101,6 +109,7 @@ export interface YouTubeTranscriptionsResponse {
 
 export interface YouTubeTranscriptionDetailResponse {
   transcription: YouTubeTranscription;
+  audio?: TranscriptionAudio | null;
 }
 
 // Query parameter types

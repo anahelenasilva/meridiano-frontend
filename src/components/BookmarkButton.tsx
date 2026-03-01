@@ -1,10 +1,10 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { apiService } from '@/services/api';
+import { addBookmark as addBookmarkApi, checkBookmark, removeBookmark as removeBookmarkApi } from '@/services/api';
+import { getErrorMessage } from '@/utils/api-error';
 import { toast } from '@/utils/toast';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { MESSAGES } from '../constants/messages';
-import { getErrorMessage } from '@/utils/api-error';
 
 interface BookmarkButtonProps {
   articleId: string;
@@ -31,8 +31,8 @@ export default function BookmarkButton({
       }
 
       try {
-        const response = await apiService.checkBookmark(userId, articleId);
-        return Boolean(response.data?.bookmarked);
+        const response = await checkBookmark(articleId, userId);
+        return Boolean(response?.bookmarked);
       } catch (error) {
         console.error('Error checking bookmark status:', error);
         return false;
@@ -40,7 +40,7 @@ export default function BookmarkButton({
     },
     enabled: !!userId && initialIsBookmarked === undefined,
     staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
-    cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    // cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     refetchOnMount: false, // Don't refetch when component remounts if data is fresh
     refetchOnWindowFocus: false, // Don't refetch on window focus
     // Provide a placeholder value to prevent undefined errors
@@ -55,7 +55,7 @@ export default function BookmarkButton({
         throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
-      return apiService.addBookmark(userId, articleId);
+      return addBookmarkApi(userId, articleId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
@@ -73,7 +73,7 @@ export default function BookmarkButton({
         throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
-      return apiService.removeBookmark(userId, articleId);
+      return removeBookmarkApi(userId, articleId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
