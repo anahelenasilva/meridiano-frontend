@@ -183,7 +183,6 @@ export async function fetchBookmarks(userId: string, page = 1, perPage = 20) {
 }
 
 export async function addBookmark(userId: string, articleId: string) {
-  console.log("addBookmark", userId, articleId);
   return apiFetch<{ id: string }>("/api/bookmarks", {
     method: "POST",
     body: JSON.stringify({ user_id: userId, article_id: articleId }),
@@ -236,8 +235,26 @@ export async function fetchTranscriptions() {
   return apiFetch<YouTubeTranscriptionsResponse>("/api/youtube/transcriptions");
 }
 
-export async function fetchTranscription(id: string) {
-  return apiFetch<YouTubeTranscriptionDetailResponse>(`/api/youtube/transcriptions/${id}`);
+export async function fetchTranscription(id: string, includeAudio = true) {
+  const query = toQuery({ includeAudio: String(includeAudio) });
+  return apiFetch<YouTubeTranscriptionDetailResponse>(`/api/youtube/transcriptions/${id}${query}`);
+}
+
+export interface GenerateAudioResponse {
+  jobId: string;
+  message: string;
+}
+
+export async function generateArticleAudio(articleId: string): Promise<GenerateAudioResponse> {
+  return apiFetch<GenerateAudioResponse>(`/api/articles/${articleId}/audio`, {
+    method: "POST",
+  });
+}
+
+export async function generateTranscriptionAudio(transcriptionId: string): Promise<GenerateAudioResponse> {
+  return apiFetch<GenerateAudioResponse>(`/api/youtube/transcriptions/${transcriptionId}/audio`, {
+    method: "POST",
+  });
 }
 
 export async function createTranscription(url: string, channelId?: string) {
