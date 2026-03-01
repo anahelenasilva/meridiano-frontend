@@ -1,12 +1,12 @@
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { useChannels, useToggleChannel } from "@/hooks/useApi";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Settings, Youtube, Loader2, ExternalLink } from "lucide-react";
+import { useChannels, useToggleChannel } from "@/hooks/useApi";
 import type { YouTubeChannel } from "@/types";
+import { ExternalLink, Loader2, Plus, Settings, Youtube } from "lucide-react";
+import { useMemo } from "react";
+import { Link } from "react-router-dom";
 
 export default function AdminYoutubeChannelsPage() {
   const { data: channels, isLoading } = useChannels();
@@ -67,7 +67,7 @@ export default function AdminYoutubeChannelsPage() {
               channel={ch}
               onToggle={() =>
                 toggleChannel.mutate({
-                  channelId: ch.channelId,
+                  channelId: ch.id,
                   enabled: false,
                 })
               }
@@ -91,7 +91,7 @@ export default function AdminYoutubeChannelsPage() {
               channel={ch}
               onToggle={() =>
                 toggleChannel.mutate({
-                  channelId: ch.channelId,
+                  channelId: ch.id,
                   enabled: true,
                 })
               }
