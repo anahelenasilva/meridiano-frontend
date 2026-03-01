@@ -49,3 +49,7 @@ dist
 .pnpm-store
 
 archive/**
+
+# bmad
+_bmad/
+_bmad-output/
