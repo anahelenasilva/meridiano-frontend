@@ -56,4 +56,8 @@ export const MESSAGES = {
     NO_TRANSCRIPTIONS: 'No transcriptions found',
     NO_ARTICLES: 'No articles found',
   },
+
+  AUDIO: {
+    NOT_AVAILABLE_RETRY: 'No audio available. Generate or retry below.',
+  },
 } as const;

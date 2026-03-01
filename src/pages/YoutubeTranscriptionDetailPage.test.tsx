@@ -62,9 +62,10 @@ describe('YoutubeTranscriptionDetailPage audio section (AC3, AC5)', () => {
     };
   });
 
-  it('shows Generate Audio button when no audio exists (AC3)', () => {
+  it('shows Generate Audio button and retry hint when no audio exists (AC3)', () => {
     renderWithProviders();
     expect(screen.getByRole('button', { name: /generate audio/i })).toBeInTheDocument();
+    expect(screen.getByText(/no audio available.*generate or retry/i)).toBeInTheDocument();
     expect(screen.queryByText(/listen to transcription/i)).not.toBeInTheDocument();
   });
 
