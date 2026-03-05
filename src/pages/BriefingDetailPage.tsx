@@ -1,9 +1,9 @@
-import { useParams, Link } from "react-router-dom";
-import { useBriefing } from "@/hooks/useApi";
-import { ArrowLeft, Loader2, Calendar, Tag } from "lucide-react";
-import { format } from "date-fns";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { useBriefing } from "@/hooks/useApi";
+import { format } from "date-fns";
+import { ArrowLeft, Calendar, Loader2, Tag } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 
 export default function BriefingDetailPage() {
   const { id } = useParams();
@@ -54,7 +54,7 @@ export default function BriefingDetailPage() {
     : "";
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex items-center gap-4 mb-6">
         <Link
           to="/briefings"

@@ -1,11 +1,11 @@
+import AddTranscriptionModal from "@/components/AddTranscriptionModal";
+import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTranscriptions } from "@/hooks/useApi";
 import { format } from "date-fns";
 import { ChevronDown, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import AddTranscriptionModal from "@/components/AddTranscriptionModal";
 
 export default function YoutubeTranscriptionsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function YoutubeTranscriptionsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
+    <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h1 className="font-serif text-2xl font-bold">YouTube Transcriptions</h1>
         <Button onClick={() => setIsAddModalOpen(true)} size="sm">

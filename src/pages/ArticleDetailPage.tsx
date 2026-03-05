@@ -2,8 +2,8 @@ import ArticleCard from "@/components/ArticleCard";
 import { AudioSection } from "@/components/AudioSection";
 import { BackButton } from "@/components/BackButton";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
+import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
@@ -93,7 +93,7 @@ export default function ArticleDetail() {
   const displayImage = getArticleImage(article);
 
   return (
-    <div className="max-w-6xl mx-auto flex gap-8 px-4 py-6">
+    <div className="max-w-7xl mx-auto flex gap-8 px-4 py-6">
       {/* Prev/Next nav */}
       <div className="hidden lg:flex flex-col items-center pt-16 gap-2 w-12 shrink-0">
         {prevArticle ? (
@@ -123,7 +123,7 @@ export default function ArticleDetail() {
       </div>
 
       {/* Main content */}
-      <article className="flex-1 min-w-0 max-w-2xl">
+      <article className="flex-1 min-w-0 max-w-3xl">
         <BackButton to="/articles" />
         <p className="text-xs font-medium uppercase tracking-widest text-primary mb-4">{article.feed_source}</p>
 

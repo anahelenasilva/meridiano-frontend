@@ -142,7 +142,7 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="flex gap-8 py-6 px-4 mx-auto max-w-6xl">
+    <div className="flex gap-8 py-6 px-4 mx-auto max-w-7xl">
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start mb-1">
           <div>
