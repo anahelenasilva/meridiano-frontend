@@ -1,6 +1,6 @@
+import type { Briefing } from "@/types";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
-import type { Briefing } from "@/types";
 
 interface LatestBriefingsProps {
   briefings: Briefing[];
@@ -8,7 +8,7 @@ interface LatestBriefingsProps {
 
 export default function LatestBriefings({ briefings }: LatestBriefingsProps) {
   return (
-    <aside className="hidden lg:block w-80 shrink-0">
+    <aside className="hidden lg:block w-64 shrink-0">
       <div className="sticky top-6 space-y-6">
         <div className="rounded-lg border border-border bg-card p-4">
           <div className="flex items-center justify-between mb-3">
