@@ -47,7 +47,7 @@ export function getYoutubeVideoId(url: string): string | null {
  * Generates a YouTube thumbnail URL for a given video ID
  * Uses maxresdefault for highest quality, with hqdefault as fallback
  */
-export function getYoutubeThumbnailUrl(videoId: string, quality: 'maxresdefault' | 'hqdefault' = 'maxresdefault'): string {
+export function getYoutubeThumbnailUrl(videoId: string, quality: 'maxresdefault' | 'sddefault' | 'hqdefault' = 'sddefault'): string {
   return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
 }
 
@@ -55,8 +55,9 @@ export function getYoutubeThumbnailUrl(videoId: string, quality: 'maxresdefault'
  * Gets the YouTube thumbnail URL from a video URL
  * Returns null if the video ID cannot be extracted
  */
-export function getThumbnailFromVideoUrl(videoUrl: string, quality: 'maxresdefault' | 'hqdefault' = 'maxresdefault'): string | null {
+export function getThumbnailFromVideoUrl(videoUrl: string, quality: 'maxresdefault' | 'sddefault' | 'hqdefault' = 'sddefault'): string | null {
   const videoId = getYoutubeVideoId(videoUrl);
   if (!videoId) return null;
+
   return getYoutubeThumbnailUrl(videoId, quality);
 }

@@ -57,6 +57,7 @@ export function YoutubeThumbnail({
   // Check if we can extract thumbnail URL (synchronous, no state needed)
   const canExtractThumbnail = getThumbnailFromVideoUrl(videoUrl, 'maxresdefault') !== null;
 
+
   // Reset image loading state when videoUrl changes
   useEffect(() => {
     if (prevVideoUrlRef.current !== videoUrl) {
@@ -72,7 +73,7 @@ export function YoutubeThumbnail({
   } else if (state.triedHq) {
     thumbnailUrl = getThumbnailFromVideoUrl(videoUrl, 'hqdefault') || '/youtube-placeholder.svg';
   } else {
-    thumbnailUrl = getThumbnailFromVideoUrl(videoUrl, 'maxresdefault') || '/youtube-placeholder.svg';
+    thumbnailUrl = getThumbnailFromVideoUrl(videoUrl, 'sddefault') || '/youtube-placeholder.svg';
   }
 
   const handleError = () => {
