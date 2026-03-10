@@ -43,29 +43,29 @@ export default function YoutubeTranscriptionDetailPage() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <BackButton to="/youtube-transcriptions" />
 
-      <div className="w-full aspect-video relative bg-gray-100 dark:bg-gray-900 mb-6">
+      <div className="flex gap-6 mb-8 items-start">
         <a
           href={video.videoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block w-full h-full"
+          className="flex-shrink-0 w-72 aspect-video relative bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden group"
         >
           <YoutubeThumbnail
             videoUrl={video.videoUrl}
             alt={video.videoTitle}
             fill
-            className="object-contain hover:opacity-90 transition-opacity"
-            priority
+            className="object-cover group-hover:opacity-80 transition-opacity"
           />
         </a>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium uppercase tracking-widest text-primary mb-3">
+            {video.channelName}
+          </p>
+          <h1 className="font-serif text-3xl font-bold leading-tight mb-2">{video.videoTitle}</h1>
+          <p className="text-sm text-muted-foreground">{displayDate}</p>
+        </div>
       </div>
-
-      <p className="text-xs font-medium uppercase tracking-widest text-primary mb-3">
-        {video.channelName}
-      </p>
-
-      <h1 className="font-serif text-3xl font-bold leading-tight mb-2">{video.videoTitle}</h1>
-      <p className="text-sm text-muted-foreground mb-6">{displayDate}</p>
 
       <AudioSection
         audio={data?.audio}
