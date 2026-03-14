@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CustomPromptInput } from "@/components/CustomPromptInput";
 import {
   useCreateArticleByLink,
@@ -41,6 +42,7 @@ export default function AddArticleModal({
   const [articleUrl, setArticleUrl] = useState("");
   const [articleProfile, setArticleProfile] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
+  const [generateAudio, setGenerateAudio] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -66,12 +68,14 @@ export default function AddArticleModal({
           url: articleUrl,
           feedProfile: articleProfile,
           customPrompt: customPrompt.trim() || undefined,
+          generateAudio,
         });
       } else if (selectedFile) {
         await uploadMarkdown.mutateAsync({
           file: selectedFile,
           feedProfile: articleProfile,
           customPrompt: customPrompt.trim() || undefined,
+          generateAudio,
         });
       }
       toast.success("Article added successfully");
@@ -80,6 +84,7 @@ export default function AddArticleModal({
       setSelectedFile(null);
       setArticleProfile("");
       setCustomPrompt("");
+      setGenerateAudio(false);
       setAddMode("link");
     } catch (e) {
       toast.error(getErrorMessage(e));
@@ -92,6 +97,7 @@ export default function AddArticleModal({
       setSelectedFile(null);
       setArticleProfile("");
       setCustomPrompt("");
+      setGenerateAudio(false);
       setAddMode("link");
     }
     onOpenChange(nextOpen);
@@ -205,6 +211,17 @@ export default function AddArticleModal({
           </div>
 
           <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="generateAudio"
+              checked={generateAudio}
+              onCheckedChange={(v) => setGenerateAudio(!!v)}
+            />
+            <Label htmlFor="generateAudio" className="cursor-pointer text-sm font-normal">
+              Generate audio
+            </Label>
+          </div>
         </div>
 
         <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">

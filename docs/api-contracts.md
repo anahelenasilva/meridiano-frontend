@@ -30,10 +30,10 @@
 |--------|------|-------------|
 | GET | `/api/articles` | List articles. Query: `page`, `perPage`, `sortBy`, `direction`, `feedProfile`, `searchTerm`, `startDate`, `endDate`, `category`. |
 | GET | `/api/articles/:id` | Article detail. Query: `includeAudio` (default: true). |
-| POST | `/api/articles` | Create article by URL. Body: `{ url, feedProfile?, customPrompt? }`. Returns `{ id }`. |
+| POST | `/api/articles` | Create article by URL. Body: `{ url, feedProfile?, customPrompt?, generateAudio? }`. Returns `{ id }`. |
 | DELETE | `/api/articles/:id` | Delete article. Returns `{ success }`. |
 | POST | `/api/articles/upload-url` | Get presigned S3 upload URL. Body: `{ articleFileName, contentType }`. Returns `{ url, fields }`. |
-| POST | `/api/articles/markdown` | Add article from S3 key. Body: `{ s3Key, feedProfile?, customPrompt? }`. Returns `{ jobId, message }`. |
+| POST | `/api/articles/markdown` | Add article from S3 key. Body: `{ s3Key, feedProfile?, customPrompt?, generateAudio? }`. Returns `{ jobId, message }`. |
 | POST | `/api/articles/:id/audio` | Generate article audio. Returns `{ jobId, message }`. |
 
 ---
@@ -74,6 +74,6 @@
 |--------|------|-------------|
 | GET | `/api/youtube/transcriptions` | List transcriptions. |
 | GET | `/api/youtube/transcriptions/:id` | Transcription detail. Query: `includeAudio`. |
-| POST | `/api/youtube/transcriptions` | Create transcription. Body: `{ url, channelId?, customPrompt? }`. Returns `{ jobId, message }`. |
+| POST | `/api/youtube/transcriptions` | Create transcription. Body: `{ url, channelId?, customPrompt?, generateAudio? }`. Returns `{ jobId, message }`. |
 | DELETE | `/api/youtube/transcriptions/:id` | Delete transcription. Returns `{ success }`. |
 | POST | `/api/youtube/transcriptions/:id/audio` | Generate transcription audio. Returns `{ jobId, message }`. |

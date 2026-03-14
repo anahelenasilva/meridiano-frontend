@@ -125,6 +125,7 @@ export async function createArticleByLink(
   url: string,
   feedProfile?: string,
   customPrompt?: string,
+  generateAudio?: boolean,
 ) {
   return apiFetch<{ id: string }>("/api/articles", {
     method: "POST",
@@ -132,6 +133,7 @@ export async function createArticleByLink(
       url,
       feedProfile,
       ...(customPrompt ? { customPrompt } : {}),
+      ...(generateAudio !== undefined ? { generateAudio } : {}),
     }),
   });
 }
@@ -155,6 +157,7 @@ export async function addArticleFromMarkdown(
   s3Key: string,
   feedProfile?: string,
   customPrompt?: string,
+  generateAudio?: boolean,
 ): Promise<{ jobId: string; message: string }> {
   return apiFetch<{ jobId: string; message: string }>("/api/articles/markdown", {
     method: "POST",
@@ -162,6 +165,7 @@ export async function addArticleFromMarkdown(
       s3Key,
       feedProfile,
       ...(customPrompt ? { customPrompt } : {}),
+      ...(generateAudio !== undefined ? { generateAudio } : {}),
     }),
   });
 }
@@ -170,6 +174,7 @@ export async function uploadArticleMarkdown(
   file: File,
   feedProfile?: string,
   customPrompt?: string,
+  generateAudio?: boolean,
 ): Promise<{ jobId: string; message: string }> {
   const presignedUrlResponse = await getPresignedUrl(file.name);
   const { url, fields } = presignedUrlResponse;
@@ -186,7 +191,7 @@ export async function uploadArticleMarkdown(
     throw new Error(`S3 upload failed: ${s3Response.statusText}`);
   }
 
-  return addArticleFromMarkdown(s3Key, feedProfile, customPrompt);
+  return addArticleFromMarkdown(s3Key, feedProfile, customPrompt, generateAudio);
 }
 
 // ===== Bookmarks =====
@@ -274,6 +279,7 @@ export async function createTranscription(
   url: string,
   channelId?: string,
   customPrompt?: string,
+  generateAudio?: boolean,
 ) {
   return apiFetch<{ jobId: string; message: string }>("/api/youtube/transcriptions", {
     method: "POST",
@@ -281,6 +287,7 @@ export async function createTranscription(
       url,
       channelId,
       ...(customPrompt ? { customPrompt } : {}),
+      ...(generateAudio !== undefined ? { generateAudio } : {}),
     }),
   });
 }
