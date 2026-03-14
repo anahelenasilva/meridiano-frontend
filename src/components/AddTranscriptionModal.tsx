@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CustomPromptInput } from "@/components/CustomPromptInput";
 import { useChannels, useAddTranscription } from "@/hooks/useApi";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ export default function AddTranscriptionModal({
   const [videoUrl, setVideoUrl] = useState("");
   const [selectedChannelId, setSelectedChannelId] = useState("");
   const [customPrompt, setCustomPrompt] = useState("");
+  const [generateAudio, setGenerateAudio] = useState(false);
 
   const { data: channelsData } = useChannels();
   const addTranscription = useAddTranscription();
@@ -57,12 +59,14 @@ export default function AddTranscriptionModal({
         url: videoUrl.trim(),
         channelId: selectedChannelId,
         customPrompt: customPrompt.trim() || undefined,
+        generateAudio,
       });
       toast.success(MESSAGES.SUCCESS.VIDEO_ADDED);
       onOpenChange(false);
       setVideoUrl("");
       setSelectedChannelId("");
       setCustomPrompt("");
+      setGenerateAudio(false);
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.VIDEO_ADD} ${getErrorMessage(e)}`);
     }
@@ -73,6 +77,7 @@ export default function AddTranscriptionModal({
       setVideoUrl("");
       setSelectedChannelId("");
       setCustomPrompt("");
+      setGenerateAudio(false);
     }
     onOpenChange(nextOpen);
   };
@@ -127,6 +132,17 @@ export default function AddTranscriptionModal({
           </div>
 
           <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="generateAudio"
+              checked={generateAudio}
+              onCheckedChange={(v) => setGenerateAudio(!!v)}
+            />
+            <Label htmlFor="generateAudio" className="cursor-pointer text-sm font-normal">
+              Generate audio
+            </Label>
+          </div>
         </div>
 
         <DialogFooter className="mt-4">

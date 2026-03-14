@@ -70,11 +70,13 @@ export function useCreateArticleByLink() {
       url,
       feedProfile,
       customPrompt,
+      generateAudio,
     }: {
       url: string;
       feedProfile?: string;
       customPrompt?: string;
-    }) => createArticleByLink(url, feedProfile, customPrompt),
+      generateAudio?: boolean;
+    }) => createArticleByLink(url, feedProfile, customPrompt, generateAudio),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
@@ -89,11 +91,13 @@ export function useUploadArticleMarkdown() {
       file,
       feedProfile,
       customPrompt,
+      generateAudio,
     }: {
       file: File;
       feedProfile?: string;
       customPrompt?: string;
-    }) => uploadArticleMarkdown(file, feedProfile, customPrompt),
+      generateAudio?: boolean;
+    }) => uploadArticleMarkdown(file, feedProfile, customPrompt, generateAudio),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
@@ -236,11 +240,13 @@ export function useAddTranscription() {
       url,
       channelId,
       customPrompt,
+      generateAudio,
     }: {
       url: string;
       channelId?: string;
       customPrompt?: string;
-    }) => createTranscription(url, channelId, customPrompt),
+      generateAudio?: boolean;
+    }) => createTranscription(url, channelId, customPrompt, generateAudio),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
     },
