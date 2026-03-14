@@ -22,8 +22,8 @@
 | Framework   | React 18 + TypeScript              |
 | Build       | Vite                               |
 | Styling     | Tailwind CSS v4 + CSS custom props |
-| Routing     | React Router v7                    |
-| HTTP        | Axios                              |
+| Routing     | React Router v6                    |
+| HTTP        | fetch (native)                     |
 | Testing     | Vitest + React Testing Library     |
 | Package Mgr | pnpm                               |
 | Linting     | ESLint (flat config)               |
@@ -137,11 +137,11 @@ Page/Component
 
 ### Service Layer (`src/services/`)
 
-- **`api.ts`** — Shared Axios instance with:
-  - `baseURL` from environment variable (`VITE_API_URL`)
-  - Request interceptor that attaches `Authorization: Bearer <token>`
-  - Response interceptor for global error handling (e.g., 401 → logout)
-- **Domain services** (e.g., auth service functions) — Thin wrappers that call `api.get/post/put/delete` and return typed responses.
+- **`api.ts`** — Shared fetch wrapper with:
+  - `baseURL` from environment variable (`VITE_API_BASE_URL`)
+  - `Authorization: Bearer <token>` attached to requests when authenticated
+  - 401 handling (redirect to login, clear token)
+- **Domain service functions** — Thin wrappers that call `apiFetch` and return typed responses.
 
 ### Environment Configuration
 
@@ -163,7 +163,7 @@ This is intentional: the app's complexity doesn't warrant a dedicated store. If 
 
 React Router v7 with a declarative route config. Routes are code-split at the page level via lazy imports where beneficial.
 
-**Protected routes** check `isAuthenticated` from `useAuth()` and redirect to `/login` if the user is unauthenticated. This is handled by a `ProtectedRoute` wrapper component or layout route.
+**Protected routes** check `isAuthenticated` from `useAuth()` and redirect to `/login` if the user is unauthenticated. This is handled in `App.tsx` via `AppContent` (auth gate) and `AuthGuard` (`src/components/AuthGuard.tsx`) for route-level protection.
 
 ---
 
@@ -206,7 +206,7 @@ Tests that need context wrap components in a helper that composes required provi
 | **Vite over CRA / Next.js**                 | SPA with no SSR requirement. Vite gives fast HMR and simple config.                                                                                       |
 | **Tailwind CSS v4 + CSS custom properties** | Utility-first styling with design-token theming via custom props. v4's native CSS-based config removes the need for `tailwind.config.js`.                 |
 | **No state library**                        | Context + hooks cover current needs. Avoids dependency and boilerplate for a modest state surface.                                                        |
-| **Axios over fetch**                        | Interceptors for auth token injection and global error handling. Structured request/response transforms.                                                  |
+| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 redirect. Keeps bundle smaller; interceptors replicated in wrapper.                       |
 | **pnpm**                                    | Strict dependency resolution, disk-efficient, enforced by project rules.                                                                                  |
 | **Conventional Commits**                    | Enforced via project rules (see `.kilocode/rules-code/rules.md`). Enables automated changelogs and semantic versioning.                                   |
 | **Colocation**                              | Tests and feature docs next to source reduces navigation friction and makes ownership obvious.                                                            |

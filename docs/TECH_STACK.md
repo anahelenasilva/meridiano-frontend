@@ -6,7 +6,7 @@
 | ---------- | ------------ | ------- | ------------------------------------ |
 | Framework  | React        | 18      | UI components and state management   |
 | Language   | TypeScript   | 5.x     | Type safety across the codebase      |
-| Build Tool | Vite         | 6.x     | Dev server, HMR, production bundling |
+| Build Tool | Vite         | 5.x     | Dev server, HMR, production bundling |
 | Routing    | React Router | 7       | Client-side SPA routing              |
 
 ## Styling
