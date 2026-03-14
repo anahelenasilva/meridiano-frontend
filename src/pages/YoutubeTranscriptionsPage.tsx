@@ -1,4 +1,5 @@
 import AddTranscriptionModal from "@/components/AddTranscriptionModal";
+import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTranscriptions } from "@/hooks/useApi";
@@ -83,9 +84,12 @@ export default function YoutubeTranscriptionsPage() {
                       loading="lazy"
                     />
                     <div className="flex-1 min-w-0 space-y-1">
-                      <h3 className="text-base font-semibold leading-snug group-hover:text-primary transition-colors">
-                        {v.videoTitle}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-semibold leading-snug group-hover:text-primary transition-colors">
+                          {v.videoTitle}
+                        </h3>
+                        {v.custom_prompt && <CustomPromptBadge />}
+                      </div>
                       <p className="text-xs text-muted-foreground">
                         {v.postedAt ? format(new Date(v.postedAt), "MMM d, yyyy") : ""}
                       </p>

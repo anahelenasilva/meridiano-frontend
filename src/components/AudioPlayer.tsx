@@ -1,4 +1,4 @@
-import { AudioData } from '@/types/api';
+import { AudioData } from "@/types";
 import { Music } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 

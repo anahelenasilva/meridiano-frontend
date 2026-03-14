@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CustomPromptInput } from "@/components/CustomPromptInput";
 import { useChannels, useAddTranscription } from "@/hooks/useApi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export default function AddTranscriptionModal({
 }: AddTranscriptionModalProps) {
   const [videoUrl, setVideoUrl] = useState("");
   const [selectedChannelId, setSelectedChannelId] = useState("");
+  const [customPrompt, setCustomPrompt] = useState("");
 
   const { data: channelsData } = useChannels();
   const addTranscription = useAddTranscription();
@@ -54,11 +56,13 @@ export default function AddTranscriptionModal({
       await addTranscription.mutateAsync({
         url: videoUrl.trim(),
         channelId: selectedChannelId,
+        customPrompt: customPrompt.trim() || undefined,
       });
       toast.success(MESSAGES.SUCCESS.VIDEO_ADDED);
       onOpenChange(false);
       setVideoUrl("");
       setSelectedChannelId("");
+      setCustomPrompt("");
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.VIDEO_ADD} ${getErrorMessage(e)}`);
     }
@@ -68,6 +72,7 @@ export default function AddTranscriptionModal({
     if (!nextOpen) {
       setVideoUrl("");
       setSelectedChannelId("");
+      setCustomPrompt("");
     }
     onOpenChange(nextOpen);
   };
@@ -120,6 +125,8 @@ export default function AddTranscriptionModal({
               </SelectContent>
             </Select>
           </div>
+
+          <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
         </div>
 
         <DialogFooter className="mt-4">

@@ -1,4 +1,5 @@
 import type { Article } from "@/types";
+import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck } from "lucide-react";
@@ -31,7 +32,10 @@ export default function ArticleCard({
         className="group flex items-start gap-3 py-3 border-b border-border last:border-0"
       >
         <div className="flex-1 min-w-0 space-y-1">
-          <p className="text-xs text-muted-foreground">{displaySource}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-muted-foreground">{displaySource}</p>
+            {article.custom_prompt && <CustomPromptBadge />}
+          </div>
           <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
             {article.title}
           </h3>
@@ -61,6 +65,7 @@ export default function ArticleCard({
               </span>
             </div>
             <span className="text-xs text-muted-foreground">{displaySource}</span>
+            {article.custom_prompt && <CustomPromptBadge />}
           </div>
           <h3 className="text-lg font-semibold leading-snug group-hover:text-primary transition-colors">
             {article.title}

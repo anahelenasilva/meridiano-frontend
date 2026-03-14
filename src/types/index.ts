@@ -17,12 +17,21 @@ export interface Article {
   // Detail-only fields
   raw_content?: string;
   processed_content?: string | null;
+  custom_prompt?: string | null;
 }
 
 export interface ArticleAudio {
   id: string;
   presigned_url: string;
   duration: number;
+}
+
+export interface AudioData {
+  id: string;
+  s3_key: string;
+  file_size_bytes: number;
+  duration_seconds: number;
+  presigned_url: string;
 }
 
 export interface ArticlesResponse {
@@ -100,6 +109,7 @@ export interface YouTubeTranscription {
   transcriptionSummary?: string;
   category?: string;
   impactRating?: number;
+  custom_prompt?: string | null;
 }
 
 export interface YouTubeTranscriptionsResponse {

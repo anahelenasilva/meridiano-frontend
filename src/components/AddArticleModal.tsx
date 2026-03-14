@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { CustomPromptInput } from "@/components/CustomPromptInput";
 import {
   useCreateArticleByLink,
   useProfiles,
@@ -39,6 +40,7 @@ export default function AddArticleModal({
   const [addMode, setAddMode] = useState<"link" | "upload">("link");
   const [articleUrl, setArticleUrl] = useState("");
   const [articleProfile, setArticleProfile] = useState("");
+  const [customPrompt, setCustomPrompt] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,11 +65,13 @@ export default function AddArticleModal({
         await createByLink.mutateAsync({
           url: articleUrl,
           feedProfile: articleProfile,
+          customPrompt: customPrompt.trim() || undefined,
         });
       } else if (selectedFile) {
         await uploadMarkdown.mutateAsync({
           file: selectedFile,
           feedProfile: articleProfile,
+          customPrompt: customPrompt.trim() || undefined,
         });
       }
       toast.success("Article added successfully");
@@ -75,14 +79,26 @@ export default function AddArticleModal({
       setArticleUrl("");
       setSelectedFile(null);
       setArticleProfile("");
+      setCustomPrompt("");
       setAddMode("link");
     } catch (e) {
       toast.error(getErrorMessage(e));
     }
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setArticleUrl("");
+      setSelectedFile(null);
+      setArticleProfile("");
+      setCustomPrompt("");
+      setAddMode("link");
+    }
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Add Article</DialogTitle>
@@ -187,10 +203,12 @@ export default function AddArticleModal({
               </SelectContent>
             </Select>
           </div>
+
+          <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
         </div>
 
         <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Close
           </Button>
           <Button
