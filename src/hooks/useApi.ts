@@ -66,8 +66,15 @@ export function useCreateArticleByLink() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ url, feedProfile }: { url: string; feedProfile?: string }) =>
-      createArticleByLink(url, feedProfile),
+    mutationFn: ({
+      url,
+      feedProfile,
+      customPrompt,
+    }: {
+      url: string;
+      feedProfile?: string;
+      customPrompt?: string;
+    }) => createArticleByLink(url, feedProfile, customPrompt),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
@@ -78,8 +85,15 @@ export function useUploadArticleMarkdown() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, feedProfile }: { file: File; feedProfile?: string }) =>
-      uploadArticleMarkdown(file, feedProfile),
+    mutationFn: ({
+      file,
+      feedProfile,
+      customPrompt,
+    }: {
+      file: File;
+      feedProfile?: string;
+      customPrompt?: string;
+    }) => uploadArticleMarkdown(file, feedProfile, customPrompt),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
@@ -218,8 +232,15 @@ export function useAddTranscription() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ url, channelId }: { url: string; channelId?: string }) =>
-      createTranscription(url, channelId),
+    mutationFn: ({
+      url,
+      channelId,
+      customPrompt,
+    }: {
+      url: string;
+      channelId?: string;
+      customPrompt?: string;
+    }) => createTranscription(url, channelId, customPrompt),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
     },

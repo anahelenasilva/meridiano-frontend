@@ -1,5 +1,6 @@
 import ArticleCard from "@/components/ArticleCard";
 import { AudioSection } from "@/components/AudioSection";
+import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
 import { BackButton } from "@/components/BackButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
@@ -177,6 +178,12 @@ export default function ArticleDetail() {
           sectionLabel="Listen to article"
           className="mb-4"
         />
+
+        {article.custom_prompt && (
+          <div className="mb-6">
+            <CustomPromptDisplay customPrompt={article.custom_prompt} />
+          </div>
+        )}
 
         <div>
           <h2 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">AI Summary</h2>

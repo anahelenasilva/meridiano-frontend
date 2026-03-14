@@ -1,5 +1,6 @@
 import { AudioSection } from "@/components/AudioSection";
 import { BackButton } from "@/components/BackButton";
+import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
 import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
@@ -73,6 +74,12 @@ export default function YoutubeTranscriptionDetailPage() {
         isGenerating={isGenerating}
         sectionLabel="Listen to transcription"
       />
+
+      {video.custom_prompt && (
+        <div className="mb-6">
+          <CustomPromptDisplay customPrompt={video.custom_prompt} />
+        </div>
+      )}
 
       {video.transcriptionSummary && (
         <div>

@@ -121,10 +121,18 @@ export async function deleteArticle(id: string) {
   return apiFetch<{ success: boolean }>(`/api/articles/${id}`, { method: "DELETE" });
 }
 
-export async function createArticleByLink(url: string, feedProfile?: string) {
+export async function createArticleByLink(
+  url: string,
+  feedProfile?: string,
+  customPrompt?: string,
+) {
   return apiFetch<{ id: string }>("/api/articles", {
     method: "POST",
-    body: JSON.stringify({ url, feedProfile }),
+    body: JSON.stringify({
+      url,
+      feedProfile,
+      ...(customPrompt ? { customPrompt } : {}),
+    }),
   });
 }
 
@@ -143,37 +151,42 @@ export async function getPresignedUrl(filename: string): Promise<PresignedUrlRes
   });
 }
 
-export async function addArticleFromMarkdown(s3Key: string, feedProfile?: string): Promise<{ jobId: string; message: string }> {
+export async function addArticleFromMarkdown(
+  s3Key: string,
+  feedProfile?: string,
+  customPrompt?: string,
+): Promise<{ jobId: string; message: string }> {
   return apiFetch<{ jobId: string; message: string }>("/api/articles/markdown", {
     method: "POST",
-    body: JSON.stringify({ s3Key, feedProfile }),
+    body: JSON.stringify({
+      s3Key,
+      feedProfile,
+      ...(customPrompt ? { customPrompt } : {}),
+    }),
   });
 }
 
-export async function uploadArticleMarkdown(file: File, feedProfile?: string): Promise<{ jobId: string; message: string }> {
-  // Step 1: Get presigned URL from the API
+export async function uploadArticleMarkdown(
+  file: File,
+  feedProfile?: string,
+  customPrompt?: string,
+): Promise<{ jobId: string; message: string }> {
   const presignedUrlResponse = await getPresignedUrl(file.name);
   const { url, fields } = presignedUrlResponse;
   const s3Key = fields.key;
 
-  // Step 2: Upload directly to S3
   const formData = new FormData();
   Object.entries(fields).forEach(([key, value]) => {
     formData.append(key, value);
   });
   formData.append("file", file);
 
-  const s3Response = await fetch(url, {
-    method: "POST",
-    body: formData,
-  });
-
+  const s3Response = await fetch(url, { method: "POST", body: formData });
   if (!s3Response.ok) {
     throw new Error(`S3 upload failed: ${s3Response.statusText}`);
   }
 
-  // Step 3: Call API to process the markdown from S3
-  return addArticleFromMarkdown(s3Key, feedProfile);
+  return addArticleFromMarkdown(s3Key, feedProfile, customPrompt);
 }
 
 // ===== Bookmarks =====
@@ -257,10 +270,18 @@ export async function generateTranscriptionAudio(transcriptionId: string): Promi
   });
 }
 
-export async function createTranscription(url: string, channelId?: string) {
+export async function createTranscription(
+  url: string,
+  channelId?: string,
+  customPrompt?: string,
+) {
   return apiFetch<{ jobId: string; message: string }>("/api/youtube/transcriptions", {
     method: "POST",
-    body: JSON.stringify({ url, channelId }),
+    body: JSON.stringify({
+      url,
+      channelId,
+      ...(customPrompt ? { customPrompt } : {}),
+    }),
   });
 }
 
