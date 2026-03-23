@@ -44,12 +44,12 @@ export default function YoutubeTranscriptionDetailPage() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <BackButton to="/youtube-transcriptions" />
 
-      <div className="flex gap-6 mb-8 items-start">
+      <div className="flex flex-col sm:flex-row gap-6 mb-8 items-start">
         <a
           href={video.videoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 w-72 aspect-video relative bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden group"
+          className="flex-shrink-0 w-full sm:w-72 aspect-video relative bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden group"
         >
           <YoutubeThumbnail
             videoUrl={video.videoUrl}
