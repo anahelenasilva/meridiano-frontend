@@ -30,6 +30,12 @@ jobs:
         with:
           fetch-depth: 1
 
+          # - name: Project Setup
+          #   run: |
+          #     pnpm install
+          #     pnpm build
+          #     pnpm serve
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
@@ -40,6 +46,15 @@ jobs:
           additional_permissions: |
             actions: read
 
+          prompt: |
+            The project is already set up with all dependencies installed.
+            The server is already running at localhost:3005.
+            If needed, use the mcp__playwright set of tools to launch a browser and interact with the app.
+
+          claude_args: |
+            --mcp-config '{"mcpServers":{"playwright":{"command":"npx","args":["@playwright/mcp@latest","--allowed-origins","localhost:3005;cdn.tailwindcss.com;esm.sh"]}}}'
+            --allowedTools "Bash(pnpm:*),mcp__playwright__browser_snapshot,mcp__playwright__browser_click"
+
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
 
@@ -47,4 +62,3 @@ jobs:
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
           # claude_args: '--allowed-tools Bash(gh pr:*)'
-
