@@ -36,9 +36,11 @@ export function useAudioGeneration({
 
     setIsGenerating(true);
     try {
-      sourceType === 'article'
-        ? await generateArticleAudio(sourceId)
-        : await generateTranscriptionAudio(sourceId);
+      if (sourceType === 'article') {
+        await generateArticleAudio(sourceId);
+      } else {
+        await generateTranscriptionAudio(sourceId);
+      }
 
       toast.success(MESSAGES.SUCCESS.AUDIO_GENERATION_QUEUED);
 

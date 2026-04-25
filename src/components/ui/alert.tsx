@@ -27,7 +27,7 @@ const Alert = React.forwardRef<
 Alert.displayName = "Alert";
 
 const AlertTitle = React.forwardRef<
-  React.ElementRef<typeof "h5">,
+  React.ElementRef<"h5">,
   React.ComponentPropsWithoutRef<"h5">
 >(({ className, ...props }, ref) => (
   <h5 ref={ref} className={cn("mb-1 font-medium leading-none tracking-tight", className)} {...props} />
@@ -35,7 +35,7 @@ const AlertTitle = React.forwardRef<
 AlertTitle.displayName = "AlertTitle";
 
 const AlertDescription = React.forwardRef<
-  React.ElementRef<typeof "div">,
+  React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props} />

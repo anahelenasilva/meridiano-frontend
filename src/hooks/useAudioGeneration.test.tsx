@@ -71,7 +71,7 @@ describe('useAudioGeneration', () => {
     });
 
     it('sets isGenerating true during request and false after', async () => {
-      let resolveRequest: (() => void) | null = null;
+      let resolveRequest!: () => void;
       const requestPromise = new Promise<{ jobId: string; message: string }>((r) => {
         resolveRequest = () => r({ jobId: 'j1', message: 'ok' });
       });
@@ -86,7 +86,7 @@ describe('useAudioGeneration', () => {
         result.current.generateAudio();
       });
       await waitFor(() => expect(result.current.isGenerating).toBe(true));
-      if (resolveRequest) resolveRequest();
+      resolveRequest();
       await waitFor(() => expect(result.current.isGenerating).toBe(false));
     });
 

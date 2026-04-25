@@ -2,10 +2,11 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ArticleDetailResponse } from '@/types';
 import ArticleDetailPage from './ArticleDetailPage';
 
 const mockGenerateAudio = vi.fn();
-let mockArticleData: { article: { id: string; title: string; audio?: { presigned_url: string } | null } };
+let mockArticleData: ArticleDetailResponse;
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
