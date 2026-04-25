@@ -1,4 +1,5 @@
 import type { Briefing } from "@/types";
+import { getBriefingTitle } from "@/utils/briefing-title";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
@@ -25,7 +26,7 @@ export default function LatestBriefings({ briefings }: LatestBriefingsProps) {
             >
               <div className="flex-1 min-w-0 space-y-1">
                 <h3 className="text-sm font-medium leading-snug group-hover:text-primary transition-colors line-clamp-2">
-                  {b.feed_profile}
+                  {getBriefingTitle(b)}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   {b.generated_at

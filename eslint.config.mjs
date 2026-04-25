@@ -22,15 +22,15 @@ const eslintConfig = defineConfig([
       ],
       // Tailwind CSS plugin rules
       ...tailwindcss.configs.recommended.rules,
+      "tailwindcss/no-custom-classname": [
+        "warn",
+        {
+          whitelist: ["code-annotation"],
+        },
+      ],
     },
-    "tailwindcss/no-custom-classname": [
-      "warn",
-      {
-        whitelist: ["code-annotation"],
-      },
-    ],
   },
-  globalIgnores(["dist/**", "node_modules/**"]),
+  globalIgnores(["archive/**", "dist/**", "node_modules/**"]),
 ]);
 
 export default eslintConfig;

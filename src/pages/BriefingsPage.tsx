@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ArrowRight,
   Calendar,
+  PenLine,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { getBriefingTitle, isCustomBriefing } from "@/utils/briefing-title";
 
 export default function BriefingsPage() {
   const [selectedProfile, setSelectedProfile] = useState<string>("all");
@@ -69,6 +71,12 @@ export default function BriefingsPage() {
             {uniqueProfiles.length} profiles active
           </span>
         </div>
+        <Button asChild className="mt-6">
+          <Link to="/custom-briefing">
+            <PenLine className="h-4 w-4" />
+            Generate Custom Briefing
+          </Link>
+        </Button>
       </div>
 
       <Card className="p-4 mb-6">
@@ -116,6 +124,9 @@ export default function BriefingsPage() {
                   <Badge variant="secondary" className="text-xs">
                     {b.feed_profile}
                   </Badge>
+                  {isCustomBriefing(b) && (
+                    <Badge variant="outline" className="text-xs">Custom</Badge>
+                  )}
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     {b.generated_at
@@ -127,6 +138,10 @@ export default function BriefingsPage() {
                   <FileText className="h-4 w-4 text-primary" />
                 </div>
               </div>
+
+              <h2 className="font-serif text-xl font-semibold leading-tight mb-4">
+                {getBriefingTitle(b)}
+              </h2>
 
               <div className="border-t border-border pt-4 flex items-center justify-between">
                 <Button asChild>

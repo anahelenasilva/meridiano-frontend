@@ -228,6 +228,36 @@ export async function fetchBriefing(id: string) {
   return apiFetch<Briefing>(`/api/briefings/${id}`);
 }
 
+export async function createCustomBriefing(
+  articleIds: string[],
+  feedProfile: string,
+  customPrompt?: string,
+) {
+  return apiFetch<{ jobId: string }>("/api/briefings/custom", {
+    method: "POST",
+    body: JSON.stringify({ articleIds, feedProfile, customPrompt }),
+  });
+}
+
+export async function fetchBriefingJobStatus(jobId: string) {
+  return apiFetch<{
+    state: string;
+    result?: {
+      briefingId: string;
+      customTitle?: string | null;
+      custom_title?: string | null;
+    };
+    error?: string;
+  }>(`/api/briefings/jobs/${jobId}`);
+}
+
+export async function updateBriefingTitle(id: string, customTitle: string) {
+  return apiFetch<{ success: boolean }>(`/api/briefings/${id}/title`, {
+    method: "PATCH",
+    body: JSON.stringify({ customTitle }),
+  });
+}
+
 // ===== YouTube Channels =====
 export async function fetchChannels() {
   return apiFetch<YouTubeChannel[]>("/api/youtube/channels");

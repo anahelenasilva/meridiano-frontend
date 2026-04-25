@@ -28,7 +28,15 @@ const navItems = [
   { to: "/admin/youtube-channels", label: "Admin", icon: Settings },
 ];
 
-const SidebarContext = createContext({ pinned: false, setPinned: (_: boolean) => { } });
+type SidebarContextValue = {
+  pinned: boolean;
+  setPinned: (pinned: boolean) => void;
+};
+
+const SidebarContext = createContext<SidebarContextValue>({
+  pinned: false,
+  setPinned: () => {},
+});
 
 function YouTubeIcon({ className }: { className?: string }) {
   return (
