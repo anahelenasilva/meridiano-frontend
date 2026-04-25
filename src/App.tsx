@@ -8,6 +8,7 @@ import ArticlesPage from "@/pages/ArticlesPage";
 import BookmarksPage from "@/pages/BookmarksPage";
 import BriefingDetailPage from "@/pages/BriefingDetailPage";
 import BriefingsPage from "@/pages/BriefingsPage";
+import CustomBriefingPage from "@/pages/CustomBriefingPage";
 import LoginPage from "@/pages/LoginPage";
 import YoutubeTranscriptionDetailPage from "@/pages/YoutubeTranscriptionDetailPage";
 import YoutubeTranscriptionsPage from "@/pages/YoutubeTranscriptionsPage";
@@ -63,6 +64,7 @@ function AppContent() {
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/briefings" element={<BriefingsPage />} />
         <Route path="/briefings/:id" element={<BriefingDetailPage />} />
+        <Route path="/custom-briefing" element={<CustomBriefingPage />} />
         <Route path="/youtube-transcriptions" element={<YoutubeTranscriptionsPage />} />
         <Route path="/youtube-transcriptions/:id" element={<YoutubeTranscriptionDetailPage />} />
         <Route path="/admin/youtube-channels" element={<AdminYoutubeChannelsPage />} />

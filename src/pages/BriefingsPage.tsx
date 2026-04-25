@@ -116,6 +116,9 @@ export default function BriefingsPage() {
                   <Badge variant="secondary" className="text-xs">
                     {b.feed_profile}
                   </Badge>
+                  {b.is_custom && (
+                    <Badge variant="outline" className="text-xs">Custom</Badge>
+                  )}
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
                     {b.generated_at

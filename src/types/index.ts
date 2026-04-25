@@ -52,6 +52,8 @@ export interface Briefing {
   id: string;
   generated_at: string;
   feed_profile: string;
+  is_custom?: boolean;
+  custom_title?: string | null;
   // Detail-only
   brief_markdown?: string;
 }

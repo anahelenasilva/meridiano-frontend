@@ -3,6 +3,7 @@ import {
   checkBookmark,
   createArticleByLink,
   createChannel,
+  createCustomBriefing,
   createTranscription,
   deleteArticle,
   deleteTranscription,
@@ -10,12 +11,14 @@ import {
   fetchArticles,
   fetchBookmarks,
   fetchBriefing,
+  fetchBriefingJobStatus,
   fetchBriefings,
   fetchChannels,
   fetchProfiles,
   fetchTranscription,
   fetchTranscriptions,
   removeBookmark,
+  updateBriefingTitle,
   updateChannelEnabled,
   uploadArticleMarkdown,
 } from "@/services/api";
@@ -260,6 +263,44 @@ export function useDeleteTranscription() {
     mutationFn: (id: string) => deleteTranscription(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
+    },
+  });
+}
+
+// ===== Custom Briefings =====
+
+export function useCreateCustomBriefing() {
+  return useMutation({
+    mutationFn: ({
+      articleIds,
+      feedProfile,
+      customPrompt,
+    }: {
+      articleIds: string[];
+      feedProfile: string;
+      customPrompt?: string;
+    }) => createCustomBriefing(articleIds, feedProfile, customPrompt),
+  });
+}
+
+export function useBriefingJobStatus(jobId: string | null) {
+  return useQuery({
+    queryKey: ["briefing-job", jobId],
+    queryFn: () => fetchBriefingJobStatus(jobId as string),
+    enabled: Boolean(jobId),
+    refetchInterval: 2000,
+  });
+}
+
+export function useUpdateBriefingTitle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, customTitle }: { id: string; customTitle: string }) =>
+      updateBriefingTitle(id, customTitle),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["briefing", id] });
+      queryClient.invalidateQueries({ queryKey: ["briefings"] });
     },
   });
 }
