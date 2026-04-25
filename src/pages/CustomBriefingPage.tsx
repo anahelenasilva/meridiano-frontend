@@ -97,7 +97,11 @@ export default function CustomBriefingPage() {
       setStatus("done");
       setJobId(null);
       if (jobData.result?.briefingId) {
-        navigate(`/briefings/${jobData.result.briefingId}`);
+        const customTitle =
+          jobData.result.customTitle ?? jobData.result.custom_title ?? null;
+        navigate(`/briefings/${jobData.result.briefingId}`, {
+          state: { customTitle: customTitle?.trim() || null },
+        });
       }
     } else if (jobData?.state === "failed") {
       setStatus("error");

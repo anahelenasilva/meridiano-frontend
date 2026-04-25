@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { getBriefingTitle, isCustomBriefing } from "@/utils/briefing-title";
 
 export default function BriefingsPage() {
   const [selectedProfile, setSelectedProfile] = useState<string>("all");
@@ -123,7 +124,7 @@ export default function BriefingsPage() {
                   <Badge variant="secondary" className="text-xs">
                     {b.feed_profile}
                   </Badge>
-                  {b.is_custom && (
+                  {isCustomBriefing(b) && (
                     <Badge variant="outline" className="text-xs">Custom</Badge>
                   )}
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -137,6 +138,10 @@ export default function BriefingsPage() {
                   <FileText className="h-4 w-4 text-primary" />
                 </div>
               </div>
+
+              <h2 className="font-serif text-xl font-semibold leading-tight mb-4">
+                {getBriefingTitle(b)}
+              </h2>
 
               <div className="border-t border-border pt-4 flex items-center justify-between">
                 <Button asChild>

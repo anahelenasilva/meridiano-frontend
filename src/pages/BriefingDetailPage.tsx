@@ -3,17 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useBriefing, useUpdateBriefingTitle } from "@/hooks/useApi";
+import { getBriefingCustomTitle, getBriefingTitle, isCustomBriefing } from "@/utils/briefing-title";
 import { format } from "date-fns";
 import { ArrowLeft, Calendar, Check, Loader2, Pencil, Tag, X } from "lucide-react";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 
 export default function BriefingDetailPage() {
   const { id } = useParams();
+  const location = useLocation();
   const { data: briefing, isLoading, error } = useBriefing(id);
   const updateTitle = useUpdateBriefingTitle();
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitleValue, setEditTitleValue] = useState("");
+  const creationTitle =
+    (location.state as { customTitle?: string } | null)?.customTitle?.trim() || null;
 
   if (!id) {
     return (
@@ -25,8 +29,15 @@ export default function BriefingDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        {creationTitle && (
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight mb-6">
+            {creationTitle}
+          </h1>
+        )}
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
       </div>
     );
   }
@@ -58,6 +69,8 @@ export default function BriefingDetailPage() {
   const displayDate = briefing.generated_at
     ? format(new Date(briefing.generated_at), "MMMM d, yyyy 'at' h:mm a")
     : "";
+  const customTitle = getBriefingCustomTitle(briefing);
+  const briefingTitle = getBriefingTitle(briefing);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -117,15 +130,15 @@ export default function BriefingDetailPage() {
             </div>
           ) : (
             <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight">
-              {briefing.custom_title || briefing.feed_profile}
+              {briefingTitle}
             </h1>
           )}
-          {briefing.is_custom && !isEditingTitle && (
+          {isCustomBriefing(briefing) && !isEditingTitle && (
             <Button
               size="icon"
               variant="ghost"
               onClick={() => {
-                setEditTitleValue(briefing.custom_title || "");
+                setEditTitleValue(customTitle || "");
                 setIsEditingTitle(true);
               }}
             >
@@ -141,7 +154,7 @@ export default function BriefingDetailPage() {
             <Tag className="h-4 w-4" />
             <Badge variant="secondary">{briefing.feed_profile}</Badge>
           </span>
-          {briefing.is_custom && (
+          {isCustomBriefing(briefing) && (
             <Badge variant="outline">Custom</Badge>
           )}
         </div>

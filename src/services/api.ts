@@ -242,7 +242,11 @@ export async function createCustomBriefing(
 export async function fetchBriefingJobStatus(jobId: string) {
   return apiFetch<{
     state: string;
-    result?: { briefingId: string };
+    result?: {
+      briefingId: string;
+      customTitle?: string | null;
+      custom_title?: string | null;
+    };
     error?: string;
   }>(`/api/briefings/jobs/${jobId}`);
 }
