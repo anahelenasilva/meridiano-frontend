@@ -8,6 +8,14 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -76,6 +84,8 @@ export default function CustomBriefingPage() {
   const { data: jobData } = useBriefingJobStatus(jobId);
 
   const articles = data?.articles ?? [];
+  const totalPages = data?.pagination?.total_pages ?? 0;
+  const currentPage = data?.pagination?.page ?? 1;
   const profiles = profilesData ?? [];
   const categories = [...new Set(articles.flatMap((a) => a.categories || []))].sort();
 
@@ -85,11 +95,13 @@ export default function CustomBriefingPage() {
     if (!jobId) return;
     if (jobData?.state === "completed") {
       setStatus("done");
+      setJobId(null);
       if (jobData.result?.briefingId) {
         navigate(`/briefings/${jobData.result.briefingId}`);
       }
     } else if (jobData?.state === "failed") {
       setStatus("error");
+      setJobId(null);
       toast.error(jobData.error || "Failed to generate custom briefing");
     }
   }, [jobData, jobId, navigate]);
@@ -171,7 +183,7 @@ export default function CustomBriefingPage() {
   const atMax = selectedArticles.length >= 10;
 
   return (
-    <div className="flex gap-8 py-6 px-4 mx-auto max-w-7xl">
+    <div className="flex flex-col gap-8 px-4 py-6 mx-auto max-w-7xl lg:flex-row">
       <div className="flex-1 min-w-0">
         <div className="mb-6">
           <div className="flex items-center gap-3 mb-2">
@@ -195,8 +207,8 @@ export default function CustomBriefingPage() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="p-4 pt-0 space-y-4">
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <div className="relative flex-1 min-w-0">
                     <Search className="absolute top-1/2 left-3 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       placeholder="Search articles..."
@@ -215,7 +227,7 @@ export default function CustomBriefingPage() {
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-44 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-44">
                       <SelectValue placeholder="All Profiles" />
                     </SelectTrigger>
                     <SelectContent>
@@ -234,7 +246,7 @@ export default function CustomBriefingPage() {
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-44 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-44">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -293,7 +305,7 @@ export default function CustomBriefingPage() {
                   />
                 </div>
 
-                <div className="flex gap-3 items-center">
+                <div className="flex flex-wrap gap-3 items-center">
                   <span className="text-sm text-muted-foreground">Sort by:</span>
                   <Select
                     value={sortBy}
@@ -391,11 +403,60 @@ export default function CustomBriefingPage() {
                 No articles found.
               </p>
             )}
+
+            {totalPages > 1 && (
+              <Pagination className="mt-6">
+                <PaginationContent>
+                  {currentPage > 1 && (
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setPage(Number(currentPage) - 1)}
+                        className="cursor-pointer"
+                      />
+                    </PaginationItem>
+                  )}
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => {
+                      if (p === 1 || p === totalPages) return true;
+                      if (Math.abs(p - currentPage) <= 1) return true;
+                      return false;
+                    })
+                    .map((p, idx, arr) => (
+                      <span key={p}>
+                        {idx > 0 && arr[idx - 1] !== p - 1 && (
+                          <PaginationItem>
+                            <span className="px-2">...</span>
+                          </PaginationItem>
+                        )}
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setPage(Number(p))}
+                            isActive={Number(p) === Number(currentPage)}
+                            className="cursor-pointer"
+                          >
+                            {p}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </span>
+                    ))}
+
+                  {currentPage < totalPages && (
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setPage(Number(currentPage) + 1)}
+                        className="cursor-pointer"
+                      />
+                    </PaginationItem>
+                  )}
+                </PaginationContent>
+              </Pagination>
+            )}
           </div>
         )}
       </div>
 
-      <div className="w-80 shrink-0 space-y-4">
+      <div className="w-full shrink-0 space-y-4 lg:w-80">
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-sm">Selected Articles</h2>
