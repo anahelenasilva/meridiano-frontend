@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ArrowRight,
   Calendar,
+  PenLine,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
@@ -69,6 +70,12 @@ export default function BriefingsPage() {
             {uniqueProfiles.length} profiles active
           </span>
         </div>
+        <Button asChild className="mt-6">
+          <Link to="/custom-briefing">
+            <PenLine className="h-4 w-4" />
+            Generate Custom Briefing
+          </Link>
+        </Button>
       </div>
 
       <Card className="p-4 mb-6">
