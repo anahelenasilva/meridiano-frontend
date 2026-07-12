@@ -109,8 +109,12 @@ ThemeProvider
 Providers are nested at the app root following a **top-down dependency order** — outermost providers have no dependencies on inner ones:
 
 ```tsx
-<ThemeProvider>        {/* no deps */}
-  <AuthProvider>       {/* no deps on Theme */}
+<ThemeProvider>
+  {" "}
+  {/* no deps */}
+  <AuthProvider>
+    {" "}
+    {/* no deps on Theme */}
     <RouterProvider />
   </AuthProvider>
 </ThemeProvider>
@@ -206,9 +210,8 @@ Tests that need context wrap components in a helper that composes required provi
 | **Vite over CRA / Next.js**                 | SPA with no SSR requirement. Vite gives fast HMR and simple config.                                                                                       |
 | **Tailwind CSS v4 + CSS custom properties** | Utility-first styling with design-token theming via custom props. v4's native CSS-based config removes the need for `tailwind.config.js`.                 |
 | **No state library**                        | Context + hooks cover current needs. Avoids dependency and boilerplate for a modest state surface.                                                        |
-| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 redirect. Keeps bundle smaller; interceptors replicated in wrapper.                       |
+| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 redirect. Keeps bundle smaller; interceptors replicated in wrapper.                        |
 | **pnpm**                                    | Strict dependency resolution, disk-efficient, enforced by project rules.                                                                                  |
-| **Conventional Commits**                    | Enforced via project rules (see `.kilocode/rules-code/rules.md`). Enables automated changelogs and semantic versioning.                                   |
 | **Colocation**                              | Tests and feature docs next to source reduces navigation friction and makes ownership obvious.                                                            |
 | **Provider + hook pattern for contexts**    | Consistent API surface, fail-fast `useContext` guards, easy to mock in tests.                                                                             |
 | **Dark theme via CSS class strategy**       | Tailwind `dark:` variant is mature, performant, and avoids runtime style recalculation. `localStorage` + system preference gives good UX with zero flash. |
@@ -217,5 +220,4 @@ Tests that need context wrap components in a helper that composes required provi
 
 ## Related Docs
 
-- [Agent & Workflow Rules](../.kilocode/rules-code/rules.md) — pnpm, conventional commits, coding conventions.
 - [Dark Theme Tech Spec](./00-dark-theme/tech-spec.md) — Feature spec for theming implementation.
