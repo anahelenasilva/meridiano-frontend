@@ -20,13 +20,13 @@ describe("bookmark API helpers", () => {
     localStorage.clear();
   });
 
-  it("uses camelCase query params for bookmark listing", async () => {
+  it("omits user identifiers from bookmark listing requests", async () => {
     fetchMock.mockResolvedValue(mockJsonResponse({ bookmarks: [] }));
 
-    await fetchBookmarks("user-123", 1, 20);
+    await fetchBookmarks(1, 20);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/api/bookmarks?userId=user-123&page=1&perPage=20"),
+      expect.stringContaining("/api/bookmarks?page=1&per_page=20"),
       expect.objectContaining({
         headers: expect.objectContaining({
           "Content-Type": "application/json",
@@ -35,24 +35,24 @@ describe("bookmark API helpers", () => {
     );
   });
 
-  it("uses camelCase query params for bookmark checks", async () => {
+  it("omits user identifiers from bookmark checks", async () => {
     fetchMock.mockResolvedValue(mockJsonResponse({ bookmarked: false }));
 
-    await checkBookmark("article-123", "user-123");
+    await checkBookmark("article-123");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/api/bookmarks/check/article-123?userId=user-123"),
+      expect.stringContaining("/api/bookmarks/check/article-123"),
       expect.any(Object),
     );
   });
 
-  it("uses camelCase query params for bookmark removal", async () => {
+  it("omits user identifiers from bookmark removal", async () => {
     fetchMock.mockResolvedValue(mockJsonResponse({ success: true }));
 
-    await removeBookmark("user-123", "article-123");
+    await removeBookmark("article-123");
 
     expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining("/api/bookmarks?userId=user-123&articleId=article-123"),
+      expect.stringContaining("/api/bookmarks?article_id=article-123"),
       expect.objectContaining({
         method: "DELETE",
       }),
