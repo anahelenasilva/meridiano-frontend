@@ -18,6 +18,7 @@ import {
   fetchTranscription,
   fetchTranscriptions,
   removeBookmark,
+  saveNote,
   updateBriefingTitle,
   updateChannelEnabled,
   uploadArticleMarkdown,
@@ -29,6 +30,7 @@ import type {
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
+  Note,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -301,6 +303,37 @@ export function useUpdateBriefingTitle() {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["briefing", id] });
       queryClient.invalidateQueries({ queryKey: ["briefings"] });
+    },
+  });
+}
+
+// ===== Notes =====
+
+export function useSaveNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      sourceType,
+      sourceId,
+      content,
+    }: {
+      sourceType: "article" | "transcription";
+      sourceId: string;
+      content: string;
+    }) => saveNote(sourceType, sourceId, content),
+    onSuccess: (data: { note: Note | null }, { sourceType, sourceId }) => {
+      if (sourceType === "article") {
+        queryClient.setQueriesData<ArticleDetailResponse>(
+          { queryKey: ["article", sourceId] },
+          (old) => (old ? { ...old, article: { ...old.article, note: data.note } } : old),
+        );
+      } else {
+        queryClient.setQueriesData<YouTubeTranscriptionDetailResponse>(
+          { queryKey: ["youtube-transcription", sourceId] },
+          (old) => (old ? { ...old, transcription: { ...old.transcription, note: data.note } } : old),
+        );
+      }
     },
   });
 }

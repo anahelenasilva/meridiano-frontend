@@ -31,6 +31,7 @@ vi.mock('@/hooks/useApi', () => ({
     remove: { mutate: vi.fn() },
   }),
   useArticles: () => ({ data: { articles: [] } }),
+  useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 vi.mock('@/hooks/useAudioGeneration', () => ({
@@ -69,6 +70,12 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
         image_url: null,
         categories: [],
         audio: null,
+        note: {
+          id: 'n1',
+          content: 'Existing note',
+          created_at: '2024-01-01',
+          updated_at: '2024-01-02',
+        },
       },
     };
   });
@@ -92,5 +99,11 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
     expect(audioEl).toBeInTheDocument();
     expect(audioEl).toHaveAttribute('src', 'https://example.com/audio.mp3');
     expect(screen.queryByRole('button', { name: /generate audio/i })).not.toBeInTheDocument();
+  });
+
+  it('renders the note editor with the current article note', () => {
+    renderWithProviders();
+    expect(screen.getByRole('heading', { name: /note/i })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Existing note')).toBeInTheDocument();
   });
 });

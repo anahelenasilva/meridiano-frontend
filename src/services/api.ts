@@ -5,6 +5,7 @@ import {
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
+  Note,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -197,7 +198,7 @@ export async function uploadArticleMarkdown(
 // ===== Bookmarks =====
 
 export async function fetchBookmarks(userId: string, page = 1, perPage = 20) {
-  return apiFetch<BookmarksResponse>(`/api/bookmarks${toQuery({ user_id: userId, page, per_page: perPage })}`);
+  return apiFetch<BookmarksResponse>(`/api/bookmarks${toQuery({ userId, page, perPage })}`);
 }
 
 export async function addBookmark(userId: string, articleId: string) {
@@ -208,13 +209,13 @@ export async function addBookmark(userId: string, articleId: string) {
 }
 
 export async function removeBookmark(userId: string, articleId: string) {
-  return apiFetch<{ success: boolean }>(`/api/bookmarks${toQuery({ user_id: userId, article_id: articleId })}`, {
+  return apiFetch<{ success: boolean }>(`/api/bookmarks${toQuery({ userId, articleId })}`, {
     method: "DELETE",
   });
 }
 
 export async function checkBookmark(articleId: string, userId: string) {
-  return apiFetch<{ bookmarked: boolean }>(`/api/bookmarks/check/${articleId}${toQuery({ user_id: userId })}`);
+  return apiFetch<{ bookmarked: boolean }>(`/api/bookmarks/check/${articleId}${toQuery({ userId })}`);
 }
 
 // ===== Briefings =====
@@ -324,4 +325,17 @@ export async function createTranscription(
 
 export async function deleteTranscription(id: string) {
   return apiFetch<{ success: boolean }>(`/api/youtube/transcriptions/${id}`, { method: "DELETE" });
+}
+
+// ===== Notes =====
+
+export async function saveNote(
+  sourceType: "article" | "transcription",
+  sourceId: string,
+  content: string,
+): Promise<{ note: Note | null }> {
+  return apiFetch<{ note: Note | null }>("/api/notes", {
+    method: "PUT",
+    body: JSON.stringify({ source_type: sourceType, source_id: sourceId, content }),
+  });
 }
