@@ -1,5 +1,6 @@
 import AddTranscriptionModal from "@/components/AddTranscriptionModal";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
+import { NoteEditor } from "@/components/NoteEditor";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useTranscriptions } from "@/hooks/useApi";
@@ -93,6 +94,12 @@ export default function YoutubeTranscriptionsPage() {
                       <p className="text-xs text-muted-foreground">
                         {v.postedAt ? format(new Date(v.postedAt), "MMM d, yyyy") : ""}
                       </p>
+                      <NoteEditor
+                        sourceType="transcription"
+                        sourceId={v.id}
+                        note={v.note}
+                        mode="collapsed"
+                      />
                     </div>
                   </Link>
                 ))}

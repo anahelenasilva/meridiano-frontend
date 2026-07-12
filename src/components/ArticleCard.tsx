@@ -1,5 +1,6 @@
 import type { Article } from "@/types";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
+import { NoteEditor } from "@/components/NoteEditor";
 import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck } from "lucide-react";
@@ -99,6 +100,12 @@ export default function ArticleCard({
               </div>
             )}
           </div>
+          <NoteEditor
+            sourceType="article"
+            sourceId={article.id}
+            note={article.note}
+            mode="collapsed"
+          />
         </div>
         <img
           src={displayImage}
