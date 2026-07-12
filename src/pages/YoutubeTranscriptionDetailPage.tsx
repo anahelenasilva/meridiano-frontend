@@ -1,6 +1,7 @@
 import { AudioSection } from "@/components/AudioSection";
 import { BackButton } from "@/components/BackButton";
 import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
+import { NoteEditor } from "@/components/NoteEditor";
 import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
@@ -80,6 +81,10 @@ export default function YoutubeTranscriptionDetailPage() {
           <CustomPromptDisplay customPrompt={video.custom_prompt} />
         </div>
       )}
+
+      <div className="mb-6">
+        <NoteEditor sourceType="transcription" sourceId={video.id} note={video.note} mode="expanded" />
+      </div>
 
       {video.transcriptionSummary && (
         <div>

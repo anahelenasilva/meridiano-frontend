@@ -309,6 +309,17 @@ export function useUpdateBriefingTitle() {
 
 // ===== Notes =====
 
+function replaceNoteById<T extends { id: string; note?: Note | null }>(
+  items: T[],
+  sourceId: string,
+  note: Note | null,
+): T[] {
+  if (!items.some((item) => item.id === sourceId)) {
+    return items;
+  }
+  return items.map((item) => (item.id === sourceId ? { ...item, note } : item));
+}
+
 export function useSaveNote() {
   const queryClient = useQueryClient();
 
@@ -328,10 +339,37 @@ export function useSaveNote() {
           { queryKey: ["article", sourceId] },
           (old) => (old ? { ...old, article: { ...old.article, note: data.note } } : old),
         );
+        queryClient.setQueriesData<ArticlesResponse>(
+          { queryKey: ["articles"] },
+          (old) => (old ? { ...old, articles: replaceNoteById(old.articles, sourceId, data.note) } : old),
+        );
+        queryClient.setQueriesData<BookmarksResponse>(
+          { queryKey: ["bookmarks"] },
+          (old) => {
+            if (!old || !old.bookmarks.some((bookmark) => bookmark.article.id === sourceId)) {
+              return old;
+            }
+            return {
+              ...old,
+              bookmarks: old.bookmarks.map((bookmark) =>
+                bookmark.article.id === sourceId
+                  ? { ...bookmark, article: { ...bookmark.article, note: data.note } }
+                  : bookmark,
+              ),
+            };
+          },
+        );
       } else {
         queryClient.setQueriesData<YouTubeTranscriptionDetailResponse>(
           { queryKey: ["youtube-transcription", sourceId] },
           (old) => (old ? { ...old, transcription: { ...old.transcription, note: data.note } } : old),
+        );
+        queryClient.setQueriesData<YouTubeTranscriptionsResponse>(
+          { queryKey: ["youtube-transcriptions"] },
+          (old) =>
+            old
+              ? { ...old, transcriptions: replaceNoteById(old.transcriptions, sourceId, data.note) }
+              : old,
         );
       }
     },

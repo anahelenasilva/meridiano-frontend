@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useSaveNote } from "@/hooks/useApi";
@@ -54,11 +54,21 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   const remaining = MAX_LENGTH - content.length;
   const showCounter = remaining <= WARNING_THRESHOLD;
 
+  // Collapsed mode is only ever nested inside a clickable row/card (e.g. a react-router
+  // Link); swallow clicks here so interacting with the note never triggers navigation.
+  const stopRowClick =
+    mode === "collapsed"
+      ? (e: MouseEvent) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      : undefined;
+
   if (mode === "collapsed" && !isExpanded) {
     const hasNote = Boolean(note?.content?.trim());
 
     return (
-      <div className="rounded-md border border-border p-3">
+      <div className="rounded-md border border-border p-3" onClick={stopRowClick}>
         <button
           type="button"
           onClick={() => setIsExpanded(true)}
@@ -78,7 +88,10 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   }
 
   return (
-    <div className={mode === "collapsed" ? "rounded-md border border-border p-3" : undefined}>
+    <div
+      className={mode === "collapsed" ? "rounded-md border border-border p-3" : undefined}
+      onClick={stopRowClick}
+    >
       {mode === "expanded" && <h2 className="text-lg sm:text-xl font-semibold mb-2">Note</h2>}
       <Textarea
         value={content}
