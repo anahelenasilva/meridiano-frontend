@@ -41,7 +41,6 @@ type DatePreset = "yesterday" | "week" | "30d" | "3m" | null;
 
 export default function ArticlesPage() {
   const { user } = useAuth();
-  const userId = user?.id;
   const [searchParams] = useSearchParams();
   const feedProfileFromUrl = searchParams.get("feedProfile");
   const [search, setSearch] = useState("");
@@ -75,8 +74,8 @@ export default function ArticlesPage() {
 
   const { data: profilesData } = useProfiles();
   const { data: briefingsData } = useBriefings();
-  const { data: bookmarksData } = useBookmarks(userId, 1, 100);
-  const { add, remove } = useToggleBookmark(userId);
+  const { data: bookmarksData } = useBookmarks(1, 100);
+  const { add, remove } = useToggleBookmark();
 
   const articles = data?.articles ?? [];
   const total = data?.pagination?.total_articles ?? 0;
@@ -90,6 +89,9 @@ export default function ArticlesPage() {
   );
 
   const handleToggleBookmark = (articleId: string) => {
+    if (!user) {
+      return;
+    }
     if (bookmarkedIds.has(articleId)) {
       remove.mutate(articleId);
     } else {

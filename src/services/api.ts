@@ -197,25 +197,25 @@ export async function uploadArticleMarkdown(
 
 // ===== Bookmarks =====
 
-export async function fetchBookmarks(userId: string, page = 1, perPage = 20) {
-  return apiFetch<BookmarksResponse>(`/api/bookmarks${toQuery({ user_id: userId, page, per_page: perPage })}`);
+export async function fetchBookmarks(page = 1, perPage = 20) {
+  return apiFetch<BookmarksResponse>(`/api/bookmarks${toQuery({ page, per_page: perPage })}`);
 }
 
-export async function addBookmark(userId: string, articleId: string) {
+export async function addBookmark(articleId: string) {
   return apiFetch<{ id: string }>("/api/bookmarks", {
     method: "POST",
-    body: JSON.stringify({ user_id: userId, article_id: articleId }),
+    body: JSON.stringify({ article_id: articleId }),
   });
 }
 
-export async function removeBookmark(userId: string, articleId: string) {
-  return apiFetch<{ success: boolean }>(`/api/bookmarks${toQuery({ user_id: userId, article_id: articleId })}`, {
+export async function removeBookmark(articleId: string) {
+  return apiFetch<{ success: boolean }>(`/api/bookmarks${toQuery({ article_id: articleId })}`, {
     method: "DELETE",
   });
 }
 
-export async function checkBookmark(articleId: string, userId: string) {
-  return apiFetch<{ bookmarked: boolean }>(`/api/bookmarks/check/${articleId}${toQuery({ user_id: userId })}`);
+export async function checkBookmark(articleId: string) {
+  return apiFetch<{ bookmarked: boolean }>(`/api/bookmarks/check/${articleId}`);
 }
 
 // ===== Briefings =====

@@ -17,16 +17,16 @@ Meridiano Frontend is a single-page application for viewing AI-powered news brie
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Framework | React 18 + TypeScript |
-| Build | Vite 5 |
-| Styling | Tailwind CSS v4 |
-| Routing | React Router v6 |
-| HTTP | Native fetch |
-| Data | TanStack Query |
-| Testing | Vitest + React Testing Library |
-| Package manager | pnpm |
+| Layer           | Technology                     |
+| --------------- | ------------------------------ |
+| Framework       | React 18 + TypeScript          |
+| Build           | Vite 5                         |
+| Styling         | Tailwind CSS v4                |
+| Routing         | React Router v6                |
+| HTTP            | Native fetch                   |
+| Data            | TanStack Query                 |
+| Testing         | Vitest + React Testing Library |
+| Package manager | pnpm                           |
 
 ---
 
@@ -53,10 +53,4 @@ meridiano-frontend/
 ## Documentation Index
 
 - [Architecture](./ARCHITECTURE.md)
-- [Tech Stack](./TECH_STACK.md)
-- [Source Tree Analysis](./source-tree-analysis.md)
-- [API Contracts](./api-contracts.md)
-- [Data Models](./data-models.md)
 - [Component Inventory](./component-inventory.md)
-- [Development Guide](./development-guide.md)
-- [Deployment Guide](./deployment-guide.md)

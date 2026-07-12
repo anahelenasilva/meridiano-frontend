@@ -18,10 +18,9 @@ export default function ArticleDetail() {
   const { data, isLoading } = useArticle(id);
 
   const { user } = useAuth();
-  const userId = user?.id;
 
-  const { data: bookmarkStatus } = useBookmarkCheck(id, userId);
-  const { add, remove } = useToggleBookmark(userId);
+  const { data: bookmarkStatus } = useBookmarkCheck(id);
+  const { add, remove } = useToggleBookmark();
   const isBookmarked = bookmarkStatus?.bookmarked ?? false;
   const { generateAudio, isGenerating } = useAudioGeneration({
     sourceType: "article",
@@ -29,7 +28,7 @@ export default function ArticleDetail() {
   });
 
   const handleToggleBookmark = () => {
-    if (!id) {
+    if (!user || !id) {
       return;
     }
     if (isBookmarked) {
@@ -147,6 +146,7 @@ export default function ArticleDetail() {
           <button
             type="button"
             onClick={handleToggleBookmark}
+            disabled={!user}
             className="p-2 rounded-full hover:bg-accent transition-colors"
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >

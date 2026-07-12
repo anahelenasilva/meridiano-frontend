@@ -35,6 +35,7 @@ import type {
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
 } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type UseQueryResult<T> = ReturnType<typeof useQuery<T, Error>>;
@@ -119,36 +120,38 @@ export function useProfiles() {
 // ===== Bookmarks =====
 
 export function useBookmarks(
-  userId: string | undefined,
   page = 1,
   perPage = 20,
 ): UseQueryResult<BookmarksResponse> {
+  const { user } = useAuth();
+
   return useQuery<BookmarksResponse, Error>({
-    queryKey: ["bookmarks", userId, page, perPage],
-    queryFn: () => fetchBookmarks(userId as string, page, perPage),
-    enabled: Boolean(userId),
+    queryKey: ["bookmarks", page, perPage],
+    queryFn: () => fetchBookmarks(page, perPage),
+    enabled: Boolean(user),
   });
 }
 
 export function useBookmarkCheck(
   articleId: string | undefined,
-  userId: string | undefined,
 ): UseQueryResult<{ bookmarked: boolean }> {
+  const { user } = useAuth();
+
   return useQuery<{ bookmarked: boolean }, Error>({
-    queryKey: ["bookmark-check", articleId, userId],
+    queryKey: ["bookmark-check", articleId],
     queryFn: () => {
-      return checkBookmark(articleId as string, userId as string);
+      return checkBookmark(articleId as string);
     },
-    enabled: Boolean(articleId) && Boolean(userId),
+    enabled: Boolean(articleId) && Boolean(user),
   });
 }
 
-export function useToggleBookmark(userId: string | undefined) {
+export function useToggleBookmark() {
   const queryClient = useQueryClient();
 
   const add = useMutation({
     mutationFn: (articleId: string) => {
-      return addBookmark(userId as string, articleId);
+      return addBookmark(articleId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
@@ -158,7 +161,7 @@ export function useToggleBookmark(userId: string | undefined) {
 
   const remove = useMutation({
     mutationFn: (articleId: string) => {
-      return removeBookmark(userId as string, articleId);
+      return removeBookmark(articleId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
@@ -306,7 +309,6 @@ export function useUpdateBriefingTitle() {
     },
   });
 }
-
 // ===== Notes =====
 
 function replaceNoteById<T extends { id: string; note?: Note | null }>(
@@ -375,4 +377,3 @@ export function useSaveNote() {
     },
   });
 }
-
