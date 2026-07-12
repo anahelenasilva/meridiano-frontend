@@ -1,5 +1,12 @@
 // === API Response Types (matching Meridiano NestJS API) ===
 
+export interface Note {
+  id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -14,6 +21,7 @@ export interface Article {
   image_url: string | null;
   categories: string[];
   audio: ArticleAudio | null;
+  note?: Note | null;
   // Detail-only fields
   raw_content?: string;
   processed_content?: string | null;
@@ -114,6 +122,7 @@ export interface YouTubeTranscription {
   category?: string;
   impactRating?: number;
   custom_prompt?: string | null;
+  note?: Note | null;
 }
 
 export interface YouTubeTranscriptionsResponse {

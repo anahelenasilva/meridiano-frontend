@@ -31,6 +31,7 @@ vi.mock('@/hooks/useApi', () => ({
     remove: { mutate: vi.fn() },
   }),
   useArticles: () => ({ data: { articles: [] } }),
+  useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 vi.mock('@/hooks/useAudioGeneration', () => ({

@@ -5,6 +5,7 @@ import {
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
+  Note,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -324,4 +325,17 @@ export async function createTranscription(
 
 export async function deleteTranscription(id: string) {
   return apiFetch<{ success: boolean }>(`/api/youtube/transcriptions/${id}`, { method: "DELETE" });
+}
+
+// ===== Notes =====
+
+export async function saveNote(
+  sourceType: "article" | "transcription",
+  sourceId: string,
+  content: string,
+): Promise<{ note: Note | null }> {
+  return apiFetch<{ note: Note | null }>("/api/notes", {
+    method: "PUT",
+    body: JSON.stringify({ source_type: sourceType, source_id: sourceId, content }),
+  });
 }
