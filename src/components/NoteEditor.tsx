@@ -24,12 +24,13 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   useEffect(() => {
     setContent(note?.content ?? "");
     setError(null);
-  }, [sourceId]);
+  }, [sourceId, note?.content]);
 
   const handleSave = () => {
     setError(null);
+    const normalizedContent = content.trim() === "" ? "" : content;
     saveNoteMutation.mutate(
-      { sourceType, sourceId, content },
+      { sourceType, sourceId, content: normalizedContent },
       {
         onSuccess: (result) => {
           setContent(result.note?.content ?? "");
