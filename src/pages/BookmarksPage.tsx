@@ -5,13 +5,12 @@ import { useBookmarks, useBriefings } from "@/hooks/useApi";
 
 export default function BookmarksPage() {
   const { user } = useAuth();
-  const userId = user?.id;
-  const { data, isLoading, error } = useBookmarks(userId, 1, 20);
+  const { data, isLoading, error } = useBookmarks(1, 20);
   const { data: briefingsData } = useBriefings();
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
 
-  if (!userId) {
+  if (!user) {
     return (
       <div className="space-y-4">
         <h1 className="font-serif text-2xl font-bold mb-1">Bookmarks</h1>

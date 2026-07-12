@@ -21,24 +21,24 @@ export default function BookmarkButton({
 }: BookmarkButtonProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const userId = user?.id;
+  const isLoggedIn = Boolean(user);
 
   const { data: bookmarkStatus } = useQuery<boolean>({
-    queryKey: ['bookmark-status', userId, articleId],
+    queryKey: ['bookmark-status', articleId],
     queryFn: async (): Promise<boolean> => {
-      if (!userId) {
+      if (!isLoggedIn) {
         return false;
       }
 
       try {
-        const response = await checkBookmark(articleId, userId);
+        const response = await checkBookmark(articleId);
         return Boolean(response?.bookmarked);
       } catch (error) {
         console.error('Error checking bookmark status:', error);
         return false;
       }
     },
-    enabled: !!userId && initialIsBookmarked === undefined,
+    enabled: isLoggedIn && initialIsBookmarked === undefined,
     staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
     // cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     refetchOnMount: false, // Don't refetch when component remounts if data is fresh
@@ -51,15 +51,15 @@ export default function BookmarkButton({
 
   const addBookmarkMutation = useMutation({
     mutationFn: () => {
-      if (!userId) {
+      if (!isLoggedIn) {
         throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
-      return addBookmarkApi(userId, articleId);
+      return addBookmarkApi(articleId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookmark-status', userId, articleId] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmark-status', articleId] });
       toast.success(MESSAGES.SUCCESS.ARTICLE_BOOKMARKED);
     },
     onError: (error: Error) => {
@@ -69,15 +69,15 @@ export default function BookmarkButton({
 
   const removeBookmarkMutation = useMutation({
     mutationFn: () => {
-      if (!userId) {
+      if (!isLoggedIn) {
         throw new Error(MESSAGES.ERROR.LOGIN_REQUIRED);
       }
 
-      return removeBookmarkApi(userId, articleId);
+      return removeBookmarkApi(articleId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bookmarks', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookmark-status', userId, articleId] });
+      queryClient.invalidateQueries({ queryKey: ['bookmarks'] });
+      queryClient.invalidateQueries({ queryKey: ['bookmark-status', articleId] });
       toast.success(MESSAGES.SUCCESS.ARTICLE_UNBOOKMARKED);
     },
     onError: (error: Error) => {
@@ -89,7 +89,7 @@ export default function BookmarkButton({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!userId) {
+    if (!isLoggedIn) {
       toast.error(MESSAGES.ERROR.LOGIN_REQUIRED);
       return;
     }
@@ -119,7 +119,7 @@ export default function BookmarkButton({
     <button
       type="button"
       onClick={handleToggleBookmark}
-      disabled={isLoading || !userId}
+      disabled={isLoading || !isLoggedIn}
       className={`flex items-center space-x-1 ${buttonSizeClasses[size]} border rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${isBookmarked
         ? 'bg-yellow-600 dark:bg-yellow-500 text-white hover:bg-yellow-700 dark:hover:bg-yellow-600 border-yellow-600 dark:border-yellow-500'
         : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 border-gray-300 dark:border-gray-600'
