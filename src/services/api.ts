@@ -335,7 +335,7 @@ export async function saveNote(
   content: string,
 ): Promise<{ note: Note | null }> {
   return apiFetch<{ note: Note | null }>("/api/notes", {
-    method: "PUT",
+    method: "POST",
     body: JSON.stringify({ source_type: sourceType, source_id: sourceId, content }),
   });
 }
