@@ -49,3 +49,23 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      # This step only catches drift when a frontend PR is open to run it. If
+      # meridiano-nestjs's main branch changes its OpenAPI spec with no
+      # frontend PR in flight, nothing here notices until the next PR is
+      # opened. There is no scheduled/independent drift check — that gap is
+      # a known, deliberately deferred limitation (see issue #31).
+      - name: Generate OpenAPI types and check for drift
+        run: |
+          attempt=1
+          max_attempts=3
+          until pnpm generate:api-types; do
+            if [ "$attempt" -ge "$max_attempts" ]; then
+              echo "Failed to generate OpenAPI types after $max_attempts attempts"
+              exit 1
+            fi
+            echo "Attempt $attempt failed, retrying in $((attempt * 5))s..."
+            sleep $((attempt * 5))
+            attempt=$((attempt + 1))
+          done
+          git diff --exit-code src/types/api.ts
