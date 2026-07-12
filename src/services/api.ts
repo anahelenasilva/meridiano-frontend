@@ -10,6 +10,7 @@ import {
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
 } from "@/types";
+import type { paths } from "@/types/api";
 import { parseErrorResponse } from "@/utils/api-error";
 
 function getAuthToken(): string | null {
@@ -88,6 +89,28 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   }
 
   return res.json();
+}
+
+type ApiPath = keyof paths;
+type ApiMethod<P extends ApiPath> = {
+  [M in keyof paths[P] & string]: NonNullable<paths[P][M]> extends never ? never : M;
+}[keyof paths[P] & string];
+type ApiOperation<P extends ApiPath, M extends ApiMethod<P>> = NonNullable<paths[P][M]>;
+type JsonResponse<Operation> = Operation extends {
+  responses: Record<number, { content: { "application/json": infer Response } }>;
+}
+  ? Response
+  : unknown;
+
+function typedApiFetch<P extends ApiPath, M extends ApiMethod<P>>(
+  path: P,
+  method: M,
+  body?: unknown,
+): Promise<JsonResponse<ApiOperation<P, M>>> {
+  return apiFetch<JsonResponse<ApiOperation<P, M>>>(path, {
+    method: method.toUpperCase(),
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
 }
 
 function toQuery(params: Record<string, unknown>): string {
@@ -334,8 +357,9 @@ export async function saveNote(
   sourceId: string,
   content: string,
 ): Promise<{ note: Note | null }> {
-  return apiFetch<{ note: Note | null }>("/api/notes", {
-    method: "POST",
-    body: JSON.stringify({ source_type: sourceType, source_id: sourceId, content }),
+  return typedApiFetch("/api/notes", "post", {
+    source_type: sourceType,
+    source_id: sourceId,
+    content,
   });
 }
