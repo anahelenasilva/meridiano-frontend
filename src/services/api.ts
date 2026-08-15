@@ -97,9 +97,15 @@ type ApiMethod<P extends ApiPath> = {
   [M in keyof paths[P] & string]: NonNullable<paths[P][M]> extends never ? never : M;
 }[keyof paths[P] & string];
 type ApiOperation<P extends ApiPath, M extends ApiMethod<P>> = NonNullable<paths[P][M]>;
+// Extract the success (2xx) JSON body only; the spec also declares error
+// (400/401/…) bodies, and matching all status codes would infer their union.
 type JsonResponse<Operation> = Operation extends {
-  responses: Record<number, { content: { "application/json": infer Response } }>;
+  responses: { 200: { content: { "application/json": infer Response } } };
 }
+  ? Response
+  : Operation extends {
+      responses: { 201: { content: { "application/json": infer Response } } };
+    }
   ? Response
   : unknown;
 
