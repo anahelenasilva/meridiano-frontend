@@ -61,3 +61,5 @@ _bmad-output/
 /playwright/.cache/
 e2e/.auth/
 /.playwright-mcp/*.log
+
+.claude/worktrees/*
