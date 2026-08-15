@@ -6,6 +6,7 @@ import {
   Briefing,
   BriefingsResponse,
   Note,
+  UpdateArticlePayload,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -96,9 +97,15 @@ type ApiMethod<P extends ApiPath> = {
   [M in keyof paths[P] & string]: NonNullable<paths[P][M]> extends never ? never : M;
 }[keyof paths[P] & string];
 type ApiOperation<P extends ApiPath, M extends ApiMethod<P>> = NonNullable<paths[P][M]>;
+// Extract the success (2xx) JSON body only; the spec also declares error
+// (400/401/…) bodies, and matching all status codes would infer their union.
 type JsonResponse<Operation> = Operation extends {
-  responses: Record<number, { content: { "application/json": infer Response } }>;
+  responses: { 200: { content: { "application/json": infer Response } } };
 }
+  ? Response
+  : Operation extends {
+      responses: { 201: { content: { "application/json": infer Response } } };
+    }
   ? Response
   : unknown;
 
@@ -143,6 +150,13 @@ export async function fetchArticle(id: string, includeAudio = true) {
 
 export async function deleteArticle(id: string) {
   return apiFetch<{ success: boolean }>(`/api/articles/${id}`, { method: "DELETE" });
+}
+
+export async function updateArticle(id: string, patch: UpdateArticlePayload) {
+  return apiFetch<ArticleDetailResponse>(`/api/articles/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
 }
 
 export async function createArticleByLink(

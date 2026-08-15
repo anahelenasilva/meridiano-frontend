@@ -56,6 +56,15 @@ export interface ArticleDetailResponse {
   article: Article;
 }
 
+// Write model for editing Article metadata (camelCase, partial semantics).
+export interface UpdateArticlePayload {
+  title?: string;
+  publishedDate?: string;
+  feedSource?: string;
+  feedProfile?: string;
+  categories?: string[];
+}
+
 export interface Briefing {
   id: string;
   generated_at: string;
