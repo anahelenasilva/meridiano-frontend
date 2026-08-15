@@ -6,6 +6,7 @@ import {
   Briefing,
   BriefingsResponse,
   Note,
+  UpdateArticlePayload,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -143,6 +144,13 @@ export async function fetchArticle(id: string, includeAudio = true) {
 
 export async function deleteArticle(id: string) {
   return apiFetch<{ success: boolean }>(`/api/articles/${id}`, { method: "DELETE" });
+}
+
+export async function updateArticle(id: string, patch: UpdateArticlePayload) {
+  return apiFetch<ArticleDetailResponse>(`/api/articles/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
 }
 
 export async function createArticleByLink(

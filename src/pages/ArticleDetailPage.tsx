@@ -1,16 +1,18 @@
 import ArticleCard from "@/components/ArticleCard";
 import { AudioSection } from "@/components/AudioSection";
 import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
+import EditArticleModal from "@/components/EditArticleModal";
 import { NoteEditor } from "@/components/NoteEditor";
 import { BackButton } from "@/components/BackButton";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
-import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
-import { useMemo } from "react";
+import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2, Pencil } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 export default function ArticleDetail() {
@@ -18,6 +20,7 @@ export default function ArticleDetail() {
   const { data, isLoading } = useArticle(id);
 
   const { user } = useAuth();
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const { data: bookmarkStatus } = useBookmarkCheck(id);
   const { add, remove } = useToggleBookmark();
@@ -143,6 +146,18 @@ export default function ArticleDetail() {
               {primaryCategory && ` · ${primaryCategory}`}
             </p>
           </div>
+          {user && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditOpen(true)}
+              className="gap-1.5"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </Button>
+          )}
           <button
             type="button"
             onClick={handleToggleBookmark}
@@ -215,6 +230,14 @@ export default function ArticleDetail() {
       </article>
 
       <div className="hidden lg:block w-12 shrink-0" />
+
+      {user && isEditOpen && (
+        <EditArticleModal
+          article={article}
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+        />
+      )}
     </div>
   );
 }

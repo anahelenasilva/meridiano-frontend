@@ -19,6 +19,7 @@ import {
   fetchTranscriptions,
   removeBookmark,
   saveNote,
+  updateArticle,
   updateBriefingTitle,
   updateChannelEnabled,
   uploadArticleMarkdown,
@@ -31,6 +32,7 @@ import type {
   Briefing,
   BriefingsResponse,
   Note,
+  UpdateArticlePayload,
   YouTubeChannel,
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
@@ -63,6 +65,19 @@ export function useDeleteArticle() {
   return useMutation({
     mutationFn: (id: string) => deleteArticle(id),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
+}
+
+export function useUpdateArticle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, patch }: { id: string; patch: UpdateArticlePayload }) =>
+      updateArticle(id, patch),
+    onSuccess: (_data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["article", id] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
     },
   });
