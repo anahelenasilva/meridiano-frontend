@@ -56,7 +56,7 @@ export default function EditArticleModal({
 
   const [title, setTitle] = useState(article.title);
   const [publishedDate, setPublishedDate] = useState(originalDate);
-  const [source, setSource] = useState(article.feed_source);
+  const [feedSource, setFeedSource] = useState(article.feed_source);
   const [feedProfile, setFeedProfile] = useState(article.feed_profile);
   const [categories, setCategories] = useState<string[]>(originalCategories);
 
@@ -64,7 +64,7 @@ export default function EditArticleModal({
   useEffect(() => {
     setTitle(article.title);
     setPublishedDate(toDateInputValue(article.published_date));
-    setSource(article.feed_source);
+    setFeedSource(article.feed_source);
     setFeedProfile(article.feed_profile);
     setCategories(article.categories ?? []);
   }, [article, open]);
@@ -91,7 +91,7 @@ export default function EditArticleModal({
   const todayStr = toDateInputValue(new Date().toISOString());
 
   const trimmedTitle = title.trim();
-  const trimmedSource = source.trim();
+  const trimmedSource = feedSource.trim();
 
   const isTitleValid = trimmedTitle.length > 0;
   const isSourceValid = trimmedSource.length > 0;
@@ -99,20 +99,23 @@ export default function EditArticleModal({
     publishedDate !== "" &&
     !Number.isNaN(Date.parse(publishedDate)) &&
     publishedDate <= todayStr;
-  const isProfileValid = feedProfile.length > 0;
+  // Mirror the server's enum contract: the profile must be a known one.
+  const isProfileValid = profileOptions.includes(feedProfile);
   const isFormValid = isTitleValid && isSourceValid && isDateValid && isProfileValid;
 
-  const buildPatch = (): UpdateArticlePayload => {
-    const patch: UpdateArticlePayload = {};
-    if (trimmedTitle !== article.title) patch.title = trimmedTitle;
-    if (publishedDate !== originalDate) patch.publishedDate = publishedDate;
-    if (trimmedSource !== article.feed_source) patch.feedSource = trimmedSource;
-    if (feedProfile !== article.feed_profile) patch.feedProfile = feedProfile;
-    if (!sameSet(categories, originalCategories)) patch.categories = categories;
-    return patch;
-  };
+  // Only the fields whose values differ from the loaded Article are sent.
+  const patch = useMemo(() => {
+    const originalDateValue = toDateInputValue(article.published_date);
+    const next: UpdateArticlePayload = {};
+    if (trimmedTitle !== article.title) next.title = trimmedTitle;
+    if (publishedDate !== originalDateValue) next.publishedDate = publishedDate;
+    if (trimmedSource !== article.feed_source) next.feedSource = trimmedSource;
+    if (feedProfile !== article.feed_profile) next.feedProfile = feedProfile;
+    if (!sameSet(categories, article.categories ?? [])) next.categories = categories;
+    return next;
+  }, [article, trimmedTitle, publishedDate, trimmedSource, feedProfile, categories]);
 
-  const hasChanges = Object.keys(buildPatch()).length > 0;
+  const hasChanges = Object.keys(patch).length > 0;
 
   const toggleCategory = (category: string, checked: boolean) => {
     setCategories((prev) =>
@@ -121,7 +124,6 @@ export default function EditArticleModal({
   };
 
   const handleSave = async () => {
-    const patch = buildPatch();
     if (Object.keys(patch).length === 0) return;
     try {
       await updateArticleMutation.mutateAsync({ id: article.id, patch });
@@ -186,8 +188,8 @@ export default function EditArticleModal({
             </Label>
             <Input
               id="edit-source"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
+              value={feedSource}
+              onChange={(e) => setFeedSource(e.target.value)}
               className="bg-background"
             />
             {!isSourceValid && (

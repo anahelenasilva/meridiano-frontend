@@ -25,6 +25,7 @@
 | ArticleCard | `ArticleCard.tsx` | Article list item |
 | BookmarkButton | `BookmarkButton.tsx` | Toggle bookmark |
 | AddArticleModal | `AddArticleModal.tsx` | Add article by URL/file |
+| EditArticleModal | `EditArticleModal.tsx` | Edit article metadata (detail page) |
 | AddTranscriptionModal | `AddTranscriptionModal.tsx` | Add YouTube transcription |
 | LatestBriefings | `LatestBriefings.tsx` | Briefings list |
 | AudioSection | `AudioSection.tsx` | Article/transcription audio |
