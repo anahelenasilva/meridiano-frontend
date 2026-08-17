@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { checkBookmark, fetchBookmarks, removeBookmark, saveNote } from "./api";
+import { checkBookmark, deleteCategory, fetchBookmarks, removeBookmark, saveNote } from "./api";
 
 const fetchMock = vi.fn();
 
@@ -10,8 +10,21 @@ function mockJsonResponse(body: unknown) {
     ok: true,
     status: 200,
     statusText: "OK",
+    text: async () => JSON.stringify(body),
     json: async () => body,
-  } as Response;
+  } as unknown as Response;
+}
+
+function mockEmptyResponse(status = 204) {
+  return {
+    ok: true,
+    status,
+    statusText: "No Content",
+    text: async () => "",
+    json: async () => {
+      throw new SyntaxError("Unexpected end of JSON input");
+    },
+  } as unknown as Response;
 }
 
 describe("bookmark API helpers", () => {
@@ -57,6 +70,19 @@ describe("bookmark API helpers", () => {
         method: "DELETE",
       }),
     );
+  });
+});
+
+describe("deleteCategory", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    localStorage.clear();
+  });
+
+  it("resolves without throwing on a 204 No Content response", async () => {
+    fetchMock.mockResolvedValue(mockEmptyResponse(204));
+
+    await expect(deleteCategory("category-123")).resolves.toBeUndefined();
   });
 });
 
