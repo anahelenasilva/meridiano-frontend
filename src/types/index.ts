@@ -1,5 +1,10 @@
 // === API Response Types (matching Meridiano NestJS API) ===
 
+import type { components } from "./api";
+
+export type Category = components["schemas"]["CategoryResponseDto"];
+export type CategoryWithCount = components["schemas"]["CategoryWithCountResponseDto"];
+
 export interface Note {
   id: string;
   content: string;
@@ -105,16 +110,7 @@ export interface YouTubeChannel {
   description: string;
   enabled: boolean;
   maxVideos: number;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  color: string;
-}
-
-export interface CategoryWithCount extends Category {
-  channelCount: number;
+  categories: Category[];
 }
 
 export interface TranscriptionAudio {

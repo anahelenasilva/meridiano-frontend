@@ -7,6 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
+import type { Category } from "@/types";
+import { getErrorMessage } from "@/utils/api-error";
+import { toast } from "@/utils/toast";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 
 const CHANNELS_PATH = "/admin/youtube-channels";
@@ -20,6 +24,7 @@ export default function AdminYoutubeChannelAddPage() {
   const [description, setDescription] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [maxVideos, setMaxVideos] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const isValid =
     channelId.trim() &&
@@ -38,8 +43,12 @@ export default function AdminYoutubeChannelAddPage() {
         description: description.trim(),
         enabled,
         maxVideos: maxVideos ? Number(maxVideos) : undefined,
+        categoryNames: categories.length > 0 ? categories.map((c) => c.name) : undefined,
       },
-      { onSuccess: () => navigate(CHANNELS_PATH) },
+      {
+        onSuccess: () => navigate(CHANNELS_PATH),
+        onError: (error) => toast.error(getErrorMessage(error)),
+      },
     );
   };
 
@@ -84,6 +93,11 @@ export default function AdminYoutubeChannelAddPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+          </div>
+
+          <div>
+            <Label className="mb-1.5">Categories</Label>
+            <CategoryMultiSelect selected={categories} onChange={setCategories} />
           </div>
 
           <div>

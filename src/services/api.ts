@@ -303,7 +303,7 @@ export async function fetchChannels() {
   return apiFetch<YouTubeChannel[]>("/api/youtube/channels");
 }
 
-export async function createChannel(data: { channelId: string; name: string; url: string; description?: string; enabled?: boolean; maxVideos?: number }) {
+export async function createChannel(data: { channelId: string; name: string; url: string; description?: string; enabled?: boolean; maxVideos?: number; categoryNames?: string[] }) {
   return apiFetch<YouTubeChannel>("/api/youtube/channels", {
     method: "POST",
     body: JSON.stringify(data),

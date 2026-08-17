@@ -1,5 +1,6 @@
 import ManageCategoriesModal from "@/components/ManageCategoriesModal";
 import { Badge } from "@/components/ui/badge";
+import { CategoryBadge } from "@/components/CategoryBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -137,6 +138,13 @@ function ChannelCard({
           <p className="text-sm text-muted-foreground mb-3">
             {channel.description}
           </p>
+        )}
+        {channel.categories.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {channel.categories.map((category) => (
+              <CategoryBadge key={category.id} category={category} />
+            ))}
+          </div>
         )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
           <span>Channel ID:</span>
