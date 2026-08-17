@@ -2,10 +2,12 @@ import {
   addBookmark,
   checkBookmark,
   createArticleByLink,
+  createCategory,
   createChannel,
   createCustomBriefing,
   createTranscription,
   deleteArticle,
+  deleteCategory,
   deleteTranscription,
   fetchArticle,
   fetchArticles,
@@ -13,11 +15,13 @@ import {
   fetchBriefing,
   fetchBriefingJobStatus,
   fetchBriefings,
+  fetchCategories,
   fetchChannels,
   fetchProfiles,
   fetchTranscription,
   fetchTranscriptions,
   removeBookmark,
+  renameCategory,
   saveNote,
   updateArticle,
   updateBriefingTitle,
@@ -31,6 +35,7 @@ import type {
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
+  CategoryWithCount,
   Note,
   UpdateArticlePayload,
   YouTubeChannel,
@@ -232,6 +237,48 @@ export function useToggleChannel() {
       updateChannelEnabled(input.channelId, input.enabled),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-channels"] });
+    },
+  });
+}
+
+// ===== YouTube Categories =====
+
+export function useCategories(): UseQueryResult<CategoryWithCount[]> {
+  return useQuery<CategoryWithCount[], Error>({
+    queryKey: ["youtube-categories"],
+    queryFn: fetchCategories,
+  });
+}
+
+export function useCreateCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (name: string) => createCategory(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-categories"] });
+    },
+  });
+}
+
+export function useRenameCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => renameCategory(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-categories"] });
+    },
+  });
+}
+
+export function useDeleteCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteCategory(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-categories"] });
     },
   });
 }

@@ -1,16 +1,18 @@
+import ManageCategoriesModal from "@/components/ManageCategoriesModal";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useChannels, useToggleChannel } from "@/hooks/useApi";
 import type { YouTubeChannel } from "@/types";
-import { ExternalLink, Loader2, Plus, Settings, Youtube } from "lucide-react";
-import { useMemo } from "react";
+import { ExternalLink, Loader2, Plus, Settings, Tags, Youtube } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function AdminYoutubeChannelsPage() {
   const { data: channels, isLoading } = useChannels();
   const toggleChannel = useToggleChannel();
+  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
 
   const channelList = channels ?? [];
 
@@ -39,12 +41,22 @@ export default function AdminYoutubeChannelsPage() {
             YouTube Channels Admin
           </h1>
         </div>
-        <Button asChild>
-          <Link to="/admin/youtube-channels/add">
-            <Plus className="h-4 w-4" /> Add Channel
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => setCategoriesModalOpen(true)}>
+            <Tags className="h-4 w-4" /> Manage Categories
+          </Button>
+          <Button asChild>
+            <Link to="/admin/youtube-channels/add">
+              <Plus className="h-4 w-4" /> Add Channel
+            </Link>
+          </Button>
+        </div>
       </div>
+
+      <ManageCategoriesModal
+        open={categoriesModalOpen}
+        onOpenChange={setCategoriesModalOpen}
+      />
       <p className="text-sm text-muted-foreground mb-8">
         Manage YouTube channels. Enable or disable channels to control which
         ones are actively monitored.

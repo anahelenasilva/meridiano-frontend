@@ -5,6 +5,8 @@ import {
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
+  Category,
+  CategoryWithCount,
   Note,
   UpdateArticlePayload,
   YouTubeChannel,
@@ -313,6 +315,30 @@ export async function updateChannelEnabled(channelId: string, enabled: boolean) 
     method: "PATCH",
     body: JSON.stringify({ enabled }),
   });
+}
+
+// ===== YouTube Categories =====
+
+export async function fetchCategories() {
+  return apiFetch<CategoryWithCount[]>("/api/youtube/categories");
+}
+
+export async function createCategory(name: string) {
+  return apiFetch<Category>("/api/youtube/categories", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function renameCategory(id: string, name: string) {
+  return apiFetch<Category>(`/api/youtube/categories/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function deleteCategory(id: string) {
+  return apiFetch<{ success: boolean }>(`/api/youtube/categories/${id}`, { method: "DELETE" });
 }
 
 // ===== YouTube Transcriptions =====

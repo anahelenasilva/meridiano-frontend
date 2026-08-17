@@ -105,7 +105,8 @@ export interface paths {
         delete: operations["ArticlesController_deleteArticle"];
         options?: never;
         head?: never;
-        patch?: never;
+        /** Update editable metadata of an article */
+        patch: operations["ArticlesController_updateArticle"];
         trace?: never;
     };
     "/api/articles/{id}/audio": {
@@ -399,6 +400,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/youtube/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List categories with their channel counts */
+        get: operations["CategoriesController_listCategories"];
+        put?: never;
+        /** Create a category (color assigned automatically) */
+        post: operations["CategoriesController_createCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/youtube/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a category and its channel associations only */
+        delete: operations["CategoriesController_deleteCategory"];
+        options?: never;
+        head?: never;
+        /** Rename a category */
+        patch: operations["CategoriesController_renameCategory"];
+        trace?: never;
+    };
     "/api/youtube/channels": {
         parameters: {
             query?: never;
@@ -432,6 +469,23 @@ export interface paths {
         head?: never;
         /** Enable or disable a YouTube channel */
         patch: operations["YoutubeChannelsController_updateChannelEnabled"];
+        trace?: never;
+    };
+    "/api/youtube/channels/{channelId}/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace a channel's category assignments with the submitted set */
+        put: operations["YoutubeChannelsController_setChannelCategories"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/youtube/transcriptions": {
@@ -532,6 +586,17 @@ export interface components {
             created_at: string;
             id: string;
         };
+        CategoryResponseDto: {
+            color: string;
+            id: string;
+            name: string;
+        };
+        CategoryWithCountResponseDto: {
+            channelCount: number;
+            color: string;
+            id: string;
+            name: string;
+        };
         CreateArticleDto: {
             customPrompt?: string;
             /** @enum {string} */
@@ -544,6 +609,9 @@ export interface components {
             /** Format: uuid */
             article_id: string;
         };
+        CreateCategoryDto: {
+            name: string;
+        };
         CreateUserDto: {
             /** Format: email */
             email: string;
@@ -551,6 +619,7 @@ export interface components {
             username: string;
         };
         CreateYoutubeChannelDto: {
+            categoryNames?: string[];
             channelId: string;
             description: string;
             enabled: boolean;
@@ -626,6 +695,9 @@ export interface components {
             s3Bucket?: string;
             s3Key: string;
         };
+        RenameCategoryDto: {
+            name: string;
+        };
         SaveNoteDto: {
             content: string;
             /** Format: uuid */
@@ -636,11 +708,23 @@ export interface components {
         SaveNoteResponseDto: {
             note: components["schemas"]["NoteResponseDto"] | null;
         };
+        SetChannelCategoriesDto: {
+            categoryNames: string[];
+        };
         UnauthorizedResponseDto: {
             /** @example Unauthorized */
             message: string;
             /** @example 401 */
             statusCode: number;
+        };
+        UpdateArticleDto: {
+            categories?: ("news" | "blog" | "research" | "nodejs" | "typescript" | "tutorial" | "other")[];
+            /** @enum {string} */
+            feedProfile?: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedSource?: string;
+            /** Format: date-time */
+            publishedDate?: string;
+            title?: string;
         };
         UpdateChannelEnabledDto: {
             enabled: boolean;
@@ -665,6 +749,7 @@ export interface components {
             statusCode: number;
         };
         YoutubeChannelResponseDto: {
+            categories: components["schemas"]["CategoryResponseDto"][];
             channelId: string;
             /** Format: date-time */
             createdAt: string;
@@ -992,6 +1077,55 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+        };
+    };
+    ArticlesController_updateArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateArticleDto"];
+            };
+        };
+        responses: {
+            /** @description Article updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Article not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1623,6 +1757,147 @@ export interface operations {
             };
         };
     };
+    CategoriesController_listCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryWithCountResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_deleteCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Category deleted */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    CategoriesController_renameCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenameCategoryDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
     YoutubeChannelsController_getChannels: {
         parameters: {
             query?: never;
@@ -1712,6 +1987,49 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    YoutubeChannelsController_setChannelCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channelId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetChannelCategoriesDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryResponseDto"][];
+                };
             };
             /** @description Request failed class-validator validation */
             400: {

@@ -27,6 +27,7 @@
 | AddArticleModal | `AddArticleModal.tsx` | Add article by URL/file |
 | EditArticleModal | `EditArticleModal.tsx` | Edit article metadata (detail page) |
 | AddTranscriptionModal | `AddTranscriptionModal.tsx` | Add YouTube transcription |
+| ManageCategoriesModal | `ManageCategoriesModal.tsx` | Create/rename/delete YouTube channel categories |
 | LatestBriefings | `LatestBriefings.tsx` | Briefings list |
 | AudioSection | `AudioSection.tsx` | Article/transcription audio |
 | AudioPlayer | `AudioPlayer.tsx` | Audio playback |
