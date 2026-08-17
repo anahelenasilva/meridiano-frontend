@@ -51,6 +51,7 @@ describe('YoutubeTranscriptionDetailPage audio section (AC3, AC5)', () => {
         videoId: 'v1',
         videoTitle: 'Test Video',
         videoUrl: 'https://youtube.com/watch?v=v1',
+        channelId: 'ch-1',
         channelName: 'Test Channel',
         thumbnailUrl: 'https://example.com/thumb.jpg',
         transcriptionText: 'Transcript text',
