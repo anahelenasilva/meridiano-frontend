@@ -107,6 +107,16 @@ export interface YouTubeChannel {
   maxVideos: number;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export interface CategoryWithCount extends Category {
+  channelCount: number;
+}
+
 export interface TranscriptionAudio {
   id: string;
   s3_key: string;

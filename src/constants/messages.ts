@@ -12,12 +12,19 @@ export const MESSAGES = {
     LOGGED_OUT: 'Logged out successfully',
     MARKDOWN_UPLOADED: 'Markdown file uploaded successfully! Article will be processed shortly.',
     AUDIO_GENERATION_QUEUED: 'Audio is being generated. Please refresh the page soon.',
+    CATEGORY_CREATED: 'Category created successfully!',
+    CATEGORY_RENAMED: 'Category renamed successfully!',
+    CATEGORY_DELETED: 'Category deleted successfully',
   },
 
   ERROR: {
     CHANNEL_UPDATE: 'Error updating channel:',
     CHANNEL_CREATE: 'Error creating channel:',
     VIDEO_ADD: 'Error adding video:',
+    CATEGORY_CREATE: 'Error creating category:',
+    CATEGORY_RENAME: 'Error renaming category:',
+    CATEGORY_DELETE: 'Error deleting category:',
+    LOADING_CATEGORIES: 'Error loading categories',
     ARTICLE_ADD: 'Error adding article:',
     ARTICLE_DELETE: 'Error deleting article:',
     TRANSCRIPTION_DELETE: 'Error deleting transcription:',
@@ -45,16 +52,19 @@ export const MESSAGES = {
     SELECT_FEED_PROFILE: 'Please select a feed profile',
     INVALID_FILE_TYPE: 'Please select a markdown (.md) file',
     SELECT_FILE: 'Please select a file to upload',
+    CATEGORY_NAME_REQUIRED: 'Please enter a category name',
   },
 
   CONFIRM: {
     DELETE_TRANSCRIPTION: 'Are you sure you want to delete this transcription?',
+    DELETE_CATEGORY: 'Delete this category? Channels assigned to it will keep their videos and transcriptions, only the category link is removed.',
   },
 
   INFO: {
     NO_CHANNELS: 'No channels found',
     NO_TRANSCRIPTIONS: 'No transcriptions found',
     NO_ARTICLES: 'No articles found',
+    NO_CATEGORIES: 'No categories yet.',
   },
 
   AUDIO: {
