@@ -86,12 +86,13 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
     throw new Error("Session expired");
   }
 
+  const body = await res.text();
+
   if (!res.ok) {
-    const body = await res.text();
     throw parseErrorResponse(res.status, res.statusText, body);
   }
 
-  return res.json();
+  return body ? JSON.parse(body) : (undefined as T);
 }
 
 type ApiPath = keyof paths;
