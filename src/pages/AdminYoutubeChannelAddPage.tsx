@@ -96,6 +96,11 @@ export default function AdminYoutubeChannelAddPage() {
           </div>
 
           <div>
+            <Label className="mb-1.5">Categories</Label>
+            <CategoryMultiSelect selected={categories} onChange={setCategories} />
+          </div>
+
+          <div>
             <Label className="mb-1.5">
               URL <span className="text-destructive">*</span>
             </Label>
@@ -140,11 +145,6 @@ export default function AdminYoutubeChannelAddPage() {
             <p className="text-xs text-muted-foreground mt-1">
               Maximum number of videos to process from this channel
             </p>
-          </div>
-
-          <div>
-            <Label className="mb-1.5">Categories</Label>
-            <CategoryMultiSelect selected={categories} onChange={setCategories} />
           </div>
 
           <div className="border-t border-border pt-4 flex justify-end gap-3">
