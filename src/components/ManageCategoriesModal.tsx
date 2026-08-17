@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { MESSAGES } from "@/constants/messages";
 import {
   useCategories,
@@ -64,8 +65,17 @@ export default function ManageCategoriesModal({
     }
   };
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setNewCategoryName("");
+      setEditingId(null);
+      setDeletingCategory(null);
+    }
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Manage Categories</DialogTitle>
@@ -74,30 +84,36 @@ export default function ManageCategoriesModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex gap-2">
-          <Input
-            placeholder="New category name"
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-            disabled={createCategory.isPending}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleCreate();
-              }
-            }}
-          />
-          <Button
-            onClick={handleCreate}
-            disabled={!newCategoryName.trim() || createCategory.isPending}
-          >
-            {createCategory.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Plus className="h-4 w-4" />
-            )}
-            Add
-          </Button>
+        <div>
+          <Label htmlFor="new-category-name" className="mb-2 block text-muted-foreground">
+            New category
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="new-category-name"
+              placeholder="New category name"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              disabled={createCategory.isPending}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreate();
+                }
+              }}
+            />
+            <Button
+              onClick={handleCreate}
+              disabled={!newCategoryName.trim() || createCategory.isPending}
+            >
+              {createCategory.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4" />
+              )}
+              Add
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-1 max-h-80 overflow-y-auto">
@@ -138,7 +154,7 @@ export default function ManageCategoriesModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Close
           </Button>
         </DialogFooter>

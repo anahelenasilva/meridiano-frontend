@@ -171,4 +171,37 @@ describe("ManageCategoriesModal", () => {
       expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("Name already exists")),
     );
   });
+
+  it("shows an error toast when rename fails and keeps the row in edit mode", async () => {
+    installFetchRoutes({
+      rename: () => Promise.resolve(jsonResponse({ message: "Rename rejected" }, false, 400)),
+    });
+    renderModal();
+    await screen.findByText("News");
+
+    fireEvent.click(screen.getByRole("button", { name: /rename news/i }));
+    fireEvent.change(screen.getByDisplayValue("News"), { target: { value: "Renamed" } });
+    fireEvent.click(screen.getByRole("button", { name: /^save$/i }));
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("Rename rejected")),
+    );
+    expect(screen.getByDisplayValue("Renamed")).toBeInTheDocument();
+  });
+
+  it("shows an error toast when delete fails and keeps the category listed", async () => {
+    installFetchRoutes({
+      delete: () => Promise.resolve(jsonResponse({ message: "Delete rejected" }, false, 400)),
+    });
+    renderModal();
+    await screen.findByText("News");
+
+    fireEvent.click(screen.getByRole("button", { name: /delete news/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^delete$/i }));
+
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("Delete rejected")),
+    );
+    expect(screen.getByText("News")).toBeInTheDocument();
+  });
 });
