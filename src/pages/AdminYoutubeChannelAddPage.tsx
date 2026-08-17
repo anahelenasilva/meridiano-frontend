@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
+import type { Category } from "@/types";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 
 const CHANNELS_PATH = "/admin/youtube-channels";
@@ -20,6 +22,7 @@ export default function AdminYoutubeChannelAddPage() {
   const [description, setDescription] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [maxVideos, setMaxVideos] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const isValid =
     channelId.trim() &&
@@ -38,6 +41,7 @@ export default function AdminYoutubeChannelAddPage() {
         description: description.trim(),
         enabled,
         maxVideos: maxVideos ? Number(maxVideos) : undefined,
+        categoryNames: categories.length > 0 ? categories.map((c) => c.name) : undefined,
       },
       { onSuccess: () => navigate(CHANNELS_PATH) },
     );
@@ -131,6 +135,11 @@ export default function AdminYoutubeChannelAddPage() {
             <p className="text-xs text-muted-foreground mt-1">
               Maximum number of videos to process from this channel
             </p>
+          </div>
+
+          <div>
+            <Label className="mb-1.5">Categories</Label>
+            <CategoryMultiSelect selected={categories} onChange={setCategories} />
           </div>
 
           <div className="border-t border-border pt-4 flex justify-end gap-3">
