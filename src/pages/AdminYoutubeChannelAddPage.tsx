@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
 import type { Category } from "@/types";
+import { getErrorMessage } from "@/utils/api-error";
+import { toast } from "@/utils/toast";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 
 const CHANNELS_PATH = "/admin/youtube-channels";
@@ -43,7 +45,10 @@ export default function AdminYoutubeChannelAddPage() {
         maxVideos: maxVideos ? Number(maxVideos) : undefined,
         categoryNames: categories.length > 0 ? categories.map((c) => c.name) : undefined,
       },
-      { onSuccess: () => navigate(CHANNELS_PATH) },
+      {
+        onSuccess: () => navigate(CHANNELS_PATH),
+        onError: (error) => toast.error(getErrorMessage(error)),
+      },
     );
   };
 

@@ -35,24 +35,31 @@ export function CategoryMultiSelect({ selected, onChange, disabled }: CategoryMu
 
   const selectedIds = useMemo(() => new Set(selected.map((c) => c.id)), [selected]);
   const trimmedSearch = search.trim();
+  const normalizedSearch = trimmedSearch.toLowerCase();
 
-  const filtered = useMemo(() => {
-    const options = categories ?? [];
-    return options.filter(
-      (c) => !selectedIds.has(c.id) && c.name.toLowerCase().includes(trimmedSearch.toLowerCase()),
-    );
-  }, [categories, selectedIds, trimmedSearch]);
-
-  const hasExactMatch = useMemo(
-    () =>
-      trimmedSearch.length > 0 &&
-      (categories ?? []).some((c) => c.name.toLowerCase() === trimmedSearch.toLowerCase()),
-    [categories, trimmedSearch],
+  const knownCategories = useMemo(
+    () => (categories ?? []).map((c) => ({ category: c, normalizedName: c.name.toLowerCase() })),
+    [categories],
   );
+
+  const filtered = useMemo(
+    () =>
+      knownCategories
+        .filter(
+          ({ category, normalizedName }) =>
+            !selectedIds.has(category.id) && normalizedName.includes(normalizedSearch),
+        )
+        .map(({ category }) => category),
+    [knownCategories, selectedIds, normalizedSearch],
+  );
+
+  const hasExactMatch =
+    trimmedSearch.length > 0 &&
+    knownCategories.some(({ normalizedName }) => normalizedName === normalizedSearch);
 
   const showCreateOption = trimmedSearch.length > 0 && !hasExactMatch;
 
-  const handleSelect = (category: Category) => {
+  const commitSelection = (category: Category) => {
     onChange([...selected, category]);
     setSearch("");
   };
@@ -63,9 +70,7 @@ export function CategoryMultiSelect({ selected, onChange, disabled }: CategoryMu
 
   const handleCreate = async () => {
     if (!trimmedSearch || createCategory.isPending) return;
-    const category = await createCategory.mutateAsync(trimmedSearch);
-    onChange([...selected, category]);
-    setSearch("");
+    commitSelection(await createCategory.mutateAsync(trimmedSearch));
   };
 
   return (
@@ -122,7 +127,7 @@ export function CategoryMultiSelect({ selected, onChange, disabled }: CategoryMu
                       <CommandItem
                         key={category.id}
                         value={category.id}
-                        onSelect={() => handleSelect(category)}
+                        onSelect={() => commitSelection(category)}
                       >
                         <span
                           className="mr-2 h-2 w-2 shrink-0 rounded-full"
