@@ -23,6 +23,7 @@ import {
   removeBookmark,
   renameCategory,
   saveNote,
+  setChannelCategories,
   updateArticle,
   updateBriefingTitle,
   updateChannelEnabled,
@@ -237,6 +238,19 @@ export function useToggleChannel() {
       updateChannelEnabled(input.channelId, input.enabled),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-channels"] });
+    },
+  });
+}
+
+export function useSetChannelCategories() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: { channelId: string; categoryNames: string[] }) =>
+      setChannelCategories(input.channelId, input.categoryNames),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["youtube-channels"] });
+      queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
     },
   });
 }

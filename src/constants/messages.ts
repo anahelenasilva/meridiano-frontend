@@ -15,6 +15,7 @@ export const MESSAGES = {
     CATEGORY_CREATED: 'Category created successfully!',
     CATEGORY_RENAMED: 'Category renamed successfully!',
     CATEGORY_DELETED: 'Category deleted successfully',
+    CHANNEL_CATEGORIES_UPDATED: 'Categories updated successfully!',
   },
 
   ERROR: {
@@ -25,6 +26,7 @@ export const MESSAGES = {
     CATEGORY_RENAME: 'Error renaming category:',
     CATEGORY_DELETE: 'Error deleting category:',
     LOADING_CATEGORIES: 'Error loading categories',
+    CHANNEL_CATEGORIES_UPDATE: 'Error updating categories:',
     ARTICLE_ADD: 'Error adding article:',
     ARTICLE_DELETE: 'Error deleting article:',
     TRANSCRIPTION_DELETE: 'Error deleting transcription:',

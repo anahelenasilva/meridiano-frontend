@@ -126,6 +126,8 @@ export interface YouTubeTranscription {
   videoId: string;
   videoTitle: string;
   videoUrl: string;
+  /** Internal channel UUID — the FK target for category assignment. */
+  channelId: string;
   channelName: string;
   thumbnailUrl: string;
   transcriptionText: string;
@@ -141,7 +143,7 @@ export interface YouTubeTranscription {
 
 export interface YouTubeTranscriptionsResponse {
   transcriptions: YouTubeTranscription[];
-  available_channels?: { id: string; name: string }[];
+  available_channels?: { id: string; name: string; categories: Category[] }[];
 }
 
 export interface YouTubeTranscriptionDetailResponse {

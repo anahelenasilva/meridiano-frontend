@@ -317,6 +317,13 @@ export async function updateChannelEnabled(channelId: string, enabled: boolean) 
   });
 }
 
+export async function setChannelCategories(channelId: string, categoryNames: string[]) {
+  return apiFetch<Category[]>(`/api/youtube/channels/${channelId}/categories`, {
+    method: "PUT",
+    body: JSON.stringify({ categoryNames }),
+  });
+}
+
 // ===== YouTube Categories =====
 
 export async function fetchCategories() {
