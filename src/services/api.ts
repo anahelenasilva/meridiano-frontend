@@ -2,6 +2,7 @@ import {
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
+  AudioJobsResponse,
   AudioLibraryResponse,
   BookmarksResponse,
   Briefing,
@@ -370,6 +371,12 @@ export async function fetchTranscription(id: string, includeAudio = true) {
 export interface GenerateAudioResponse {
   jobId: string;
   message: string;
+}
+
+// ===== Audio =====
+
+export async function fetchAudioJobs() {
+  return apiFetch<AudioJobsResponse>("/api/audio/jobs");
 }
 
 export async function generateArticleAudio(articleId: string): Promise<GenerateAudioResponse> {

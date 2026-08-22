@@ -27,14 +27,16 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import {
   useArticles,
+  useAudioJobs,
   useBookmarks,
   useBriefings,
   useProfiles,
   useToggleBookmark,
 } from "@/hooks/useApi";
+import { buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { Calendar, ChevronDown, Loader2, Plus, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 type DatePreset = "yesterday" | "week" | "30d" | "3m" | null;
@@ -76,6 +78,12 @@ export default function ArticlesPage() {
   const { data: briefingsData } = useBriefings();
   const { data: bookmarksData } = useBookmarks(1, 100);
   const { add, remove } = useToggleBookmark();
+  const { data: audioJobsData } = useAudioJobs();
+
+  const audioJobsBySource = useMemo(
+    () => buildAudioJobMap(audioJobsData?.jobs),
+    [audioJobsData],
+  );
 
   const articles = data?.articles ?? [];
   const total = data?.pagination?.total_articles ?? 0;
@@ -315,6 +323,10 @@ export default function ArticlesPage() {
                 article={article}
                 onToggleBookmark={handleToggleBookmark}
                 isBookmarked={bookmarkedIds.has(article.id)}
+                audioState={getAudioBadgeState(
+                  article.has_audio,
+                  audioJobsBySource.get(`article:${article.id}`),
+                )}
               />
             ))}
           </div>

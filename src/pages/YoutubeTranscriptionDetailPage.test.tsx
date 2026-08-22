@@ -57,6 +57,7 @@ describe('YoutubeTranscriptionDetailPage audio section (AC3, AC5)', () => {
         transcriptionText: 'Transcript text',
         postedAt: '2024-01-01',
         createdAt: '2024-01-01',
+        has_audio: false,
       },
       audio: undefined,
     };

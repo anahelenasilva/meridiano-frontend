@@ -26,6 +26,7 @@ export interface Article {
   image_url: string | null;
   categories: string[];
   audio: ArticleAudio | null;
+  has_audio: boolean;
   note?: Note | null;
   // Detail-only fields
   raw_content?: string;
@@ -133,6 +134,7 @@ export interface YouTubeTranscription {
   transcriptionText: string;
   postedAt: string;
   createdAt: string;
+  has_audio: boolean;
   // Detail-only
   transcriptionSummary?: string;
   category?: string;
@@ -174,6 +176,17 @@ export interface AudioLibraryResponse {
     total_pages: number;
     total_audios: number;
   };
+}
+
+export interface AudioJob {
+  source_type: "article" | "transcription";
+  source_id: string;
+  state: "queued" | "generating" | "failed";
+  error: string | null;
+}
+
+export interface AudioJobsResponse {
+  jobs: AudioJob[];
 }
 
 // Query parameter types

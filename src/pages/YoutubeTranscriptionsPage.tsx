@@ -1,12 +1,14 @@
 import AddTranscriptionModal from "@/components/AddTranscriptionModal";
+import { AudioBadge } from "@/components/AudioBadge";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import EditChannelCategoriesModal from "@/components/EditChannelCategoriesModal";
 import { NoteEditor } from "@/components/NoteEditor";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useTranscriptions } from "@/hooks/useApi";
+import { useAudioJobs, useTranscriptions } from "@/hooks/useApi";
 import type { Category } from "@/types";
+import { buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
 import { ChevronDown, Loader2, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -20,7 +22,13 @@ export default function YoutubeTranscriptionsPage() {
     categories: Category[];
   } | null>(null);
   const { data, isLoading } = useTranscriptions();
+  const { data: audioJobsData } = useAudioJobs();
   const videos = data?.transcriptions ?? [];
+
+  const audioJobsBySource = useMemo(
+    () => buildAudioJobMap(audioJobsData?.jobs),
+    [audioJobsData],
+  );
 
   const categoriesByChannelId = useMemo(() => {
     const map = new Map<string, Category[]>();
@@ -133,6 +141,12 @@ export default function YoutubeTranscriptionsPage() {
                             {v.videoTitle}
                           </h3>
                           {v.custom_prompt && <CustomPromptBadge />}
+                          <AudioBadge
+                            state={getAudioBadgeState(
+                              v.has_audio,
+                              audioJobsBySource.get(`transcription:${v.id}`),
+                            )}
+                          />
                         </div>
                         <p className="text-xs text-muted-foreground">
                           {v.postedAt ? format(new Date(v.postedAt), "MMM d, yyyy") : ""}
