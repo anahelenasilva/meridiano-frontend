@@ -237,10 +237,31 @@ export async function uploadArticleMarkdown(
   return addArticleFromMarkdown(s3Key, feedProfile, customPrompt, generateAudio);
 }
 
-// ===== Audio Library =====
+// ===== Audio =====
 
 export async function fetchAudioLibrary(page = 1, perPage = 20) {
   return apiFetch<AudioLibraryResponse>(`/api/audio${toQuery({ page, per_page: perPage })}`);
+}
+
+export async function fetchAudioJobs() {
+  return apiFetch<AudioJobsResponse>("/api/audio/jobs");
+}
+
+export interface GenerateAudioResponse {
+  jobId: string;
+  message: string;
+}
+
+export async function generateArticleAudio(articleId: string): Promise<GenerateAudioResponse> {
+  return apiFetch<GenerateAudioResponse>(`/api/articles/${articleId}/audio`, {
+    method: "POST",
+  });
+}
+
+export async function generateTranscriptionAudio(transcriptionId: string): Promise<GenerateAudioResponse> {
+  return apiFetch<GenerateAudioResponse>(`/api/youtube/transcriptions/${transcriptionId}/audio`, {
+    method: "POST",
+  });
 }
 
 // ===== Bookmarks =====
@@ -366,29 +387,6 @@ export async function fetchTranscriptions() {
 export async function fetchTranscription(id: string, includeAudio = true) {
   const query = toQuery({ includeAudio: String(includeAudio) });
   return apiFetch<YouTubeTranscriptionDetailResponse>(`/api/youtube/transcriptions/${id}${query}`);
-}
-
-export interface GenerateAudioResponse {
-  jobId: string;
-  message: string;
-}
-
-// ===== Audio =====
-
-export async function fetchAudioJobs() {
-  return apiFetch<AudioJobsResponse>("/api/audio/jobs");
-}
-
-export async function generateArticleAudio(articleId: string): Promise<GenerateAudioResponse> {
-  return apiFetch<GenerateAudioResponse>(`/api/articles/${articleId}/audio`, {
-    method: "POST",
-  });
-}
-
-export async function generateTranscriptionAudio(transcriptionId: string): Promise<GenerateAudioResponse> {
-  return apiFetch<GenerateAudioResponse>(`/api/youtube/transcriptions/${transcriptionId}/audio`, {
-    method: "POST",
-  });
 }
 
 export async function createTranscription(

@@ -142,7 +142,7 @@ export function useProfiles() {
   });
 }
 
-// ===== Audio Library =====
+// ===== Audio =====
 
 export function useAudioLibrary({
   page = 1,
@@ -154,6 +154,14 @@ export function useAudioLibrary({
     queryKey: ["audio-library", page, perPage],
     queryFn: () => fetchAudioLibrary(page, perPage),
     enabled: Boolean(user),
+  });
+}
+
+export function useAudioJobs(): UseQueryResult<AudioJobsResponse> {
+  return useQuery<AudioJobsResponse, Error>({
+    queryKey: ["audio-jobs"],
+    queryFn: fetchAudioJobs,
+    refetchInterval: (query) => (query.state.data?.jobs.length ? 2000 : false),
   });
 }
 
@@ -402,15 +410,6 @@ export function useUpdateBriefingTitle() {
       queryClient.invalidateQueries({ queryKey: ["briefing", id] });
       queryClient.invalidateQueries({ queryKey: ["briefings"] });
     },
-  });
-}
-// ===== Audio =====
-
-export function useAudioJobs(): UseQueryResult<AudioJobsResponse> {
-  return useQuery<AudioJobsResponse, Error>({
-    queryKey: ["audio-jobs"],
-    queryFn: fetchAudioJobs,
-    refetchInterval: (query) => (query.state.data?.jobs.length ? 2000 : false),
   });
 }
 
