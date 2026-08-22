@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAudioJobs, useTranscriptions } from "@/hooks/useApi";
 import type { Category } from "@/types";
-import { buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
+import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
 import { ChevronDown, Loader2, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -144,7 +144,7 @@ export default function YoutubeTranscriptionsPage() {
                           <AudioBadge
                             state={getAudioBadgeState(
                               v.has_audio,
-                              audioJobsBySource.get(`transcription:${v.id}`),
+                              audioJobsBySource.get(audioJobKey("transcription", v.id)),
                             )}
                           />
                         </div>

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { buildAudioJobMap, getAudioBadgeState } from "./audio-badge";
+import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "./audio-badge";
 import type { AudioJob } from "@/types";
+
+describe("audioJobKey", () => {
+  it("joins source type and id with a colon", () => {
+    expect(audioJobKey("article", "a1")).toBe("article:a1");
+    expect(audioJobKey("transcription", "t1")).toBe("transcription:t1");
+  });
+});
 
 describe("getAudioBadgeState", () => {
   it("returns has_audio when has_audio is true, regardless of job state", () => {

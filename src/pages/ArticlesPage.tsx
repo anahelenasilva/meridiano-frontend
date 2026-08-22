@@ -33,7 +33,7 @@ import {
   useProfiles,
   useToggleBookmark,
 } from "@/hooks/useApi";
-import { buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
+import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { Calendar, ChevronDown, Loader2, Plus, Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -325,7 +325,7 @@ export default function ArticlesPage() {
                 isBookmarked={bookmarkedIds.has(article.id)}
                 audioState={getAudioBadgeState(
                   article.has_audio,
-                  audioJobsBySource.get(`article:${article.id}`),
+                  audioJobsBySource.get(audioJobKey("article", article.id)),
                 )}
               />
             ))}

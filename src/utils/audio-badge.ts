@@ -2,11 +2,15 @@ import type { AudioJob } from "@/types";
 
 export type AudioBadgeState = "has_audio" | "generating" | "queued" | "failed" | "none";
 
+export function audioJobKey(sourceType: AudioJob["source_type"], sourceId: string): string {
+  return `${sourceType}:${sourceId}`;
+}
+
 /** Keys audio jobs by source so a list page can look up per-row state in O(1). */
 export function buildAudioJobMap(jobs: AudioJob[] | undefined): Map<string, AudioJob> {
   const map = new Map<string, AudioJob>();
   for (const job of jobs ?? []) {
-    map.set(`${job.source_type}:${job.source_id}`, job);
+    map.set(audioJobKey(job.source_type, job.source_id), job);
   }
   return map;
 }
