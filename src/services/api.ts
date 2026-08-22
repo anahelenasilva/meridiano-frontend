@@ -2,6 +2,7 @@ import {
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
+  AudioLibraryResponse,
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
@@ -233,6 +234,12 @@ export async function uploadArticleMarkdown(
   }
 
   return addArticleFromMarkdown(s3Key, feedProfile, customPrompt, generateAudio);
+}
+
+// ===== Audio Library =====
+
+export async function fetchAudioLibrary(page = 1, perPage = 20) {
+  return apiFetch<AudioLibraryResponse>(`/api/audio${toQuery({ page, per_page: perPage })}`);
 }
 
 // ===== Bookmarks =====

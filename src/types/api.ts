@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List the authenticated user's articles */
+        /** List articles (all articles are global; per-user notes attach only for a JWT user) */
         get: operations["ArticlesController_listArticles"];
         put?: never;
         /** Scrape a URL and queue the resulting article for processing */
@@ -48,6 +48,23 @@ export interface paths {
         };
         /** Get the status of an article processing job */
         get: operations["ArticlesController_getJobStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/articles/lean": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List articles with a lean field set for CLI listings (all articles are global; per-user notes attach only for a JWT user) */
+        get: operations["ArticlesController_listArticlesLean"];
         put?: never;
         post?: never;
         delete?: never;
@@ -135,6 +152,40 @@ export interface paths {
         };
         /** Get the status of an article audio generation job */
         get: operations["ArticlesController_getAudioJobStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List generated audio from Articles and YouTube Transcriptions in one place */
+        get: operations["AudioController_listAudio"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audio/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List in-flight and recently-failed audio generation jobs, keyed by source */
+        get: operations["AudioController_listJobs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -933,6 +984,33 @@ export interface operations {
             };
         };
     };
+    ArticlesController_listArticlesLean: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated lean list of articles */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
     ArticlesController_processMarkdownArticle: {
         parameters: {
             query?: never;
@@ -1192,6 +1270,60 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AudioController_listAudio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated list of generated audio */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    AudioController_listJobs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Queued, generating, and failed audio jobs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
             };
         };
     };

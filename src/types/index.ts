@@ -151,6 +151,31 @@ export interface YouTubeTranscriptionDetailResponse {
   audio?: TranscriptionAudio | null;
 }
 
+export interface AudioLibraryItem {
+  audio_id: string;
+  source_type: "article" | "transcription";
+  source_id: string;
+  title: string;
+  source_label: string;
+  published_at: string | null;
+  audio: {
+    duration_seconds?: number;
+    file_size_bytes: number;
+    presigned_url: string;
+    created_at: string;
+  };
+}
+
+export interface AudioLibraryResponse {
+  audios: AudioLibraryItem[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total_pages: number;
+    total_audios: number;
+  };
+}
+
 // Query parameter types
 export interface ArticlesQueryParams {
   page?: number;
