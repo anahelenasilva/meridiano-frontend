@@ -1,6 +1,6 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/utils/toast';
-import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Newspaper, PenLine, Settings, User, X } from 'lucide-react';
+import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Music, Newspaper, PenLine, Settings, User, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, useRef, useState, startTransition } from 'react';
 import { MESSAGES } from '../constants/messages';
@@ -27,6 +27,7 @@ const Navbar = () => {
     { href: '/', label: 'Bookmarks', icon: Bookmark },
     { href: '/articles', label: 'Articles', icon: Newspaper },
     { href: '/youtube-transcriptions', label: 'YouTube', icon: null },
+    { href: '/audio', label: 'Audio', icon: Music },
     { href: '/briefings', label: 'Briefings', icon: FileText },
     { href: '/custom-briefing', label: 'Custom Briefing', icon: PenLine },
     { href: '/admin/youtube-channels', label: 'Admin', icon: Settings },

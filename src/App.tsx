@@ -5,6 +5,7 @@ import AdminYoutubeChannelAddPage from "@/pages/AdminYoutubeChannelAddPage";
 import AdminYoutubeChannelsPage from "@/pages/AdminYoutubeChannelsPage";
 import ArticleDetailPage from "@/pages/ArticleDetailPage";
 import ArticlesPage from "@/pages/ArticlesPage";
+import AudioLibraryPage from "@/pages/AudioLibraryPage";
 import BookmarksPage from "@/pages/BookmarksPage";
 import BriefingDetailPage from "@/pages/BriefingDetailPage";
 import BriefingsPage from "@/pages/BriefingsPage";
@@ -61,6 +62,7 @@ function AppContent() {
         <Route path="/" element={<BookmarksPage />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
+        <Route path="/audio" element={<AudioLibraryPage />} />
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/briefings" element={<BriefingsPage />} />
         <Route path="/briefings/:id" element={<BriefingDetailPage />} />

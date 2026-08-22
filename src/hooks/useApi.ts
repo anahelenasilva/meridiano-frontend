@@ -11,6 +11,7 @@ import {
   deleteTranscription,
   fetchArticle,
   fetchArticles,
+  fetchAudioLibrary,
   fetchBookmarks,
   fetchBriefing,
   fetchBriefingJobStatus,
@@ -33,6 +34,7 @@ import type {
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
+  AudioLibraryResponse,
   BookmarksResponse,
   Briefing,
   BriefingsResponse,
@@ -135,6 +137,21 @@ export function useProfiles() {
   return useQuery<string[], Error>({
     queryKey: ["profiles"],
     queryFn: fetchProfiles,
+  });
+}
+
+// ===== Audio Library =====
+
+export function useAudioLibrary({
+  page = 1,
+  perPage = 20,
+}: { page?: number; perPage?: number } = {}): UseQueryResult<AudioLibraryResponse> {
+  const { user } = useAuth();
+
+  return useQuery<AudioLibraryResponse, Error>({
+    queryKey: ["audio-library", page, perPage],
+    queryFn: () => fetchAudioLibrary(page, perPage),
+    enabled: Boolean(user),
   });
 }
 
