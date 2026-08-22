@@ -1,7 +1,9 @@
 import type { Article } from "@/types";
+import { AudioBadge } from "@/components/AudioBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { NoteEditor } from "@/components/NoteEditor";
 import { getArticleImage } from "@/utils/get-article-image";
+import type { AudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -11,6 +13,7 @@ interface ArticleCardProps {
   onToggleBookmark?: (id: string) => void;
   isBookmarked?: boolean;
   variant?: "feed" | "compact";
+  audioState?: AudioBadgeState;
 }
 
 export default function ArticleCard({
@@ -18,6 +21,7 @@ export default function ArticleCard({
   onToggleBookmark,
   isBookmarked,
   variant = "feed",
+  audioState = "none",
 }: ArticleCardProps) {
   const displayDate = article.published_date
     ? format(new Date(article.published_date), "MMM d, yyyy")
@@ -36,6 +40,7 @@ export default function ArticleCard({
           <div className="flex items-center gap-2">
             <p className="text-xs text-muted-foreground">{displaySource}</p>
             {article.custom_prompt && <CustomPromptBadge />}
+            <AudioBadge state={audioState} />
           </div>
           <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
             {article.title}
@@ -67,6 +72,7 @@ export default function ArticleCard({
             </div>
             <span className="text-xs text-muted-foreground">{displaySource}</span>
             {article.custom_prompt && <CustomPromptBadge />}
+            <AudioBadge state={audioState} />
           </div>
           <h3 className="text-lg font-semibold leading-snug group-hover:text-primary transition-colors">
             {article.title}

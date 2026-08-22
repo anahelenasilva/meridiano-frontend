@@ -11,6 +11,7 @@ import {
   deleteTranscription,
   fetchArticle,
   fetchArticles,
+  fetchAudioJobs,
   fetchAudioLibrary,
   fetchBookmarks,
   fetchBriefing,
@@ -34,6 +35,7 @@ import type {
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
+  AudioJobsResponse,
   AudioLibraryResponse,
   BookmarksResponse,
   Briefing,
@@ -140,7 +142,7 @@ export function useProfiles() {
   });
 }
 
-// ===== Audio Library =====
+// ===== Audio =====
 
 export function useAudioLibrary({
   page = 1,
@@ -152,6 +154,14 @@ export function useAudioLibrary({
     queryKey: ["audio-library", page, perPage],
     queryFn: () => fetchAudioLibrary(page, perPage),
     enabled: Boolean(user),
+  });
+}
+
+export function useAudioJobs(): UseQueryResult<AudioJobsResponse> {
+  return useQuery<AudioJobsResponse, Error>({
+    queryKey: ["audio-jobs"],
+    queryFn: fetchAudioJobs,
+    refetchInterval: (query) => (query.state.data?.jobs.length ? 2000 : false),
   });
 }
 
@@ -402,6 +412,7 @@ export function useUpdateBriefingTitle() {
     },
   });
 }
+
 // ===== Notes =====
 
 function replaceNoteById<T extends { id: string; note?: Note | null }>(

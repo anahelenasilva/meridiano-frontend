@@ -70,6 +70,7 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
         image_url: null,
         categories: [],
         audio: null,
+        has_audio: false,
         note: {
           id: 'n1',
           content: 'Existing note',

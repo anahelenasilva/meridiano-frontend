@@ -41,6 +41,7 @@ const baseArticle: Article = {
   image_url: null,
   categories: ["AI"],
   audio: null,
+  has_audio: false,
 };
 
 // Route fetch by method/url so the service function + hooks run for real.

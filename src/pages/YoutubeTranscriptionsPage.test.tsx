@@ -57,6 +57,7 @@ const TRANSCRIPTIONS_RESPONSE = {
       thumbnailUrl: "https://example.com/thumb1.jpg",
       postedAt: "2024-01-01",
       createdAt: "2024-01-01",
+      has_audio: false,
     },
     {
       id: "tr-2",
@@ -68,6 +69,7 @@ const TRANSCRIPTIONS_RESPONSE = {
       thumbnailUrl: "https://example.com/thumb2.jpg",
       postedAt: "2024-01-02",
       createdAt: "2024-01-02",
+      has_audio: false,
     },
   ],
   available_channels: [
@@ -90,6 +92,9 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
     }
     if (method === "GET" && url.includes("/api/youtube/channels")) {
       return Promise.resolve(jsonResponse([]));
+    }
+    if (method === "GET" && url.includes("/api/audio/jobs")) {
+      return overrides.audioJobs?.() ?? Promise.resolve(jsonResponse({ jobs: [] }));
     }
     return Promise.resolve(jsonResponse({}));
   });
@@ -177,5 +182,136 @@ describe("YoutubeTranscriptionsPage categories", () => {
 
     await waitFor(() => expect(toast.error).toHaveBeenCalledWith(expect.stringContaining("Server error")));
     expect(screen.getByText("Edit Categories")).toBeInTheDocument();
+  });
+});
+
+describe("YoutubeTranscriptionsPage audio badge", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  async function expandAugustoGalego() {
+    await waitFor(() => expect(screen.getByText("Augusto Galego")).toBeInTheDocument());
+    fireEvent.click(screen.getByText("Augusto Galego"));
+    await waitFor(() => expect(screen.getByText("Video One")).toBeInTheDocument());
+  }
+
+  it("shows 'Audio' for a video with has_audio true, regardless of job data", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse({
+            ...TRANSCRIPTIONS_RESPONSE,
+            transcriptions: TRANSCRIPTIONS_RESPONSE.transcriptions.map((t) =>
+              t.id === "tr-1" ? { ...t, has_audio: true } : t,
+            ),
+          }),
+        ),
+      audioJobs: () =>
+        Promise.resolve(
+          jsonResponse({ jobs: [{ source_type: "transcription", source_id: "tr-1", state: "failed", error: "boom" }] }),
+        ),
+    });
+    renderPage();
+    await expandAugustoGalego();
+
+    expect(screen.getByText("Audio")).toBeInTheDocument();
+    expect(screen.queryByText("Failed")).not.toBeInTheDocument();
+  });
+
+  it("shows 'Generating' for a video with an active job and no persisted audio", async () => {
+    installFetchRoutes({
+      audioJobs: () =>
+        Promise.resolve(
+          jsonResponse({ jobs: [{ source_type: "transcription", source_id: "tr-1", state: "generating", error: null }] }),
+        ),
+    });
+    renderPage();
+    await expandAugustoGalego();
+
+    expect(screen.getByText("Generating")).toBeInTheDocument();
+  });
+
+  it("shows 'Failed' for a video with a failed job and no persisted audio", async () => {
+    installFetchRoutes({
+      audioJobs: () =>
+        Promise.resolve(
+          jsonResponse({ jobs: [{ source_type: "transcription", source_id: "tr-1", state: "failed", error: "boom" }] }),
+        ),
+    });
+    renderPage();
+    await expandAugustoGalego();
+
+    expect(screen.getByText("Failed")).toBeInTheDocument();
+  });
+
+  it("renders no badge for a video with no audio and no job", async () => {
+    installFetchRoutes();
+    renderPage();
+    await expandAugustoGalego();
+
+    expect(screen.queryByText("Audio")).not.toBeInTheDocument();
+    expect(screen.queryByText("Generating")).not.toBeInTheDocument();
+    expect(screen.queryByText("Queued")).not.toBeInTheDocument();
+    expect(screen.queryByText("Failed")).not.toBeInTheDocument();
+  });
+
+  it("clicking the badge's row navigates to the transcription's detail route", async () => {
+    installFetchRoutes({
+      audioJobs: () =>
+        Promise.resolve(
+          jsonResponse({ jobs: [{ source_type: "transcription", source_id: "tr-1", state: "queued", error: null }] }),
+        ),
+    });
+    renderPage();
+    await expandAugustoGalego();
+
+    expect(screen.getByText("Queued").closest("a")).toHaveAttribute("href", "/youtube-transcriptions/tr-1");
+  });
+
+  it("fetches /api/audio/jobs once for the whole list, not once per row", async () => {
+    installFetchRoutes();
+    renderPage();
+    await expandAugustoGalego();
+
+    const jobCalls = fetchMock.mock.calls.filter(
+      ([url]) => typeof url === "string" && url.includes("/api/audio/jobs"),
+    );
+    expect(jobCalls).toHaveLength(1);
+  });
+
+  it("stops polling /api/audio/jobs once the jobs list is empty", async () => {
+    vi.useFakeTimers();
+    try {
+      let call = 0;
+      installFetchRoutes({
+        audioJobs: () => {
+          call += 1;
+          return Promise.resolve(
+            jsonResponse({
+              jobs:
+                call === 1
+                  ? [{ source_type: "transcription", source_id: "tr-1", state: "queued", error: null }]
+                  : [],
+            }),
+          );
+        },
+      });
+      renderPage();
+
+      await vi.waitFor(() => expect(screen.getByText("Augusto Galego")).toBeInTheDocument());
+      fireEvent.click(screen.getByText("Augusto Galego"));
+      await vi.waitFor(() => expect(screen.getByText("Video One")).toBeInTheDocument());
+      await vi.waitFor(() => expect(call).toBe(1));
+
+      await vi.advanceTimersByTimeAsync(2000);
+      await vi.waitFor(() => expect(call).toBe(2));
+
+      await vi.advanceTimersByTimeAsync(2000);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(call).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
