@@ -5,10 +5,11 @@ import {
   createCategory,
   createChannel,
   createCustomBriefing,
-  createTranscription,
+  createTranscriptions,
   deleteArticle,
   deleteCategory,
   deleteTranscription,
+  dismissTranscriptionJob,
   fetchArticle,
   fetchArticles,
   fetchAudioJobs,
@@ -19,6 +20,7 @@ import {
   fetchBriefings,
   fetchCategories,
   fetchChannels,
+  fetchFailedTranscriptionJobs,
   fetchProfiles,
   fetchTranscription,
   fetchTranscriptions,
@@ -343,23 +345,48 @@ export function useTranscription(
   });
 }
 
-export function useAddTranscription() {
+export function useAddTranscriptions() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
-      url,
+      urls,
       channelId,
       customPrompt,
       generateAudio,
     }: {
-      url: string;
+      urls: string[];
       channelId?: string;
       customPrompt?: string;
       generateAudio?: boolean;
-    }) => createTranscription(url, channelId, customPrompt, generateAudio),
+    }) => createTranscriptions(urls, channelId, customPrompt, generateAudio),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["youtube-transcriptions"] });
+      queryClient.invalidateQueries({ queryKey: ["transcription-jobs-failed"] });
+    },
+  });
+}
+
+/**
+ * Failures land minutes after a batch is queued, so there is no interval here.
+ * Coming back to the tab is the moment worth refetching on.
+ */
+export function useFailedTranscriptionJobs() {
+  return useQuery({
+    queryKey: ["transcription-jobs-failed"],
+    queryFn: fetchFailedTranscriptionJobs,
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
+  });
+}
+
+export function useDismissTranscriptionJob() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (jobId: string) => dismissTranscriptionJob(jobId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["transcription-jobs-failed"] });
     },
   });
 }
