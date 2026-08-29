@@ -3,6 +3,7 @@ import { AudioBadge } from "@/components/AudioBadge";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import EditChannelCategoriesModal from "@/components/EditChannelCategoriesModal";
+import FailedTranscriptionJobs from "@/components/FailedTranscriptionJobs";
 import { NoteEditor } from "@/components/NoteEditor";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -78,6 +79,8 @@ export default function YoutubeTranscriptionsPage() {
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
       />
+
+      <FailedTranscriptionJobs />
 
       <EditChannelCategoriesModal
         channel={editingChannel}
