@@ -3,7 +3,6 @@ export const MESSAGES = {
     LOGGED_IN: 'Logged in successfully',
     CHANNEL_UPDATED: 'Channel updated successfully!',
     CHANNEL_CREATED: 'Channel created successfully!',
-    VIDEO_ADDED: 'Video added successfully! Transcription will be processed shortly.',
     TRANSCRIPTION_DELETED: 'Transcription deleted successfully',
     ARTICLE_ADDED: 'Article added successfully!',
     ARTICLE_DELETED: 'Article deleted successfully',
@@ -21,7 +20,7 @@ export const MESSAGES = {
   ERROR: {
     CHANNEL_UPDATE: 'Error updating channel:',
     CHANNEL_CREATE: 'Error creating channel:',
-    VIDEO_ADD: 'Error adding video:',
+    VIDEO_ADD: 'Error adding videos:',
     CATEGORY_CREATE: 'Error creating category:',
     CATEGORY_RENAME: 'Error renaming category:',
     CATEGORY_DELETE: 'Error deleting category:',
@@ -49,7 +48,7 @@ export const MESSAGES = {
   },
 
   VALIDATION: {
-    INVALID_URL: 'Please enter a valid URL',
+    NO_URLS: 'Please enter at least one video URL',
     SELECT_CHANNEL: 'Please select a channel',
     SELECT_FEED_PROFILE: 'Please select a feed profile',
     INVALID_FILE_TYPE: 'Please select a markdown (.md) file',
