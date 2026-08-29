@@ -71,6 +71,19 @@ describe("AddTranscriptionModal", () => {
     expect(screen.getByText("2 URLs")).toBeInTheDocument();
   });
 
+  it("blocks submit and names the 25 limit when the paste is over the cap", () => {
+    render(<AddTranscriptionModal open onOpenChange={() => {}} />);
+
+    fireEvent.change(screen.getByLabelText(/video urls/i), {
+      target: {
+        value: Array.from({ length: 26 }, (_, i) => `https://youtu.be/v${i}`).join("\n"),
+      },
+    });
+
+    expect(screen.getByText(/26 URLs, 25 max per batch/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add videos/i })).toBeDisabled();
+  });
+
   it("submits the parsed array with the batch options and closes the modal", async () => {
     mutateAsync.mockResolvedValue({
       accepted: ["https://www.youtube.com/watch?v=aaa"],

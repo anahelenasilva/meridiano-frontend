@@ -27,6 +27,11 @@ import { getErrorMessage } from "@/utils/api-error";
 import { parseVideoUrls } from "@/utils/parse-video-urls";
 import type { EnqueueTranscriptionsResponse } from "@/services/api";
 
+// Mirrors the backend's @ArrayMaxSize on the batch DTO. Guarding here keeps
+// the user out of Nest's array-shaped validation error, which the shared
+// error parser cannot read.
+const MAX_URLS_PER_BATCH = 25;
+
 interface AddTranscriptionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -60,6 +65,7 @@ export default function AddTranscriptionModal({
   const [generateAudio, setGenerateAudio] = useState(false);
 
   const urls = useMemo(() => parseVideoUrls(rawUrls), [rawUrls]);
+  const isOverCap = urls.length > MAX_URLS_PER_BATCH;
 
   const { data: channelsData } = useChannels();
   const addTranscriptions = useAddTranscriptions();
@@ -131,10 +137,14 @@ export default function AddTranscriptionModal({
               className="bg-background font-mono text-xs"
               disabled={addTranscriptions.isPending}
             />
-            <p className="text-muted-foreground mt-1 text-xs">
+            <p
+              className={`mt-1 text-xs ${isOverCap ? "text-destructive" : "text-muted-foreground"}`}
+            >
               {urls.length === 0
                 ? "One URL per line"
-                : `${urls.length} URL${urls.length === 1 ? "" : "s"}`}
+                : isOverCap
+                  ? `${urls.length} URLs, ${MAX_URLS_PER_BATCH} max per batch. Remove ${urls.length - MAX_URLS_PER_BATCH} to continue.`
+                  : `${urls.length} URL${urls.length === 1 ? "" : "s"}`}
             </p>
           </div>
 
@@ -182,7 +192,12 @@ export default function AddTranscriptionModal({
           </Button>
           <Button
             onClick={handleAddVideos}
-            disabled={urls.length === 0 || !selectedChannelId || addTranscriptions.isPending}
+            disabled={
+              urls.length === 0 ||
+              isOverCap ||
+              !selectedChannelId ||
+              addTranscriptions.isPending
+            }
           >
             {addTranscriptions.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin mr-1" />

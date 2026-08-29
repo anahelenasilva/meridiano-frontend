@@ -26,6 +26,16 @@ describe("parseVideoUrls", () => {
     ).toEqual(["https://youtu.be/aaa"]);
   });
 
+  it("keeps a numbered list to just its urls", () => {
+    expect(
+      parseVideoUrls("1. https://youtu.be/aaa\n2. https://youtu.be/bbb\n3. https://youtu.be/ccc"),
+    ).toEqual([
+      "https://youtu.be/aaa",
+      "https://youtu.be/bbb",
+      "https://youtu.be/ccc",
+    ]);
+  });
+
   it("returns an empty array for blank input", () => {
     expect(parseVideoUrls("   \n  ")).toEqual([]);
   });
