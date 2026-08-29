@@ -356,7 +356,7 @@ export function useAddTranscriptions() {
       generateAudio,
     }: {
       urls: string[];
-      channelId?: string;
+      channelId: string;
       customPrompt?: string;
       generateAudio?: boolean;
     }) => createTranscriptions(urls, channelId, customPrompt, generateAudio),

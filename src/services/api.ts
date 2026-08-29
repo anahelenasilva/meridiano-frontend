@@ -397,7 +397,7 @@ export type EnqueueTranscriptionsResponse = {
 
 export async function createTranscriptions(
   urls: string[],
-  channelId?: string,
+  channelId: string,
   customPrompt?: string,
   generateAudio?: boolean,
 ) {
