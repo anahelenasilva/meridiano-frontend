@@ -41,6 +41,7 @@ beforeEach(() => {
   mutateAsync.mockReset();
   vi.mocked(toast.success).mockReset();
   vi.mocked(toast.error).mockReset();
+  vi.mocked(toast.info).mockReset();
 });
 
 // Fills the URL textarea, picks the only available channel, and clicks
@@ -105,7 +106,21 @@ describe("AddTranscriptionModal", () => {
   });
 
   describe("toast summary", () => {
-    it("reads as a single sentence when everything is accepted", async () => {
+    it("names what was queued when the whole batch is accepted", async () => {
+      mutateAsync.mockResolvedValue({
+        accepted: ["https://youtu.be/aaa", "https://youtu.be/bbb"],
+        skipped: [],
+        rejected: [],
+      });
+
+      await renderAndSubmit();
+
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith("2 videos queued for transcription."),
+      );
+    });
+
+    it("keeps the noun singular for a batch of one", async () => {
       mutateAsync.mockResolvedValue({
         accepted: ["https://youtu.be/aaa"],
         skipped: [],
@@ -114,7 +129,9 @@ describe("AddTranscriptionModal", () => {
 
       await renderAndSubmit();
 
-      await waitFor(() => expect(toast.success).toHaveBeenCalledWith("Queued 1."));
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith("1 video queued for transcription."),
+      );
     });
 
     it("mentions skipped videos already in the library", async () => {
@@ -128,7 +145,7 @@ describe("AddTranscriptionModal", () => {
 
       await waitFor(() =>
         expect(toast.success).toHaveBeenCalledWith(
-          "Queued 1. Skipped 1 already in your library.",
+          "1 queued, 1 skipped (already in your library).",
         ),
       );
     });
@@ -143,7 +160,7 @@ describe("AddTranscriptionModal", () => {
       await renderAndSubmit();
 
       await waitFor(() =>
-        expect(toast.success).toHaveBeenCalledWith("Queued 1. Rejected 1: Invalid URL."),
+        expect(toast.success).toHaveBeenCalledWith("1 queued, 1 rejected (Invalid URL)."),
       );
     });
 
@@ -158,9 +175,28 @@ describe("AddTranscriptionModal", () => {
 
       await waitFor(() =>
         expect(toast.success).toHaveBeenCalledWith(
-          "Queued 1. Skipped 1 already in your library. Rejected 1: Invalid URL.",
+          "1 queued, 1 skipped (already in your library), 1 rejected (Invalid URL).",
         ),
       );
+    });
+
+    // An empty batch used to read "Queued 0." on a green success toast, which
+    // told the user the opposite of what happened.
+    it("reports an empty batch as info rather than success", async () => {
+      mutateAsync.mockResolvedValue({
+        accepted: [],
+        skipped: ["https://youtu.be/aaa", "https://youtu.be/bbb"],
+        rejected: [],
+      });
+
+      await renderAndSubmit();
+
+      await waitFor(() =>
+        expect(toast.info).toHaveBeenCalledWith(
+          "Nothing queued, 2 skipped (already in your library).",
+        ),
+      );
+      expect(toast.success).not.toHaveBeenCalled();
     });
   });
 });

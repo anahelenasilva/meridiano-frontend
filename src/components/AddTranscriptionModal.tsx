@@ -38,21 +38,28 @@ interface AddTranscriptionModalProps {
 }
 
 /**
- * One toast line covering all three outcomes of a batch. Skipped and rejected
- * are left out when empty so a clean batch reads as a single short sentence.
+ * One toast line covering all three outcomes of a batch. A clean batch spells
+ * out what was queued and why; once anything is skipped or rejected the line
+ * turns into one short clause per outcome, each carrying its own reason.
  */
 function summarizeEnqueueResult(result: EnqueueTranscriptionsResponse): string {
-  const parts = [`Queued ${result.accepted.length}.`];
+  const { accepted, skipped, rejected } = result;
 
-  if (result.skipped.length > 0) {
-    parts.push(`Skipped ${result.skipped.length} already in your library.`);
+  if (skipped.length === 0 && rejected.length === 0) {
+    return `${accepted.length} ${accepted.length === 1 ? "video" : "videos"} queued for transcription.`;
   }
 
-  if (result.rejected.length > 0) {
-    parts.push(`Rejected ${result.rejected.length}: ${result.rejected[0].reason}.`);
+  const parts = [accepted.length === 0 ? "Nothing queued" : `${accepted.length} queued`];
+
+  if (skipped.length > 0) {
+    parts.push(`${skipped.length} skipped (already in your library)`);
   }
 
-  return parts.join(" ");
+  if (rejected.length > 0) {
+    parts.push(`${rejected.length} rejected (${rejected[0].reason})`);
+  }
+
+  return `${parts.join(", ")}.`;
 }
 
 export default function AddTranscriptionModal({
@@ -97,7 +104,9 @@ export default function AddTranscriptionModal({
         generateAudio,
       });
 
-      toast.success(summarizeEnqueueResult(result));
+      // Nothing queued is not a success: every URL was a duplicate or unreadable.
+      const notify = result.accepted.length > 0 ? toast.success : toast.info;
+      notify(summarizeEnqueueResult(result));
       onOpenChange(false);
       resetForm();
     } catch (e) {
