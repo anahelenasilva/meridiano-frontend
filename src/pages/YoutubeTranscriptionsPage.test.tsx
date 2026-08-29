@@ -81,7 +81,7 @@ const TRANSCRIPTIONS_RESPONSE = {
 function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Response>>> = {}) {
   fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
     const method = (options.method || "GET").toUpperCase();
-    if (method === "GET" && url.includes("/api/youtube/transcriptions")) {
+    if (method === "GET" && url.includes("/api/youtube/transcriptions") && !url.includes("/jobs")) {
       return overrides.list?.() ?? Promise.resolve(jsonResponse(TRANSCRIPTIONS_RESPONSE));
     }
     if (method === "GET" && url.includes("/api/youtube/categories")) {
@@ -95,6 +95,12 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
     }
     if (method === "GET" && url.includes("/api/audio/jobs")) {
       return overrides.audioJobs?.() ?? Promise.resolve(jsonResponse({ jobs: [] }));
+    }
+    if (method === "GET" && url.includes("/api/youtube/transcriptions/jobs/failed")) {
+      return overrides.failedJobs?.() ?? Promise.resolve(jsonResponse({ jobs: [] }));
+    }
+    if (method === "DELETE" && url.includes("/api/youtube/transcriptions/jobs")) {
+      return overrides.dismissJob?.() ?? Promise.resolve(jsonResponse({ dismissed: true }));
     }
     return Promise.resolve(jsonResponse({}));
   });
@@ -131,7 +137,7 @@ describe("YoutubeTranscriptionsPage categories", () => {
 
     // No extra per-row requests: only the transcriptions list GET.
     const listCalls = fetchMock.mock.calls.filter(
-      ([url]) => typeof url === "string" && url.includes("/api/youtube/transcriptions"),
+      ([url]) => typeof url === "string" && url.includes("/api/youtube/transcriptions") && !url.includes("/jobs"),
     );
     expect(listCalls).toHaveLength(1);
   });

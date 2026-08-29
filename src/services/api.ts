@@ -389,21 +389,47 @@ export async function fetchTranscription(id: string, includeAudio = true) {
   return apiFetch<YouTubeTranscriptionDetailResponse>(`/api/youtube/transcriptions/${id}${query}`);
 }
 
-export async function createTranscription(
-  url: string,
-  channelId?: string,
+export type EnqueueTranscriptionsResponse = {
+  accepted: string[];
+  skipped: string[];
+  rejected: { url: string; reason: string }[];
+};
+
+export async function createTranscriptions(
+  urls: string[],
+  channelId: string,
   customPrompt?: string,
   generateAudio?: boolean,
 ) {
-  return apiFetch<{ jobId: string; message: string }>("/api/youtube/transcriptions", {
+  return apiFetch<EnqueueTranscriptionsResponse>("/api/youtube/transcriptions", {
     method: "POST",
     body: JSON.stringify({
-      url,
+      urls,
       channelId,
       ...(customPrompt ? { customPrompt } : {}),
       ...(generateAudio !== undefined ? { generateAudio } : {}),
     }),
   });
+}
+
+export type FailedTranscriptionJob = {
+  jobId: string;
+  videoUrl: string;
+  channelName: string;
+  reason: string;
+};
+
+export async function fetchFailedTranscriptionJobs() {
+  return apiFetch<{ jobs: FailedTranscriptionJob[] }>(
+    "/api/youtube/transcriptions/jobs/failed",
+  );
+}
+
+export async function dismissTranscriptionJob(jobId: string) {
+  return apiFetch<{ dismissed: boolean }>(
+    `/api/youtube/transcriptions/jobs/${encodeURIComponent(jobId)}`,
+    { method: "DELETE" },
+  );
 }
 
 export async function deleteTranscription(id: string) {
