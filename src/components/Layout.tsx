@@ -24,10 +24,10 @@ import ThemeToggle from "./ThemeToggle";
 const navItems = [
   { to: "/", label: "Bookmarks", icon: Bookmark },
   { to: "/articles", label: "Articles", icon: FileText },
-  { to: "/archive", label: "Archive", icon: Archive },
   { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" as const },
   { to: "/briefings", label: "Briefings", icon: Newspaper },
   { to: "/admin/youtube-channels", label: "Admin", icon: Settings },
+  { to: "/archive", label: "Archive", icon: Archive },
 ];
 
 type SidebarContextValue = {
