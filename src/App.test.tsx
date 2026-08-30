@@ -64,6 +64,42 @@ describe("archive navigation", () => {
     expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
   });
 
+  it("marks Archive as the current page on /archive, and Articles as not", () => {
+    render(
+      <MemoryRouter initialEntries={["/archive"]}>
+        <ThemeProvider>
+          <Navbar />
+        </ThemeProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("button", { name: /^archive$/i })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("button", { name: /^articles$/i })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
+  it("marks Articles as the current page on /articles, and Archive as not", () => {
+    render(
+      <MemoryRouter initialEntries={["/articles"]}>
+        <ThemeProvider>
+          <Navbar />
+        </ThemeProvider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("button", { name: /^articles$/i })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+    expect(screen.getByRole("button", { name: /^archive$/i })).not.toHaveAttribute(
+      "aria-current",
+    );
+  });
+
   it("renders the archive view at /archive", async () => {
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(
