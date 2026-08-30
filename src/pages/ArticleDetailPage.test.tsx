@@ -71,6 +71,7 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
         categories: [],
         audio: null,
         has_audio: false,
+        archived_at: null,
         note: {
           id: 'n1',
           content: 'Existing note',

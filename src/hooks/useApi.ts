@@ -1,5 +1,6 @@
 import {
   addBookmark,
+  archiveArticle,
   checkBookmark,
   createArticleByLink,
   createCategory,
@@ -28,6 +29,7 @@ import {
   renameCategory,
   saveNote,
   setChannelCategories,
+  unarchiveArticle,
   updateArticle,
   updateBriefingTitle,
   updateChannelEnabled,
@@ -91,6 +93,53 @@ export function useUpdateArticle() {
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["article", id] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
+}
+
+type ArchiveAction = "archive" | "unarchive";
+
+/**
+ * Archiving from a list removes the card immediately: dismissing an item and
+ * watching it sit there until a refetch lands defeats the point. setQueriesData
+ * covers every cached ["articles", params] entry, since the active and archived
+ * lists cache under different params. Bookmarks is invalidated because
+ * archiving also hides the article there.
+ *
+ * The optimistic update does not decrement the pagination total; the onSettled
+ * invalidation corrects it on the next fetch.
+ */
+export function useArchiveArticle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: ArchiveAction }) =>
+      action === "archive" ? archiveArticle(id) : unarchiveArticle(id),
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ["articles"] });
+
+      const previous = queryClient.getQueriesData<ArticlesResponse>({
+        queryKey: ["articles"],
+      });
+
+      queryClient.setQueriesData<ArticlesResponse>(
+        { queryKey: ["articles"] },
+        (old) =>
+          old
+            ? { ...old, articles: old.articles.filter((a) => a.id !== id) }
+            : old,
+      );
+
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      context?.previous.forEach(([key, data]) => {
+        queryClient.setQueryData(key, data);
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }

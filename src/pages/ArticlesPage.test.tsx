@@ -56,6 +56,7 @@ function article(overrides: Partial<{
     categories: [],
     audio: null,
     has_audio: false,
+    archived_at: null,
     ...overrides,
   };
 }
