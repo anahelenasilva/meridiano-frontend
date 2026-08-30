@@ -297,7 +297,13 @@ describe("ArticlesPage archive view", () => {
     fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
       const method = (options.method || "GET").toUpperCase();
       if (method === "POST" && url.includes("/archive")) {
-        return Promise.resolve(jsonResponse({ message: "boom" }, false, 500));
+        // A small real delay separates the optimistic removal from the
+        // rollback into two observable renders; an instantly-resolved
+        // promise lets both land in the same tick, so the intermediate
+        // "removed" assertion below would never actually get to see it.
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(jsonResponse({ message: "boom" }, false, 500)), 20),
+        );
       }
       if (method === "GET" && url.includes("/api/articles")) {
         return Promise.resolve(jsonResponse(articlesResponse([article()])));
@@ -306,6 +312,13 @@ describe("ArticlesPage archive view", () => {
     });
 
     fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    // Prove the optimistic removal actually ran before asserting the rollback
+    // put the card back: without this, the test can't tell a real
+    // remove-then-restore cycle from optimistic removal never happening at all.
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
 
     await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
   });

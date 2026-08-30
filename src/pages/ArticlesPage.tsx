@@ -114,6 +114,9 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
           Undo
         </button>
       </span>,
+      // Undo needs longer than the default 3s: noticing the toast and
+      // clicking it is slower than reading a plain confirmation message.
+      { autoClose: 8000 },
     );
   };
 
