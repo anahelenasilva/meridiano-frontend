@@ -6,7 +6,6 @@ import { MESSAGES } from "../constants/messages";
 interface ArchiveButtonProps {
   articleId: string;
   archivedAt: string | null;
-  showLabel?: boolean;
   size?: "sm" | "md" | "lg";
   // Lets a page own the post-success toast, so the list can offer Undo while
   // the detail page shows a plain confirmation.
@@ -20,18 +19,19 @@ const iconSizeClasses = {
 };
 
 // ArticleCard renders this at "sm" in a tight row of icon buttons, matching its
-// bookmark button's plain p-1. Everywhere else (the detail page, at "md") it sits
-// next to a p-2/rounded-full/hover:bg-accent bookmark button and should match that.
-const paddingClasses = {
-  sm: "p-1",
-  md: "p-2 rounded-full hover:bg-accent",
-  lg: "p-2 rounded-full hover:bg-accent",
+// bookmark button's plain p-1. Everywhere else it sits in the detail page's action
+// row next to an h-9 Edit button, so it gets a fixed square that lines up with it.
+// Note the hover fill is `secondary`, not `accent`: this theme sets --accent to the
+// same orange as --primary, so bg-accent would paint the icon out of existence.
+const buttonSizeClasses = {
+  sm: "p-1 hover:text-primary",
+  md: "h-9 w-9 justify-center rounded-full hover:bg-secondary hover:text-foreground",
+  lg: "h-10 w-10 justify-center rounded-full hover:bg-secondary hover:text-foreground",
 };
 
 export default function ArchiveButton({
   articleId,
   archivedAt,
-  showLabel = false,
   size = "md",
   onArchived,
 }: ArchiveButtonProps) {
@@ -67,12 +67,11 @@ export default function ArchiveButton({
       type="button"
       onClick={handleClick}
       disabled={archiveMutation.isPending}
-      className={`flex items-center gap-1 ${paddingClasses[size]} transition-colors hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed`}
+      className={`flex shrink-0 items-center text-muted-foreground ${buttonSizeClasses[size]} transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
       title={label}
       aria-label={label}
     >
       <Icon className={iconSizeClasses[size]} />
-      {showLabel && <span>{label}</span>}
     </button>
   );
 }

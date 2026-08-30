@@ -22,7 +22,7 @@ function renderButton(archivedAt: string | null) {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <ArchiveButton articleId="a-1" archivedAt={archivedAt} showLabel />
+      <ArchiveButton articleId="a-1" archivedAt={archivedAt} />
     </QueryClientProvider>,
   );
 }
@@ -73,7 +73,7 @@ describe("ArchiveButton", () => {
       <QueryClientProvider client={queryClient}>
         {/* biome-ignore lint/a11y/useValidAnchor: exercising click propagation */}
         <a href="/articles/a-1" onClick={onClick}>
-          <ArchiveButton articleId="a-1" archivedAt={null} showLabel />
+          <ArchiveButton articleId="a-1" archivedAt={null} />
         </a>
       </QueryClientProvider>,
     );

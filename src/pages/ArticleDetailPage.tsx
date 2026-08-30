@@ -163,7 +163,7 @@ export default function ArticleDetail() {
             type="button"
             onClick={handleToggleBookmark}
             disabled={!user}
-            className="p-2 rounded-full hover:bg-accent transition-colors"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >
             {isBookmarked ? (
