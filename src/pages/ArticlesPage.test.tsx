@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
@@ -87,12 +87,12 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
   });
 }
 
-function renderPage() {
+function renderPage(archiveScope?: "active" | "archived") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <ArticlesPage />
+        <ArticlesPage archiveScope={archiveScope} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -223,5 +223,90 @@ describe("ArticlesPage audio badge", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("ArticlesPage archive view", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  it("requests the active scope by default", async () => {
+    installFetchRoutes();
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    const listCall = fetchMock.mock.calls.find(
+      ([url]) => typeof url === "string" && url.includes("/api/articles?"),
+    );
+    expect(listCall?.[0]).not.toContain("archive_scope");
+  });
+
+  it("requests the archived scope and titles the page Archive", async () => {
+    installFetchRoutes();
+    renderPage("archived");
+
+    await waitFor(() => expect(screen.getByText("Archive")).toBeInTheDocument());
+
+    const listCall = fetchMock.mock.calls.find(
+      ([url]) => typeof url === "string" && url.includes("archive_scope=archived"),
+    );
+    expect(listCall).toBeDefined();
+    expect(screen.queryByRole("button", { name: /add article/i })).not.toBeInTheDocument();
+  });
+
+  it("removes the card immediately when an article is archived", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse(
+            articlesResponse([
+              article({ id: "art-1" }),
+              article({ id: "art-2", title: "Article Two" }),
+            ]),
+          ),
+        ),
+    });
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        return new Promise(() => {}); // never settles, so only the optimistic update is visible
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText("Article Two")).toBeInTheDocument();
+  });
+
+  it("puts the card back when the archive request fails", async () => {
+    installFetchRoutes();
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        return Promise.resolve(jsonResponse({ message: "boom" }, false, 500));
+      }
+      if (method === "GET" && url.includes("/api/articles")) {
+        return Promise.resolve(jsonResponse(articlesResponse([article()])));
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
   });
 });

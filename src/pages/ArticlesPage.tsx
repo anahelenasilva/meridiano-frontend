@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import {
+  useArchiveArticle,
   useArticles,
   useAudioJobs,
   useBookmarks,
@@ -33,6 +34,9 @@ import {
   useProfiles,
   useToggleBookmark,
 } from "@/hooks/useApi";
+import type { ArchiveScope } from "@/types";
+import { MESSAGES } from "@/constants/messages";
+import { toast } from "@/utils/toast";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { Calendar, ChevronDown, Loader2, Plus, Search } from "lucide-react";
@@ -41,7 +45,14 @@ import { useSearchParams } from "react-router-dom";
 
 type DatePreset = "yesterday" | "week" | "30d" | "3m" | null;
 
-export default function ArticlesPage() {
+interface ArticlesPageProps {
+  // The Archive view is this same page with a different scope. Reusing it means
+  // the archive gets search, filters, presets and pagination for free.
+  archiveScope?: Extract<ArchiveScope, "active" | "archived">;
+}
+
+export default function ArticlesPage({ archiveScope = "active" }: ArticlesPageProps) {
+  const isArchiveView = archiveScope === "archived";
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const feedProfileFromUrl = searchParams.get("feedProfile");
@@ -72,6 +83,7 @@ export default function ArticlesPage() {
     endDate: endDate || undefined,
     page,
     perPage: 20,
+    archiveScope: isArchiveView ? "archived" : undefined,
   });
 
   const { data: profilesData } = useProfiles();
@@ -79,6 +91,31 @@ export default function ArticlesPage() {
   const { data: bookmarksData } = useBookmarks(1, 100);
   const { add, remove } = useToggleBookmark();
   const { data: audioJobsData } = useAudioJobs();
+  const archiveMutation = useArchiveArticle();
+
+  // Undo costs a few lines because both mutations already exist, and fast
+  // triage is exactly where a mis-tap happens.
+  const handleArchived = (articleId: string) => {
+    toast.success(
+      <span className="flex items-center gap-3">
+        {isArchiveView
+          ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED
+          : MESSAGES.SUCCESS.ARTICLE_ARCHIVED}
+        <button
+          type="button"
+          className="underline font-medium"
+          onClick={() =>
+            archiveMutation.mutate({
+              id: articleId,
+              action: isArchiveView ? "archive" : "unarchive",
+            })
+          }
+        >
+          Undo
+        </button>
+      </span>,
+    );
+  };
 
   const audioJobsBySource = useMemo(
     () => buildAudioJobMap(audioJobsData?.jobs),
@@ -143,7 +180,9 @@ export default function ArticlesPage() {
   if (error) {
     return (
       <div className="py-6 px-4 mx-auto max-w-6xl">
-        <h1 className="mb-1 font-serif text-2xl font-bold">Articles</h1>
+        <h1 className="mb-1 font-serif text-2xl font-bold">
+          {isArchiveView ? "Archive" : "Articles"}
+        </h1>
         <p className="text-sm text-destructive">
           Failed to load articles: {error.message}
         </p>
@@ -156,14 +195,18 @@ export default function ArticlesPage() {
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start mb-1">
           <div>
-            <h1 className="font-serif text-2xl font-bold">Articles</h1>
+            <h1 className="font-serif text-2xl font-bold">
+              {isArchiveView ? "Archive" : "Articles"}
+            </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               Showing {startItem} - {endItem} of {total} articles
             </p>
           </div>
-          <Button onClick={() => setShowAddModal(true)}>
-            <Plus className="mr-1 w-4 h-4" /> Add Article
-          </Button>
+          {!isArchiveView && (
+            <Button onClick={() => setShowAddModal(true)}>
+              <Plus className="mr-1 w-4 h-4" /> Add Article
+            </Button>
+          )}
         </div>
 
         <Collapsible defaultOpen={false} className="mt-4 mb-6">
@@ -323,6 +366,7 @@ export default function ArticlesPage() {
                 article={article}
                 onToggleBookmark={handleToggleBookmark}
                 isBookmarked={bookmarkedIds.has(article.id)}
+                onArchived={() => handleArchived(article.id)}
                 audioState={getAudioBadgeState(
                   article.has_audio,
                   audioJobsBySource.get(audioJobKey("article", article.id)),
@@ -334,7 +378,7 @@ export default function ArticlesPage() {
 
         {!isLoading && articles.length === 0 && (
           <p className="py-12 text-center text-muted-foreground">
-            No articles found.
+            {isArchiveView ? "Nothing archived." : "No articles found."}
           </p>
         )}
 
@@ -391,7 +435,9 @@ export default function ArticlesPage() {
 
       <LatestBriefings briefings={recentBriefings} />
 
-      <AddArticleModal open={showAddModal} onOpenChange={setShowAddModal} />
+      {!isArchiveView && (
+        <AddArticleModal open={showAddModal} onOpenChange={setShowAddModal} />
+      )}
     </div>
   );
 }
