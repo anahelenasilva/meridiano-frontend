@@ -62,6 +62,7 @@ function AppContent() {
         <Route path="/" element={<BookmarksPage />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
+        <Route path="/archive" element={<ArticlesPage archiveScope="archived" />} />
         <Route path="/audio" element={<AudioLibraryPage />} />
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/briefings" element={<BriefingsPage />} />
