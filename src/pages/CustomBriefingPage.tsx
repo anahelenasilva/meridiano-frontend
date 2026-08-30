@@ -53,6 +53,7 @@ export default function CustomBriefingPage() {
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [feedSource, setFeedSource] = useState("all");
   const [feedProfile, setFeedProfile] = useState("all");
   const [sortBy, setSortBy] = useState("published_date");
   const [direction, setDirection] = useState<"asc" | "desc">("desc");
@@ -71,6 +72,7 @@ export default function CustomBriefingPage() {
     searchTerm: search || undefined,
     category: category !== "all" ? category : undefined,
     feedProfile: feedProfile !== "all" ? feedProfile : undefined,
+    feedSource: feedSource !== "all" ? feedSource : undefined,
     sortBy,
     direction,
     startDate: startDate || undefined,
@@ -88,6 +90,7 @@ export default function CustomBriefingPage() {
   const currentPage = data?.pagination?.page ?? 1;
   const profiles = profilesData ?? [];
   const categories = [...new Set(articles.flatMap((a) => a.categories || []))].sort();
+  const sources = data?.available_sources ?? [];
 
   const selectedIds = useMemo(() => new Set(selectedArticles.map((a) => a.id)), [selectedArticles]);
 
@@ -258,6 +261,25 @@ export default function CustomBriefingPage() {
                       {categories.map((c) => (
                         <SelectItem key={c} value={c}>
                           {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={feedSource}
+                    onValueChange={(v) => {
+                      setFeedSource(v);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-full bg-background sm:w-56">
+                      <SelectValue placeholder="All Sources" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sources</SelectItem>
+                      {sources.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
                         </SelectItem>
                       ))}
                     </SelectContent>

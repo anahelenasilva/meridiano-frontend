@@ -57,6 +57,7 @@ export interface ArticlesResponse {
     total_pages: number;
     total_articles: number;
   };
+  available_sources: string[];
 }
 
 export interface ArticleDetailResponse {
@@ -199,6 +200,7 @@ export interface ArticlesQueryParams {
   sortBy?: string;
   direction?: "asc" | "desc";
   feedProfile?: string;
+  feedSource?: string;
   searchTerm?: string;
   startDate?: string;
   endDate?: string;
