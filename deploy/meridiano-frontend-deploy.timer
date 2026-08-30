@@ -1,0 +1,12 @@
+[Unit]
+Description=Check origin/main for new meridiano-frontend commits every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=2min
+# Keeps the frontend and API deploy timers from waking at the same instant.
+RandomizedDelaySec=15
+Unit=meridiano-frontend-deploy.service
+
+[Install]
+WantedBy=timers.target

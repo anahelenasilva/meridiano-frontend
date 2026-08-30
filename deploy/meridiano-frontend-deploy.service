@@ -1,0 +1,17 @@
+[Unit]
+Description=Deploy the newest origin/main commit of meridiano-frontend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/meridiano-frontend-deploy
+# A pnpm install plus a vite build on a Pi is slow. This only has to be
+# generous enough that a real build never trips it.
+TimeoutStartSec=900
+
+# The script's defaults already match this Pi. Override here if any of the
+# paths, the app user, or the service name ever change.
+# Environment=REPO=/home/anahelena/dev/meridiano-frontend
+# Environment=APP_USER=anahelena
+# Environment=SERVICE=meridiano-frontend
