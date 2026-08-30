@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "@/utils/toast";
 import {
+  Archive,
   Bookmark,
   FileText,
   LogOut,
@@ -23,6 +24,7 @@ import ThemeToggle from "./ThemeToggle";
 const navItems = [
   { to: "/", label: "Bookmarks", icon: Bookmark },
   { to: "/articles", label: "Articles", icon: FileText },
+  { to: "/archive", label: "Archive", icon: Archive },
   { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" as const },
   { to: "/briefings", label: "Briefings", icon: Newspaper },
   { to: "/admin/youtube-channels", label: "Admin", icon: Settings },

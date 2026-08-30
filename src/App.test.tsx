@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "@/App";
-import Navbar from "@/components/Navbar";
+import Layout from "@/components/Layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // isAuthenticated: true so App renders its Routes immediately instead of
@@ -58,65 +58,65 @@ beforeEach(() => {
   );
 });
 
-describe("archive navigation", () => {
-  it("offers an Archive link in the navbar", () => {
-    render(
-      <MemoryRouter>
-        <ThemeProvider>
-          <Navbar />
-        </ThemeProvider>
-      </MemoryRouter>,
-    );
+// Layout owns the sidebar the app actually ships. Navbar.tsx also defines a nav
+// but nothing imports it, so asserting against that one would prove nothing.
+function renderSidebarAt(path: string) {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <ThemeProvider>
+        <Layout>
+          <div />
+        </Layout>
+      </ThemeProvider>
+    </MemoryRouter>,
+  );
+}
 
-    expect(screen.getByRole("button", { name: /archive/i })).toBeInTheDocument();
+// Queried by href, not by accessible name: the rail collapses to icons only and
+// drops the label span, so the links carry no accessible name in that state.
+// Layout also renders them twice, for the desktop rail and the mobile drawer,
+// so each of these matches every copy.
+const linksTo = (href: string) =>
+  Array.from(document.querySelectorAll<HTMLAnchorElement>(`a[href="${href}"]`));
+
+describe("archive navigation", () => {
+  it("offers an Archive link in the sidebar", () => {
+    renderSidebarAt("/articles");
+
+    expect(linksTo("/archive").length).toBeGreaterThan(0);
   });
 
   it("marks Archive as the current page on /archive, and Articles as not", () => {
-    render(
-      <MemoryRouter initialEntries={["/archive"]}>
-        <ThemeProvider>
-          <Navbar />
-        </ThemeProvider>
-      </MemoryRouter>,
-    );
+    renderSidebarAt("/archive");
 
-    expect(screen.getByRole("button", { name: /^archive$/i })).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(linksTo("/archive").some((el) => el.getAttribute("aria-current") === "page")).toBe(
+      true,
     );
-    expect(screen.getByRole("button", { name: /^articles$/i })).not.toHaveAttribute(
-      "aria-current",
+    expect(linksTo("/articles").every((el) => el.getAttribute("aria-current") === null)).toBe(
+      true,
     );
   });
 
   it("marks Articles as the current page on /articles, and Archive as not", () => {
-    render(
-      <MemoryRouter initialEntries={["/articles"]}>
-        <ThemeProvider>
-          <Navbar />
-        </ThemeProvider>
-      </MemoryRouter>,
-    );
+    renderSidebarAt("/articles");
 
-    expect(screen.getByRole("button", { name: /^articles$/i })).toHaveAttribute(
-      "aria-current",
-      "page",
+    expect(linksTo("/articles").some((el) => el.getAttribute("aria-current") === "page")).toBe(
+      true,
     );
-    expect(screen.getByRole("button", { name: /^archive$/i })).not.toHaveAttribute(
-      "aria-current",
+    expect(linksTo("/archive").every((el) => el.getAttribute("aria-current") === null)).toBe(
+      true,
     );
   });
 
   it("registers the /archive route on the real route table", async () => {
-    // App owns a BrowserRouter, so the route is exercised by pointing the
-    // real browser history at /archive before mounting, rather than by a
-    // hand-built <Routes> that could drift from App.tsx's own route table.
+    // App owns a BrowserRouter, so the route is exercised by pointing the real
+    // browser history at /archive before mounting, rather than by a hand-built
+    // <Routes> that could drift from App.tsx's own route table.
     window.history.pushState({}, "", "/archive");
 
     render(<App />);
 
-    // getByRole, not getByText: the navbar also has an "Archive" link, so a
-    // plain text match would be ambiguous with two matches on this page.
+    // Match the heading, not bare text: the sidebar also has an "Archive" link.
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Archive" })).toBeInTheDocument(),
     );
