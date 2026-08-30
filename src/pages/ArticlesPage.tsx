@@ -58,6 +58,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const feedProfileFromUrl = searchParams.get("feedProfile");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [feedSource, setFeedSource] = useState("all");
   const [feedProfile, setFeedProfile] = useState(
     feedProfileFromUrl ?? "all",
   );
@@ -77,6 +78,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
     searchTerm: search || undefined,
     category: category !== "all" ? category : undefined,
     feedProfile: feedProfile !== "all" ? feedProfile : undefined,
+    feedSource: feedSource !== "all" ? feedSource : undefined,
     sortBy,
     direction,
     startDate: startDate || undefined,
@@ -176,6 +178,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const categories = [
     ...new Set(articles.flatMap((a) => a.categories || [])),
   ].sort();
+  const sources = data?.available_sources ?? [];
 
   const startItem = (currentPage - 1) * perPage + 1;
   const endItem = Math.min(currentPage * perPage, total);
@@ -267,6 +270,25 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       {categories.map((c) => (
                         <SelectItem key={c} value={c}>
                           {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select
+                    value={feedSource}
+                    onValueChange={(v) => {
+                      setFeedSource(v);
+                      setPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="w-56 bg-background">
+                      <SelectValue placeholder="All Sources" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sources</SelectItem>
+                      {sources.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
                         </SelectItem>
                       ))}
                     </SelectContent>

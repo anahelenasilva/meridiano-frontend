@@ -70,6 +70,7 @@ function articlesResponse(articles: ReturnType<typeof article>[]) {
   return {
     articles,
     pagination: { page: 1, per_page: 20, total_pages: 1, total_articles: articles.length },
+    available_sources: [] as string[],
   };
 }
 
@@ -228,6 +229,38 @@ describe("ArticlesPage audio badge", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("ArticlesPage source filter", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  it("offers the sources the API returns and requests the picked one", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse({
+            ...articlesResponse([article()]),
+            available_sources: ["Fabio Akita", "Will Larson"],
+          }),
+        ),
+    });
+    renderPage();
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Filters"));
+    fireEvent.click(screen.getByText("All Sources"));
+    await waitFor(() => expect(screen.getByText("Will Larson")).toBeInTheDocument());
+    fireEvent.click(screen.getByText("Will Larson"));
+
+    await waitFor(() => {
+      const call = fetchMock.mock.calls.find(
+        ([url]) => typeof url === "string" && url.includes("feedSource=Will+Larson"),
+      );
+      expect(call).toBeDefined();
+    });
   });
 });
 
