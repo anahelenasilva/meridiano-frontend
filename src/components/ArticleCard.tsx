@@ -1,4 +1,5 @@
 import type { Article } from "@/types";
+import ArchiveButton from "@/components/ArchiveButton";
 import { AudioBadge } from "@/components/AudioBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { NoteEditor } from "@/components/NoteEditor";
@@ -88,8 +89,8 @@ export default function ArticleCard({
                 <span className="text-primary/80">{displayCategory}</span>
               </>
             )}
-            {onToggleBookmark && (
-              <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
+              {onToggleBookmark && (
                 <button
                   className="p-1 hover:text-primary transition-colors"
                   onClick={(e) => {
@@ -103,8 +104,13 @@ export default function ArticleCard({
                     <Bookmark className="h-4 w-4" />
                   )}
                 </button>
-              </div>
-            )}
+              )}
+              <ArchiveButton
+                articleId={article.id}
+                archivedAt={article.archived_at ?? null}
+                size="sm"
+              />
+            </div>
           </div>
           <NoteEditor
             sourceType="article"
