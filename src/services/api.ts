@@ -1,5 +1,4 @@
 import {
-  Article,
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
@@ -168,12 +167,15 @@ export async function updateArticle(id: string, patch: UpdateArticlePayload) {
   });
 }
 
+// The backend returns a serialized DBArticle here, not the frontend Article
+// shape (no audio, no has_audio), and nothing consumes the response, so the
+// call is typed as void rather than lying about what comes back.
 export async function archiveArticle(id: string) {
-  return apiFetch<Article>(`/api/articles/${id}/archive`, { method: "POST" });
+  return apiFetch<void>(`/api/articles/${id}/archive`, { method: "POST" });
 }
 
 export async function unarchiveArticle(id: string) {
-  return apiFetch<Article>(`/api/articles/${id}/archive`, { method: "DELETE" });
+  return apiFetch<void>(`/api/articles/${id}/archive`, { method: "DELETE" });
 }
 
 export async function createArticleByLink(

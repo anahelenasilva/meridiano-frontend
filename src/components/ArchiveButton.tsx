@@ -1,5 +1,4 @@
 import { useArchiveArticle } from "@/hooks/useApi";
-import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
 import { Archive, ArchiveRestore } from "lucide-react";
 import { MESSAGES } from "../constants/messages";
@@ -20,6 +19,15 @@ const iconSizeClasses = {
   lg: "h-6 w-6",
 };
 
+// ArticleCard renders this at "sm" in a tight row of icon buttons, matching its
+// bookmark button's plain p-1. Everywhere else (the detail page, at "md") it sits
+// next to a p-2/rounded-full/hover:bg-accent bookmark button and should match that.
+const paddingClasses = {
+  sm: "p-1",
+  md: "p-2 rounded-full hover:bg-accent",
+  lg: "p-2 rounded-full hover:bg-accent",
+};
+
 export default function ArchiveButton({
   articleId,
   archivedAt,
@@ -37,27 +45,19 @@ export default function ArchiveButton({
     event.preventDefault();
     event.stopPropagation();
 
-    archiveMutation.mutate(
-      { id: articleId, action: isArchived ? "unarchive" : "archive" },
-      {
-        onSuccess: () => {
-          if (onArchived) {
-            onArchived();
-            return;
-          }
-          toast.success(
-            isArchived
-              ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED
-              : MESSAGES.SUCCESS.ARTICLE_ARCHIVED,
-          );
-        },
-        onError: (error: Error) => {
-          toast.error(
-            `${isArchived ? MESSAGES.ERROR.ARTICLE_UNARCHIVE : MESSAGES.ERROR.ARTICLE_ARCHIVE} ${getErrorMessage(error)}`,
-          );
-        },
-      },
-    );
+    // The optimistic removal in useArchiveArticle can unmount this button
+    // (the list re-renders without the card) before the request settles, and
+    // TanStack Query drops mutate-level callbacks once the observer has no
+    // listeners left. Notify at mutate time instead, so the toast always fires;
+    // the error toast lives on the mutation itself in useApi.ts for the same reason.
+    archiveMutation.mutate({ id: articleId, action: isArchived ? "unarchive" : "archive" });
+    if (onArchived) {
+      onArchived();
+    } else {
+      toast.success(
+        isArchived ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED : MESSAGES.SUCCESS.ARTICLE_ARCHIVED,
+      );
+    }
   };
 
   const Icon = isArchived ? ArchiveRestore : Archive;
@@ -67,7 +67,7 @@ export default function ArchiveButton({
       type="button"
       onClick={handleClick}
       disabled={archiveMutation.isPending}
-      className="flex items-center gap-1 p-1 transition-colors hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed"
+      className={`flex items-center gap-1 ${paddingClasses[size]} transition-colors hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed`}
       title={label}
       aria-label={label}
     >

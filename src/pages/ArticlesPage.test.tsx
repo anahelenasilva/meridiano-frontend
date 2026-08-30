@@ -3,9 +3,14 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
+import { toast } from "@/utils/toast";
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: null }),
+}));
+
+vi.mock("@/utils/toast", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 beforeEach(() => {
@@ -229,6 +234,8 @@ describe("ArticlesPage audio badge", () => {
 describe("ArticlesPage archive view", () => {
   beforeEach(() => {
     fetchMock.mockReset();
+    vi.mocked(toast.success).mockReset();
+    vi.mocked(toast.error).mockReset();
   });
 
   it("requests the active scope by default", async () => {
@@ -286,6 +293,46 @@ describe("ArticlesPage archive view", () => {
       expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
     );
     expect(screen.getByText("Article Two")).toBeInTheDocument();
+  });
+
+  it("fires the success toast even though the optimistic update unmounts the button before the request settles", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse(
+            articlesResponse([
+              article({ id: "art-1" }),
+              article({ id: "art-2", title: "Article Two" }),
+            ]),
+          ),
+        ),
+    });
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        // A small real delay lets the optimistic removal (and the resulting
+        // ArchiveButton unmount) land before the request settles, the same
+        // race that dropped the mutate-level callbacks in production.
+        return new Promise((resolve) => setTimeout(() => resolve(jsonResponse({})), 20));
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    // The card is gone (ArchiveButton has unmounted) before the toast is
+    // asserted, matching how the mutate-level callbacks silently dropped
+    // once the observer lost its listener.
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
+    expect(toast.error).not.toHaveBeenCalled();
   });
 
   it("puts the card back when the archive request fails", async () => {

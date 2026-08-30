@@ -52,6 +52,9 @@ import type {
   YouTubeTranscriptionsResponse
 } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { MESSAGES } from "@/constants/messages";
+import { getErrorMessage } from "@/utils/api-error";
+import { toast } from "@/utils/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type UseQueryResult<T> = ReturnType<typeof useQuery<T, Error>>;
@@ -132,14 +135,23 @@ export function useArchiveArticle() {
 
       return { previous };
     },
-    onError: (_error, _variables, context) => {
+    // Hook-level (as opposed to mutate-level) callbacks live on the mutation
+    // itself rather than its observer, so they still run even after the
+    // optimistic removal above has unmounted the button that called mutate.
+    onError: (error, { action }, context) => {
       context?.previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      toast.error(
+        `${action === "archive" ? MESSAGES.ERROR.ARTICLE_ARCHIVE : MESSAGES.ERROR.ARTICLE_UNARCHIVE} ${getErrorMessage(error)}`,
+      );
     },
-    onSettled: () => {
+    onSettled: (_data, _error, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      // Partial key match: covers every ["article", id, includeAudio] cache
+      // entry regardless of the includeAudio flag it was fetched with.
+      queryClient.invalidateQueries({ queryKey: ["article", id] });
     },
   });
 }

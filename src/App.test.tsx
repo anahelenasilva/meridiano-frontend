@@ -1,13 +1,20 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { MemoryRouter } from "react-router-dom";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import App from "@/App";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import ArticlesPage from "@/pages/ArticlesPage";
 
+// isAuthenticated: true so App renders its Routes immediately instead of
+// LoginPage; AuthProvider is a passthrough since App wraps AppContent in it.
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: null, isAuthenticated: false, logout: vi.fn() }),
+  useAuth: () => ({
+    user: { id: "u1", email: "a@example.com", username: "a" },
+    isAuthenticated: true,
+    logout: vi.fn(),
+  }),
+  AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 const fetchMock = vi.fn();
@@ -100,20 +107,19 @@ describe("archive navigation", () => {
     );
   });
 
-  it("renders the archive view at /archive", async () => {
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    render(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={["/archive"]}>
-          <Routes>
-            <Route path="/articles" element={<ArticlesPage />} />
-            <Route path="/archive" element={<ArticlesPage archiveScope="archived" />} />
-          </Routes>
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
+  it("registers the /archive route on the real route table", async () => {
+    // App owns a BrowserRouter, so the route is exercised by pointing the
+    // real browser history at /archive before mounting, rather than by a
+    // hand-built <Routes> that could drift from App.tsx's own route table.
+    window.history.pushState({}, "", "/archive");
 
-    await waitFor(() => expect(screen.getByText("Archive")).toBeInTheDocument());
+    render(<App />);
+
+    // getByRole, not getByText: the navbar also has an "Archive" link, so a
+    // plain text match would be ambiguous with two matches on this page.
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Archive" })).toBeInTheDocument(),
+    );
     expect(
       fetchMock.mock.calls.some(
         ([url]) => typeof url === "string" && url.includes("archive_scope=archived"),
