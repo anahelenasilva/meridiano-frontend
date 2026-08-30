@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "@/utils/toast";
 import {
+  Archive,
   Bookmark,
   FileText,
   LogOut,
@@ -26,6 +27,7 @@ const navItems = [
   { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" as const },
   { to: "/briefings", label: "Briefings", icon: Newspaper },
   { to: "/admin/youtube-channels", label: "Admin", icon: Settings },
+  { to: "/archive", label: "Archive", icon: Archive },
 ];
 
 type SidebarContextValue = {

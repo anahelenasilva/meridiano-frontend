@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { toast as reactToastify, ToastOptions } from 'react-toastify';
 
 const defaultOptions: ToastOptions = {
@@ -10,11 +11,11 @@ const defaultOptions: ToastOptions = {
 };
 
 export const toast = {
-  success: (message: string, options?: ToastOptions) => {
+  success: (message: ReactNode, options?: ToastOptions) => {
     reactToastify.success(message, { ...defaultOptions, ...options });
   },
 
-  error: (message: string, options?: ToastOptions) => {
+  error: (message: ReactNode, options?: ToastOptions) => {
     reactToastify.error(message, {
       ...defaultOptions,
       autoClose: 5000, // Longer for errors

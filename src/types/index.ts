@@ -27,6 +27,7 @@ export interface Article {
   categories: string[];
   audio: ArticleAudio | null;
   has_audio: boolean;
+  archived_at: string | null;
   note?: Note | null;
   // Detail-only fields
   raw_content?: string;
@@ -189,6 +190,8 @@ export interface AudioJobsResponse {
   jobs: AudioJob[];
 }
 
+export type ArchiveScope = "active" | "archived" | "all";
+
 // Query parameter types
 export interface ArticlesQueryParams {
   page?: number;
@@ -200,4 +203,5 @@ export interface ArticlesQueryParams {
   startDate?: string;
   endDate?: string;
   category?: string;
+  archiveScope?: ArchiveScope;
 }

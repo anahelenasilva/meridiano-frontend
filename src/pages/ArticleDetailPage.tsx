@@ -1,3 +1,4 @@
+import ArchiveButton from "@/components/ArchiveButton";
 import ArticleCard from "@/components/ArticleCard";
 import { AudioSection } from "@/components/AudioSection";
 import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
@@ -162,7 +163,7 @@ export default function ArticleDetail() {
             type="button"
             onClick={handleToggleBookmark}
             disabled={!user}
-            className="p-2 rounded-full hover:bg-accent transition-colors"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >
             {isBookmarked ? (
@@ -171,6 +172,10 @@ export default function ArticleDetail() {
               <BookmarkCheck className="h-5 w-5 text-muted-foreground" />
             )}
           </button>
+          <ArchiveButton
+            articleId={article.id}
+            archivedAt={article.archived_at ?? null}
+          />
         </div>
 
         <div className="border-t border-border pt-6 mb-6">

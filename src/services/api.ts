@@ -146,7 +146,10 @@ export async function fetchProfiles() {
 
 // ===== Articles =====
 export async function fetchArticles(params: ArticlesQueryParams = {}) {
-  return apiFetch<ArticlesResponse>(`/api/articles${toQuery(params as Record<string, unknown>)}`);
+  const { archiveScope, ...rest } = params;
+  return apiFetch<ArticlesResponse>(
+    `/api/articles${toQuery({ ...rest, archive_scope: archiveScope })}`,
+  );
 }
 
 export async function fetchArticle(id: string, includeAudio = true) {
@@ -162,6 +165,17 @@ export async function updateArticle(id: string, patch: UpdateArticlePayload) {
     method: "PATCH",
     body: JSON.stringify(patch),
   });
+}
+
+// The backend returns a serialized DBArticle here, not the frontend Article
+// shape (no audio, no has_audio), and nothing consumes the response, so the
+// call is typed as void rather than lying about what comes back.
+export async function archiveArticle(id: string) {
+  return apiFetch<void>(`/api/articles/${id}/archive`, { method: "POST" });
+}
+
+export async function unarchiveArticle(id: string) {
+  return apiFetch<void>(`/api/articles/${id}/archive`, { method: "DELETE" });
 }
 
 export async function createArticleByLink(

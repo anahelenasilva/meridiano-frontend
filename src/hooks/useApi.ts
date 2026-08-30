@@ -1,5 +1,6 @@
 import {
   addBookmark,
+  archiveArticle,
   checkBookmark,
   createArticleByLink,
   createCategory,
@@ -28,6 +29,7 @@ import {
   renameCategory,
   saveNote,
   setChannelCategories,
+  unarchiveArticle,
   updateArticle,
   updateBriefingTitle,
   updateChannelEnabled,
@@ -50,6 +52,9 @@ import type {
   YouTubeTranscriptionsResponse
 } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { MESSAGES } from "@/constants/messages";
+import { getErrorMessage } from "@/utils/api-error";
+import { toast } from "@/utils/toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type UseQueryResult<T> = ReturnType<typeof useQuery<T, Error>>;
@@ -91,6 +96,62 @@ export function useUpdateArticle() {
     onSuccess: (_data, { id }) => {
       queryClient.invalidateQueries({ queryKey: ["article", id] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+    },
+  });
+}
+
+type ArchiveAction = "archive" | "unarchive";
+
+/**
+ * Archiving from a list removes the card immediately: dismissing an item and
+ * watching it sit there until a refetch lands defeats the point. setQueriesData
+ * covers every cached ["articles", params] entry, since the active and archived
+ * lists cache under different params. Bookmarks is invalidated because
+ * archiving also hides the article there.
+ *
+ * The optimistic update does not decrement the pagination total; the onSettled
+ * invalidation corrects it on the next fetch.
+ */
+export function useArchiveArticle() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: ArchiveAction }) =>
+      action === "archive" ? archiveArticle(id) : unarchiveArticle(id),
+    onMutate: async ({ id }) => {
+      await queryClient.cancelQueries({ queryKey: ["articles"] });
+
+      const previous = queryClient.getQueriesData<ArticlesResponse>({
+        queryKey: ["articles"],
+      });
+
+      queryClient.setQueriesData<ArticlesResponse>(
+        { queryKey: ["articles"] },
+        (old) =>
+          old
+            ? { ...old, articles: old.articles.filter((a) => a.id !== id) }
+            : old,
+      );
+
+      return { previous };
+    },
+    // Hook-level (as opposed to mutate-level) callbacks live on the mutation
+    // itself rather than its observer, so they still run even after the
+    // optimistic removal above has unmounted the button that called mutate.
+    onError: (error, { action }, context) => {
+      context?.previous.forEach(([key, data]) => {
+        queryClient.setQueryData(key, data);
+      });
+      toast.error(
+        `${action === "archive" ? MESSAGES.ERROR.ARTICLE_ARCHIVE : MESSAGES.ERROR.ARTICLE_UNARCHIVE} ${getErrorMessage(error)}`,
+      );
+    },
+    onSettled: (_data, _error, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["articles"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      // Partial key match: covers every ["article", id, includeAudio] cache
+      // entry regardless of the includeAudio flag it was fetched with.
+      queryClient.invalidateQueries({ queryKey: ["article", id] });
     },
   });
 }

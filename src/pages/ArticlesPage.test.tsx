@@ -1,11 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
+import { toast } from "@/utils/toast";
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({ user: null }),
+}));
+
+vi.mock("@/utils/toast", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 beforeEach(() => {
@@ -56,6 +61,7 @@ function article(overrides: Partial<{
     categories: [],
     audio: null,
     has_audio: false,
+    archived_at: null,
     ...overrides,
   };
 }
@@ -86,12 +92,12 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
   });
 }
 
-function renderPage() {
+function renderPage(archiveScope?: "active" | "archived") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>
-        <ArticlesPage />
+        <ArticlesPage archiveScope={archiveScope} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -222,5 +228,145 @@ describe("ArticlesPage audio badge", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("ArticlesPage archive view", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.mocked(toast.success).mockReset();
+    vi.mocked(toast.error).mockReset();
+  });
+
+  it("requests the active scope by default", async () => {
+    installFetchRoutes();
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    const listCall = fetchMock.mock.calls.find(
+      ([url]) => typeof url === "string" && url.includes("/api/articles?"),
+    );
+    expect(listCall?.[0]).not.toContain("archive_scope");
+  });
+
+  it("requests the archived scope and titles the page Archive", async () => {
+    installFetchRoutes();
+    renderPage("archived");
+
+    await waitFor(() => expect(screen.getByText("Archive")).toBeInTheDocument());
+
+    const listCall = fetchMock.mock.calls.find(
+      ([url]) => typeof url === "string" && url.includes("archive_scope=archived"),
+    );
+    expect(listCall).toBeDefined();
+    expect(screen.queryByRole("button", { name: /add article/i })).not.toBeInTheDocument();
+  });
+
+  it("removes the card immediately when an article is archived", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse(
+            articlesResponse([
+              article({ id: "art-1" }),
+              article({ id: "art-2", title: "Article Two" }),
+            ]),
+          ),
+        ),
+    });
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        return new Promise(() => {}); // never settles, so only the optimistic update is visible
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
+    expect(screen.getByText("Article Two")).toBeInTheDocument();
+  });
+
+  it("fires the success toast even though the optimistic update unmounts the button before the request settles", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse(
+            articlesResponse([
+              article({ id: "art-1" }),
+              article({ id: "art-2", title: "Article Two" }),
+            ]),
+          ),
+        ),
+    });
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        // A small real delay lets the optimistic removal (and the resulting
+        // ArchiveButton unmount) land before the request settles, the same
+        // race that dropped the mutate-level callbacks in production.
+        return new Promise((resolve) => setTimeout(() => resolve(jsonResponse({})), 20));
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    // The card is gone (ArchiveButton has unmounted) before the toast is
+    // asserted, matching how the mutate-level callbacks silently dropped
+    // once the observer lost its listener.
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
+
+    await waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("puts the card back when the archive request fails", async () => {
+    installFetchRoutes();
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
+      const method = (options.method || "GET").toUpperCase();
+      if (method === "POST" && url.includes("/archive")) {
+        // A small real delay separates the optimistic removal from the
+        // rollback into two observable renders; an instantly-resolved
+        // promise lets both land in the same tick, so the intermediate
+        // "removed" assertion below would never actually get to see it.
+        return new Promise((resolve) =>
+          setTimeout(() => resolve(jsonResponse({ message: "boom" }, false, 500)), 20),
+        );
+      }
+      if (method === "GET" && url.includes("/api/articles")) {
+        return Promise.resolve(jsonResponse(articlesResponse([article()])));
+      }
+      return Promise.resolve(jsonResponse({}));
+    });
+
+    fireEvent.click(screen.getAllByRole("button", { name: /^archive$/i })[0]);
+
+    // Prove the optimistic removal actually ran before asserting the rollback
+    // put the card back: without this, the test can't tell a real
+    // remove-then-restore cycle from optimistic removal never happening at all.
+    await waitFor(() =>
+      expect(screen.queryByText("Article One")).not.toBeInTheDocument(),
+    );
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
   });
 });

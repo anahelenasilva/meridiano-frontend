@@ -1,4 +1,5 @@
 import type { Article } from "@/types";
+import ArchiveButton from "@/components/ArchiveButton";
 import { AudioBadge } from "@/components/AudioBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { NoteEditor } from "@/components/NoteEditor";
@@ -14,6 +15,7 @@ interface ArticleCardProps {
   isBookmarked?: boolean;
   variant?: "feed" | "compact";
   audioState?: AudioBadgeState;
+  onArchived?: () => void;
 }
 
 export default function ArticleCard({
@@ -22,6 +24,7 @@ export default function ArticleCard({
   isBookmarked,
   variant = "feed",
   audioState = "none",
+  onArchived,
 }: ArticleCardProps) {
   const displayDate = article.published_date
     ? format(new Date(article.published_date), "MMM d, yyyy")
@@ -88,8 +91,8 @@ export default function ArticleCard({
                 <span className="text-primary/80">{displayCategory}</span>
               </>
             )}
-            {onToggleBookmark && (
-              <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
+              {onToggleBookmark && (
                 <button
                   className="p-1 hover:text-primary transition-colors"
                   onClick={(e) => {
@@ -103,8 +106,14 @@ export default function ArticleCard({
                     <Bookmark className="h-4 w-4" />
                   )}
                 </button>
-              </div>
-            )}
+              )}
+              <ArchiveButton
+                articleId={article.id}
+                archivedAt={article.archived_at ?? null}
+                size="sm"
+                onArchived={onArchived}
+              />
+            </div>
           </div>
           <NoteEditor
             sourceType="article"

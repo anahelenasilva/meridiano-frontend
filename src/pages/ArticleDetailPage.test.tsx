@@ -32,6 +32,7 @@ vi.mock('@/hooks/useApi', () => ({
   }),
   useArticles: () => ({ data: { articles: [] } }),
   useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
+  useArchiveArticle: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
 vi.mock('@/hooks/useAudioGeneration', () => ({
@@ -71,6 +72,7 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
         categories: [],
         audio: null,
         has_audio: false,
+        archived_at: null,
         note: {
           id: 'n1',
           content: 'Existing note',

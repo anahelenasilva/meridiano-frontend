@@ -126,6 +126,24 @@ export interface paths {
         patch: operations["ArticlesController_updateArticle"];
         trace?: never;
     };
+    "/api/articles/{id}/archive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Archive an article so it leaves every article view */
+        post: operations["ArticlesController_archiveArticle"];
+        /** Unarchive an article and return it to the article views */
+        delete: operations["ArticlesController_unarchiveArticle"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/articles/{id}/audio": {
         parameters: {
             query?: never;
@@ -549,9 +567,43 @@ export interface paths {
         /** List the authenticated user's YouTube transcriptions */
         get: operations["YoutubeTranscriptionsController_listTranscriptions"];
         put?: never;
-        /** Create a transcription for a YouTube video */
+        /** Queue one or more YouTube videos for transcription */
         post: operations["YoutubeTranscriptionsController_createTranscription"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/youtube/transcriptions/jobs/failed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List failed YouTube transcript ingest jobs */
+        get: operations["YoutubeTranscriptionsController_listFailedIngestJobs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/youtube/transcriptions/jobs/{jobId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Dismiss a failed ingest job */
+        delete: operations["YoutubeTranscriptionsController_dismissIngestJob"];
         options?: never;
         head?: never;
         patch?: never;
@@ -683,8 +735,7 @@ export interface components {
             channelId: string;
             customPrompt?: string;
             generateAudio?: boolean;
-            /** Format: uri */
-            url: string;
+            urls: string[];
         };
         CustomPromptsDto: {
             briefSynthesis?: string;
@@ -824,7 +875,10 @@ export type $defs = Record<string, never>;
 export interface operations {
     ArticlesController_listArticles: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Defaults to active. Use archived for the Archive view. */
+                archive_scope?: "active" | "archived" | "all";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -837,6 +891,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
             };
             /** @description Missing or invalid bearer token */
             401: {
@@ -1188,6 +1251,78 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ValidationErrorResponseDto"];
                 };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Article not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ArticlesController_archiveArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Article archived */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Article not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ArticlesController_unarchiveArticle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Article unarchived */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Missing or invalid bearer token */
             401: {
@@ -2223,8 +2358,8 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Transcription created */
-            201: {
+            /** @description Videos queued, with the skipped and rejected URLs reported */
+            202: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2247,6 +2382,69 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+        };
+    };
+    YoutubeTranscriptionsController_listFailedIngestJobs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Failed ingest jobs */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
+    YoutubeTranscriptionsController_dismissIngestJob: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jobId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Ingest job dismissed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Ingest job not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
