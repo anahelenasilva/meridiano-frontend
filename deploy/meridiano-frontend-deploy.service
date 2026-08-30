@@ -6,9 +6,10 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 ExecStart=/usr/local/bin/meridiano-frontend-deploy
-# A pnpm install plus a vite build on a Pi is slow. This only has to be
-# generous enough that a real build never trips it.
-TimeoutStartSec=900
+# A pnpm install plus a vite build on a Pi is slow, and a failed health check
+# triggers a second full install and build for the rollback. This has to be
+# generous enough that both attempts together never trip it.
+TimeoutStartSec=1800
 
 # The script's defaults already match this Pi. Override here if any of the
 # paths, the app user, or the service name ever change.

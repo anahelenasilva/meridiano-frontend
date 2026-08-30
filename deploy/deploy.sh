@@ -68,7 +68,7 @@ rollback_to() {
   local old="$1"
   log "ROLLBACK: rebuilding ${old:0:12}"
   if checkout_and_build "$old"; then
-    systemctl restart "$SERVICE"
+    systemctl restart "$SERVICE" || true
     if wait_for_health; then
       log "ROLLBACK succeeded, running ${old:0:12}"
       return 0
@@ -110,7 +110,7 @@ main() {
   # vite preview keeps serving the old dist/ from disk through the build. Only
   # the restart below is downtime. See the dist-rewrite note in deploy/README.md.
   if checkout_and_build "$new"; then
-    systemctl restart "$SERVICE"
+    systemctl restart "$SERVICE" || true
     if wait_for_health; then
       rm -f "$FAILED_FILE"
       log "deploy healthy on ${new:0:12}"
