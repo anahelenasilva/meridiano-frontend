@@ -36,6 +36,7 @@ import {
   uploadArticleMarkdown,
 } from "@/services/api";
 import type {
+  Article,
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
@@ -83,19 +84,83 @@ export function useDeleteArticle() {
     mutationFn: (id: string) => deleteArticle(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+      // The bookmarks list embeds the article, so a delete has to drop out of
+      // it too; without this the removed article lingers there until staleTime
+      // expires.
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }
 
+/**
+ * Fold an UpdateArticlePayload (camelCase write model) onto a cached Article
+ * (snake_case read model). Only the keys present in the patch are applied.
+ */
+function applyArticlePatch(article: Article, patch: UpdateArticlePayload): Article {
+  const next = { ...article };
+  if (patch.title !== undefined) next.title = patch.title;
+  if (patch.publishedDate !== undefined) next.published_date = patch.publishedDate;
+  if (patch.feedSource !== undefined) next.feed_source = patch.feedSource;
+  if (patch.feedProfile !== undefined) next.feed_profile = patch.feedProfile;
+  if (patch.categories !== undefined) next.categories = patch.categories;
+  return next;
+}
+
+/**
+ * An edit has to land in every cached view of the article, not just the one
+ * that was open: the detail page, the article lists, and the bookmarks list,
+ * which embeds a full Article per bookmark. Writing the patch into the cache
+ * synchronously (the useSaveNote pattern) makes the change visible immediately
+ * instead of after a refetch; the invalidations that follow keep the server
+ * authoritative. The mutation response is deliberately not used as the source
+ * of truth: the backend returns a bare DBArticle, not the frontend shape.
+ */
 export function useUpdateArticle() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, patch }: { id: string; patch: UpdateArticlePayload }) =>
       updateArticle(id, patch),
-    onSuccess: (_data, { id }) => {
+    onSuccess: (_data, { id, patch }) => {
+      queryClient.setQueriesData<ArticleDetailResponse>(
+        { queryKey: ["article", id] },
+        (old) =>
+          old ? { ...old, article: applyArticlePatch(old.article, patch) } : old,
+      );
+      queryClient.setQueriesData<ArticlesResponse>(
+        { queryKey: ["articles"] },
+        (old) => {
+          if (!old || !old.articles.some((a) => a.id === id)) {
+            return old;
+          }
+          return {
+            ...old,
+            articles: old.articles.map((a) =>
+              a.id === id ? applyArticlePatch(a, patch) : a,
+            ),
+          };
+        },
+      );
+      queryClient.setQueriesData<BookmarksResponse>(
+        { queryKey: ["bookmarks"] },
+        (old) => {
+          if (!old || !old.bookmarks.some((bookmark) => bookmark.article.id === id)) {
+            return old;
+          }
+          return {
+            ...old,
+            bookmarks: old.bookmarks.map((bookmark) =>
+              bookmark.article.id === id
+                ? { ...bookmark, article: applyArticlePatch(bookmark.article, patch) }
+                : bookmark,
+            ),
+          };
+        },
+      );
+
       queryClient.invalidateQueries({ queryKey: ["article", id] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }
