@@ -309,30 +309,38 @@ export default function CustomBriefingPage() {
                             : "Last 3m"}
                     </Badge>
                   ))}
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      setDatePreset(null);
-                      setPage(1);
-                    }}
-                    className="w-40 bg-background"
-                  />
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => {
-                      setEndDate(e.target.value);
-                      setDatePreset(null);
-                      setPage(1);
-                    }}
-                    className="w-40 bg-background"
-                  />
+                  <div className="flex flex-col gap-3 w-full sm:flex-row sm:w-auto">
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">From</span>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => {
+                          setStartDate(e.target.value);
+                          setDatePreset(null);
+                          setPage(1);
+                        }}
+                        className="flex-1 bg-background sm:w-40 sm:flex-none"
+                      />
+                    </label>
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">To</span>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => {
+                          setEndDate(e.target.value);
+                          setDatePreset(null);
+                          setPage(1);
+                        }}
+                        className="flex-1 bg-background sm:w-40 sm:flex-none"
+                      />
+                    </label>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-3 items-center">
-                  <span className="text-sm text-muted-foreground">Sort by:</span>
+                <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
+                  <span className="col-span-2 whitespace-nowrap text-sm text-muted-foreground sm:col-span-1">Sort by:</span>
                   <Select
                     value={sortBy}
                     onValueChange={(v) => {
@@ -340,7 +348,7 @@ export default function CustomBriefingPage() {
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-36 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -356,7 +364,7 @@ export default function CustomBriefingPage() {
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-36 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

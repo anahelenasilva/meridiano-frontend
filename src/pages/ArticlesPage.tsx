@@ -223,8 +223,8 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="p-4 pt-0 space-y-4">
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <div className="relative flex-1 min-w-0">
                     <Search className="absolute top-1/2 left-3 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       placeholder="Search articles..."
@@ -243,7 +243,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-44 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-44">
                       <SelectValue placeholder="All Profiles" />
                     </SelectTrigger>
                     <SelectContent>
@@ -262,7 +262,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-44 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-44">
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
@@ -281,7 +281,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-56 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-56">
                       <SelectValue placeholder="All Sources" />
                     </SelectTrigger>
                     <SelectContent>
@@ -318,30 +318,38 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                             : "Last 3m"}
                     </Badge>
                   ))}
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => {
-                      setStartDate(e.target.value);
-                      setDatePreset(null);
-                      setPage(1);
-                    }}
-                    className="w-40 bg-background"
-                  />
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => {
-                      setEndDate(e.target.value);
-                      setDatePreset(null);
-                      setPage(1);
-                    }}
-                    className="w-40 bg-background"
-                  />
+                  <div className="flex flex-col gap-3 w-full sm:flex-row sm:w-auto">
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">From</span>
+                      <Input
+                        type="date"
+                        value={startDate}
+                        onChange={(e) => {
+                          setStartDate(e.target.value);
+                          setDatePreset(null);
+                          setPage(1);
+                        }}
+                        className="flex-1 bg-background sm:w-40 sm:flex-none"
+                      />
+                    </label>
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">To</span>
+                      <Input
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => {
+                          setEndDate(e.target.value);
+                          setDatePreset(null);
+                          setPage(1);
+                        }}
+                        className="flex-1 bg-background sm:w-40 sm:flex-none"
+                      />
+                    </label>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 items-center">
-                  <span className="text-sm text-muted-foreground">Sort by:</span>
+                <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
+                  <span className="col-span-2 whitespace-nowrap text-sm text-muted-foreground sm:col-span-1">Sort by:</span>
                   <Select
                     value={sortBy}
                     onValueChange={(v) => {
@@ -349,7 +357,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-36 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -365,7 +373,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                       setPage(1);
                     }}
                   >
-                    <SelectTrigger className="w-36 bg-background">
+                    <SelectTrigger className="w-full bg-background sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

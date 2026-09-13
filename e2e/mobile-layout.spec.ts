@@ -131,5 +131,17 @@ for (const viewport of MOBILE_VIEWPORTS) {
         await assertNoHorizontalOverflow(page);
       });
     });
+
+    test.describe("Articles filters", () => {
+      test.use({ storageState: "e2e/.auth/user.json" });
+
+      test("expanded filters fit without horizontal overflow", async ({ page }) => {
+        await page.goto("/articles");
+        await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
+        await page.getByRole("button", { name: "Filters" }).click();
+        await expect(page.getByPlaceholder("Search articles...")).toBeVisible();
+        await assertNoHorizontalOverflow(page);
+      });
+    });
   });
 }
