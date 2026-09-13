@@ -160,8 +160,12 @@ export async function deleteArticle(id: string) {
   return apiFetch<{ success: boolean }>(`/api/articles/${id}`, { method: "DELETE" });
 }
 
+// The backend returns a serialized DBArticle here (and the OpenAPI spec
+// declares no response body at all), not the frontend Article shape, so the
+// call is typed as void rather than lying about what comes back. Callers
+// update their caches from the patch they sent.
 export async function updateArticle(id: string, patch: UpdateArticlePayload) {
-  return apiFetch<ArticleDetailResponse>(`/api/articles/${id}`, {
+  return apiFetch<void>(`/api/articles/${id}`, {
     method: "PATCH",
     body: JSON.stringify(patch),
   });

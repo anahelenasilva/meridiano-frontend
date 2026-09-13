@@ -36,6 +36,7 @@ import {
   uploadArticleMarkdown,
 } from "@/services/api";
 import type {
+  Article,
   ArticleDetailResponse,
   ArticlesQueryParams,
   ArticlesResponse,
@@ -83,19 +84,74 @@ export function useDeleteArticle() {
     mutationFn: (id: string) => deleteArticle(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+      // The bookmarks list embeds the article, so a delete has to drop out of
+      // it too; without this the removed article lingers there until staleTime
+      // expires.
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }
 
+/**
+ * Fold an UpdateArticlePayload (camelCase write model) onto a cached Article
+ * (snake_case read model). Only the keys present in the patch are applied.
+ * publishedDate is skipped: the form sends a bare yyyy-MM-dd, which
+ * `new Date()` reads as UTC midnight and renders a day early west of UTC, so
+ * the date waits for the refetch to bring the server's value.
+ */
+function applyArticlePatch(article: Article, patch: UpdateArticlePayload): Article {
+  const next = { ...article };
+  if (patch.title !== undefined) next.title = patch.title;
+  if (patch.feedSource !== undefined) next.feed_source = patch.feedSource;
+  if (patch.feedProfile !== undefined) next.feed_profile = patch.feedProfile;
+  if (patch.categories !== undefined) next.categories = patch.categories;
+  return next;
+}
+
+/**
+ * An edit has to land in every cached view of the article, not just the one
+ * that was open: the detail page and the bookmarks list, which embeds a full
+ * Article per bookmark. Writing the patch into those caches synchronously (the
+ * useSaveNote pattern) makes the change visible immediately instead of after a
+ * refetch; the invalidations that follow keep the server authoritative.
+ * Article lists are only invalidated, not patched: they are filtered and
+ * sorted by the very fields an edit changes, so patching in place would leave
+ * a non-matching article in a filtered list. The mutation response is
+ * deliberately not used as the source of truth: the backend returns a bare
+ * DBArticle, not the frontend shape.
+ */
 export function useUpdateArticle() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, patch }: { id: string; patch: UpdateArticlePayload }) =>
       updateArticle(id, patch),
-    onSuccess: (_data, { id }) => {
+    onSuccess: (_data, { id, patch }) => {
+      queryClient.setQueriesData<ArticleDetailResponse>(
+        { queryKey: ["article", id] },
+        (old) =>
+          old ? { ...old, article: applyArticlePatch(old.article, patch) } : old,
+      );
+      queryClient.setQueriesData<BookmarksResponse>(
+        { queryKey: ["bookmarks"] },
+        (old) => {
+          if (!old || !old.bookmarks.some((bookmark) => bookmark.article.id === id)) {
+            return old;
+          }
+          return {
+            ...old,
+            bookmarks: old.bookmarks.map((bookmark) =>
+              bookmark.article.id === id
+                ? { ...bookmark, article: applyArticlePatch(bookmark.article, patch) }
+                : bookmark,
+            ),
+          };
+        },
+      );
+
       queryClient.invalidateQueries({ queryKey: ["article", id] });
       queryClient.invalidateQueries({ queryKey: ["articles"] });
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
     },
   });
 }
