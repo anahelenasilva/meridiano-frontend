@@ -7,6 +7,7 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: ["anaspi.local", "anaspi.tail53ca3a.ts.net"],
     hmr: {
       overlay: false,
     },
