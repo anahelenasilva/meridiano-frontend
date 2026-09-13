@@ -7,6 +7,9 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    // Comma-separated hostnames, set on the Pi's systemd unit so the tailnet
+    // name stays out of this public repo. preview.allowedHosts inherits this.
+    allowedHosts: process.env.ALLOWED_HOSTS?.split(","),
     hmr: {
       overlay: false,
     },
