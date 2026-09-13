@@ -319,8 +319,8 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                     </Badge>
                   ))}
                   <div className="flex flex-col gap-3 w-full sm:flex-row sm:w-auto">
-                    <label className="flex gap-2 items-center text-sm text-muted-foreground">
-                      <span className="w-10 sm:w-auto">From</span>
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">From</span>
                       <Input
                         type="date"
                         value={startDate}
@@ -332,8 +332,8 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                         className="flex-1 bg-background sm:w-40 sm:flex-none"
                       />
                     </label>
-                    <label className="flex gap-2 items-center text-sm text-muted-foreground">
-                      <span className="w-10 sm:w-auto">To</span>
+                    <label className="flex gap-2 items-center text-sm">
+                      <span className="w-10 text-muted-foreground sm:w-auto">To</span>
                       <Input
                         type="date"
                         value={endDate}
