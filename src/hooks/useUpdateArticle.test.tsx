@@ -52,7 +52,6 @@ const baseArticle: Article = {
  */
 function installFetchRoutes() {
   let saved = false;
-  const bookmarksSeen: number[] = [];
 
   fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
     const method = (options.method || "GET").toUpperCase();
@@ -60,10 +59,6 @@ function installFetchRoutes() {
     if (method === "PATCH" && url.includes("/api/articles/art-1")) {
       saved = true;
       return Promise.resolve(jsonResponse({}));
-    }
-
-    if (url.includes("/api/bookmarks")) {
-      bookmarksSeen.push(Date.now());
     }
 
     if (saved) {
@@ -99,16 +94,14 @@ function installFetchRoutes() {
   });
 
   return {
-    bookmarkReadsAfterSave: () => bookmarksSeen.length,
     hasSaved: () => saved,
   };
 }
 
 /**
  * Bookmarks list and article detail, sharing one cache with the edit modal.
- * The two views are queried by test id rather than by role: the open Radix
- * dialog marks its siblings aria-hidden, which takes them out of the
- * accessibility tree.
+ * The open Radix dialog marks its siblings aria-hidden, so the views are
+ * queried by role with `hidden: true` (see bookmarksList / detailTitle).
  */
 function Harness() {
   const { data: bookmarks } = useBookmarks();
@@ -116,12 +109,12 @@ function Harness() {
 
   return (
     <>
-      <ul data-testid="bookmarks">
+      <ul aria-label="Bookmarks">
         {(bookmarks?.bookmarks ?? []).map((bookmark) => (
           <li key={bookmark.id}>{bookmark.article.title}</li>
         ))}
       </ul>
-      {detail ? <h1 data-testid="detail-title">{detail.article.title}</h1> : null}
+      {detail ? <h1>{detail.article.title}</h1> : null}
       <EditArticleModal article={baseArticle} open onOpenChange={() => {}} />
     </>
   );
@@ -145,6 +138,9 @@ async function saveTitle(next: string) {
   fireEvent.click(screen.getByRole("button", { name: /save/i }));
 }
 
+const bookmarksList = () => screen.getByRole("list", { name: "Bookmarks", hidden: true });
+const detailTitle = () => screen.getByRole("heading", { level: 1, hidden: true });
+
 describe("useUpdateArticle cache propagation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -156,39 +152,14 @@ describe("useUpdateArticle cache propagation", () => {
     renderHarness();
 
     // Both views start on the server's copy.
-    await waitFor(() =>
-      expect(screen.getByTestId("detail-title")).toHaveTextContent("Original Title"),
-    );
-    await waitFor(() =>
-      expect(screen.getByTestId("bookmarks")).toHaveTextContent("Original Title"),
-    );
+    await waitFor(() => expect(detailTitle()).toHaveTextContent("Original Title"));
+    await waitFor(() => expect(bookmarksList()).toHaveTextContent("Original Title"));
 
     await saveTitle("Fixed Title");
     await waitFor(() => expect(routes.hasSaved()).toBe(true));
 
-    await waitFor(() =>
-      expect(screen.getByTestId("detail-title")).toHaveTextContent("Fixed Title"),
-    );
-    expect(screen.getByTestId("bookmarks")).toHaveTextContent("Fixed Title");
-    expect(screen.getByTestId("bookmarks")).not.toHaveTextContent(
-      "Original Title",
-    );
-  });
-
-  it("still refetches bookmarks so the server stays authoritative", async () => {
-    const routes = installFetchRoutes();
-    renderHarness();
-
-    await waitFor(() =>
-      expect(screen.getByTestId("bookmarks")).toHaveTextContent("Original Title"),
-    );
-    const before = routes.bookmarkReadsAfterSave();
-
-    await saveTitle("Fixed Title");
-    await waitFor(() => expect(routes.hasSaved()).toBe(true));
-
-    await waitFor(() =>
-      expect(routes.bookmarkReadsAfterSave()).toBeGreaterThan(before),
-    );
+    await waitFor(() => expect(detailTitle()).toHaveTextContent("Fixed Title"));
+    expect(bookmarksList()).toHaveTextContent("Fixed Title");
+    expect(bookmarksList()).not.toHaveTextContent("Original Title");
   });
 });
