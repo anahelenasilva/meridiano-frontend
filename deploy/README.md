@@ -63,6 +63,28 @@ Nothing else needs configuring. The script's defaults already match this Pi: the
 checkout at `/home/anahelena/dev/meridiano-frontend`, the `anahelena` user,
 `meridiano-frontend.service`, and port 8080.
 
+## Hostnames
+
+Vite answers 403 to any hostname it doesn't know. IPs and localhost always
+work. To reach the app by name, list the names in `ALLOWED_HOSTS` on the app
+unit. The tailnet name lives there instead of in `vite.config.ts` because this
+repo is public.
+
+```sh
+sudo systemctl edit meridiano-frontend
+```
+
+Add this in the editor, save, then restart:
+
+```ini
+[Service]
+Environment=ALLOWED_HOSTS=anaspi.local,anaspi.<tailnet>.ts.net
+```
+
+```sh
+sudo systemctl restart meridiano-frontend
+```
+
 ## Day to day
 
 Watch a deploy:
