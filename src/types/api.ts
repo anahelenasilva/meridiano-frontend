@@ -609,6 +609,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/youtube/transcriptions/lean": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List YouTube transcriptions with a lean field set for CLI listings (per-user notes attach only for a JWT user) */
+        get: operations["YoutubeTranscriptionsController_listTranscriptionsLean"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/youtube/transcriptions/{id}": {
         parameters: {
             query?: never;
@@ -703,7 +720,7 @@ export interface components {
         CreateArticleDto: {
             customPrompt?: string;
             /** @enum {string} */
-            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
             generateAudio?: boolean;
             /** Format: uri */
             url: string;
@@ -744,7 +761,7 @@ export interface components {
         ExternalCreateArticleDto: {
             customPrompt?: string;
             /** @enum {string} */
-            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
             generateAudio?: boolean;
             metadata?: components["schemas"]["ExternalSubmissionMetadataDto"];
             source?: string;
@@ -760,7 +777,7 @@ export interface components {
         GenerateBriefInputDto: {
             customPrompts?: components["schemas"]["CustomPromptsDto"];
             /** @enum {string} */
-            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
         };
         GenerateUploadUrlDto: {
             articleFileName: string;
@@ -792,7 +809,7 @@ export interface components {
         ProcessMarkdownArticleDto: {
             customPrompt?: string;
             /** @enum {string} */
-            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
             generateAudio?: boolean;
             s3Bucket?: string;
             s3Key: string;
@@ -822,7 +839,7 @@ export interface components {
         UpdateArticleDto: {
             categories?: ("news" | "blog" | "research" | "nodejs" | "typescript" | "tutorial" | "other")[];
             /** @enum {string} */
-            feedProfile?: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas";
+            feedProfile?: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
             feedSource?: string;
             /** Format: date-time */
             publishedDate?: string;
@@ -2448,6 +2465,48 @@ export interface operations {
             };
         };
     };
+    YoutubeTranscriptionsController_listTranscriptionsLean: {
+        parameters: {
+            query?: {
+                page?: number;
+                perPage?: number;
+                channelId?: string;
+                startDate?: string;
+                endDate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated lean list of YouTube transcriptions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
     YoutubeTranscriptionsController_getTranscription: {
         parameters: {
             query?: {
@@ -2512,6 +2571,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+            /** @description YouTube transcription not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
