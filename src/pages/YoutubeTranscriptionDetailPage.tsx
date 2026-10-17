@@ -50,7 +50,7 @@ export default function YoutubeTranscriptionDetailPage() {
           href={video.videoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 w-full sm:w-72 aspect-video relative bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden group"
+          className="shrink-0 w-full sm:w-72 aspect-video relative bg-gray-100 dark:bg-gray-900 rounded-md overflow-hidden group"
         >
           <YoutubeThumbnail
             videoUrl={video.videoUrl}
