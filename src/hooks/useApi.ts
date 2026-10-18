@@ -52,7 +52,6 @@ import type {
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
 } from "@/types";
-import { useAuth } from "@/contexts/AuthContext";
 import { MESSAGES } from "@/constants/messages";
 import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
@@ -267,12 +266,9 @@ export function useAudioLibrary({
   page = 1,
   perPage = 20,
 }: { page?: number; perPage?: number } = {}): UseQueryResult<AudioLibraryResponse> {
-  const { user } = useAuth();
-
   return useQuery<AudioLibraryResponse, Error>({
     queryKey: ["audio-library", page, perPage],
     queryFn: () => fetchAudioLibrary(page, perPage),
-    enabled: Boolean(user),
   });
 }
 
@@ -290,26 +286,21 @@ export function useBookmarks(
   page = 1,
   perPage = 20,
 ): UseQueryResult<BookmarksResponse> {
-  const { user } = useAuth();
-
   return useQuery<BookmarksResponse, Error>({
     queryKey: ["bookmarks", page, perPage],
     queryFn: () => fetchBookmarks(page, perPage),
-    enabled: Boolean(user),
   });
 }
 
 export function useBookmarkCheck(
   articleId: string | undefined,
 ): UseQueryResult<{ bookmarked: boolean }> {
-  const { user } = useAuth();
-
   return useQuery<{ bookmarked: boolean }, Error>({
     queryKey: ["bookmark-check", articleId],
     queryFn: () => {
       return checkBookmark(articleId as string);
     },
-    enabled: Boolean(articleId) && Boolean(user),
+    enabled: Boolean(articleId),
   });
 }
 

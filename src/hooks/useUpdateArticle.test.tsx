@@ -5,10 +5,6 @@ import EditArticleModal from "@/components/EditArticleModal";
 import { useArticle, useBookmarks } from "@/hooks/useApi";
 import type { Article } from "@/types";
 
-vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: { id: "user-1" } }),
-}));
-
 vi.mock("@/utils/toast", () => ({
   toast: { success: vi.fn(), error: vi.fn(), info: vi.fn(), warning: vi.fn() },
 }));

@@ -6,14 +6,19 @@ import App from "@/App";
 import Layout from "@/components/Layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
-// isAuthenticated: true so App renders its Routes immediately instead of
-// LoginPage; AuthProvider is a passthrough since App wraps AppContent in it.
+// Authenticated by default so App renders its Routes instead of LoginPage;
+// the gate test flips it. AuthProvider is a passthrough since App wraps
+// AppContent in it.
+const auth = vi.hoisted(() => ({ isAuthenticated: true }));
+const mockUser = { id: "u1", email: "a@example.com", username: "a" };
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
-    user: { id: "u1", email: "a@example.com", username: "a" },
-    isAuthenticated: true,
+    user: auth.isAuthenticated ? mockUser : null,
+    isAuthenticated: auth.isAuthenticated,
+    login: vi.fn(),
     logout: vi.fn(),
   }),
+  useUser: () => mockUser,
   AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
@@ -26,6 +31,7 @@ const emptyList = {
 };
 
 beforeEach(() => {
+  auth.isAuthenticated = true;
   Element.prototype.scrollIntoView = vi.fn();
   Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
   vi.stubGlobal(
@@ -125,5 +131,17 @@ describe("archive navigation", () => {
         ([url]) => typeof url === "string" && url.includes("archive_scope=archived"),
       ),
     ).toBe(true);
+  });
+});
+
+describe("auth gate", () => {
+  it("shows the login form at the requested URL when logged out", () => {
+    auth.isAuthenticated = false;
+    window.history.pushState({}, "", "/articles/abc");
+
+    render(<App />);
+
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/articles/abc");
   });
 });

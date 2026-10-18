@@ -5,10 +5,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
 import { toast } from "@/utils/toast";
 
-vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: null }),
-}));
-
 vi.mock("@/utils/toast", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));

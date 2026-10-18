@@ -4,19 +4,14 @@ import { ApiError, getErrorMessage } from '@/utils/api-error';
 import { toast } from '@/utils/toast';
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-interface LoginPageProps {
-  onLogin: () => void;
-  redirectTo?: string;
-}
-
-export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps) {
+// Rendered by App's auth gate in place of the routes. A successful login flips
+// isAuthenticated and App swaps in the routes at the current URL.
+export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +20,6 @@ export default function LoginPage({ onLogin, redirectTo = '/' }: LoginPageProps)
     try {
       await login(username, password);
       toast.success(MESSAGES.SUCCESS.LOGGED_IN);
-      onLogin();
-      navigate(redirectTo);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 

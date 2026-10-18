@@ -4,7 +4,6 @@ import ArticleFilters from "@/components/ArticleFilters";
 import LatestBriefings from "@/components/LatestBriefings";
 import PageNav from "@/components/PageNav";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   useArchiveArticle,
   useArticles,
@@ -29,7 +28,6 @@ interface ArticlesPageProps {
 
 export default function ArticlesPage({ archiveScope = "active" }: ArticlesPageProps) {
   const isArchiveView = archiveScope === "archived";
-  const { user } = useAuth();
   const { query, setPage } = useArticleFilters();
   const [showAddModal, setShowAddModal] = useState(false);
 
@@ -87,9 +85,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   );
 
   const handleToggleBookmark = (articleId: string) => {
-    if (!user) {
-      return;
-    }
     if (bookmarkedIds.has(articleId)) {
       remove.mutate(articleId);
     } else {

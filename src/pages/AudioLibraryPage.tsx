@@ -1,6 +1,5 @@
 import AudioPlayer from "@/components/AudioPlayer";
 import PageNav from "@/components/PageNav";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAudioLibrary } from "@/hooks/useApi";
 import type { AudioData, AudioLibraryItem } from "@/types";
 import { format } from "date-fns";
@@ -25,18 +24,8 @@ function sourceHref(item: AudioLibraryItem): string {
 }
 
 export default function AudioLibraryPage() {
-  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const { data, isLoading, error } = useAudioLibrary({ page, perPage: 20 });
-
-  if (!user) {
-    return (
-      <div className="py-6 px-4 mx-auto max-w-4xl">
-        <h1 className="mb-1 font-serif text-2xl font-bold">Audio Library</h1>
-        <p className="text-sm text-muted-foreground">Please log in to view your Audio Library.</p>
-      </div>
-    );
-  }
 
   if (error) {
     return (

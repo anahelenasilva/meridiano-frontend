@@ -5,12 +5,6 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AudioLibraryPage from "./AudioLibraryPage";
 
-let mockUser: { id: string } | null = { id: "u1" };
-
-vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: mockUser }),
-}));
-
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
 
@@ -87,7 +81,6 @@ function renderPage() {
 describe("AudioLibraryPage", () => {
   beforeEach(() => {
     fetchMock.mockReset();
-    mockUser = { id: "u1" };
   });
 
   it("renders each item's title, source label, and formatted date", async () => {
@@ -175,14 +168,5 @@ describe("AudioLibraryPage", () => {
     await waitFor(() =>
       expect(screen.getByText("You have no Audio Summaries yet.")).toBeInTheDocument(),
     );
-  });
-
-  it("shows a login prompt and does not call GET /api/audio when logged out", async () => {
-    mockUser = null;
-    installFetchRoutes();
-    renderPage();
-
-    expect(screen.getByText(/please log in/i)).toBeInTheDocument();
-    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/api/audio"))).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
 import { NavLink } from "@/components/NavLink";
 import { MESSAGES } from "@/constants/messages";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, useUser } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "@/utils/toast";
 import {
@@ -58,7 +58,8 @@ function CollapsibleSidebar() {
   const { pinned, setPinned } = useContext(SidebarContext);
   const [hovered, setHovered] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
+  const user = useUser();
   const navigate = useNavigate();
 
   const expanded = pinned || hovered;
@@ -78,7 +79,7 @@ function CollapsibleSidebar() {
   const handleLogout = () => {
     logout();
     toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -140,7 +141,7 @@ function CollapsibleSidebar() {
           <div className={cn("flex", expanded ? "justify-start" : "justify-center")}>
             <ThemeToggle />
           </div>
-          {isAuthenticated && user && expanded && (
+          {expanded && (
             <div className="rounded-md border border-border bg-card p-3 space-y-2">
               <p className="text-xs text-muted-foreground truncate">
                 {user.username || user.email}
@@ -163,7 +164,7 @@ function CollapsibleSidebar() {
               </div>
             </div>
           )}
-          {isAuthenticated && user && !expanded && (
+          {!expanded && (
             <div className="flex justify-center" title={user.username || user.email}>
               <User className="h-5 w-5 text-muted-foreground" />
             </div>
@@ -198,14 +199,15 @@ function CollapsibleSidebar() {
 
 function MobileHeader() {
   const [open, setOpen] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { logout } = useAuth();
+  const user = useUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     setOpen(false);
     toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -245,7 +247,7 @@ function MobileHeader() {
           <div className="border-t border-border mt-2 pt-2 px-2">
             <ThemeToggle />
           </div>
-          {isAuthenticated && user && (
+          {(
             <div className="mt-2 space-y-1">
               <p className="px-4 py-2 text-xs text-muted-foreground truncate">
                 {user.username || user.email}
