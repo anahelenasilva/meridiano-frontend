@@ -31,15 +31,15 @@
     --muted: 30 5% 94%;
     --muted-foreground: 30 3% 40%;
 
-    --accent: 30 5% 92%;
-    --accent-foreground: 30 5% 20%;
+    --accent: var(--secondary);
+    --accent-foreground: var(--secondary-foreground);
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 30 5% 88%;
     --input: 30 5% 88%;
-    --ring: 24 90% 38%;
+    --ring: var(--primary);
 
     --radius: 0.5rem;
 
@@ -72,15 +72,15 @@
     --muted: 30 4% 14%;
     --muted-foreground: 30 3% 55%;
 
-    --accent: 30 4% 14%;
-    --accent-foreground: 30 5% 80%;
+    --accent: var(--secondary);
+    --accent-foreground: var(--secondary-foreground);
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 30 4% 16%;
     --input: 30 4% 16%;
-    --ring: 24 90% 55%;
+    --ring: var(--primary);
 
     --sidebar-background: 30 5% 5%;
     --sidebar-foreground: 30 5% 80%;
