@@ -105,4 +105,10 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
     expect(screen.getByRole('heading', { name: /note/i })).toBeInTheDocument();
     expect(screen.getByDisplayValue('Existing note')).toBeInTheDocument();
   });
+
+  it('hides the AI Summary until the article is processed', () => {
+    mockArticleData.article.processed_content_html = null;
+    renderWithProviders();
+    expect(screen.queryByRole('heading', { name: /ai summary/i })).not.toBeInTheDocument();
+  });
 });
