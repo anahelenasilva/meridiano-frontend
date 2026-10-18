@@ -7,6 +7,7 @@ import { getBriefingCustomTitle, getBriefingTitle, isCustomBriefing } from "@/ut
 import { format } from "date-fns";
 import { ArrowLeft, Calendar, Check, Loader2, Pencil, Tag, X } from "lucide-react";
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { Link, useLocation, useParams } from "react-router-dom";
 
 export default function BriefingDetailPage() {
@@ -164,8 +165,8 @@ export default function BriefingDetailPage() {
         <h2 className="font-serif text-2xl font-semibold text-primary mb-4">
           Executive Summary
         </h2>
-        <div className="text-foreground/90 leading-[1.8] text-[17px] whitespace-pre-line">
-          {briefing.brief_markdown ?? ""}
+        <div className="prose prose-lg">
+          <ReactMarkdown>{briefing.brief_markdown}</ReactMarkdown>
         </div>
       </Card>
     </div>
