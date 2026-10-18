@@ -11,11 +11,8 @@ export default defineConfig([
   reactRefresh.configs.vite(),
   {
     rules: {
-      // Warnings, not errors, until the flagged effects are reworked: the
-      // React Compiler rules landed with react-hooks 7 and 12 existing
-      // sites trip them (AuthContext, ThemeContext, CustomBriefingPage,
-      // ArticleDetailPage, EditArticleModal, EditChannelCategoriesModal,
-      // NoteEditor, and the unused ui/carousel and ui/sidebar).
+      // Warn until the existing effects these React Compiler rules flag
+      // are rewritten, then promote each back to error.
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/purity": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
