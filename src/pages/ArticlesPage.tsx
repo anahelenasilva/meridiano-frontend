@@ -1,51 +1,28 @@
 import AddArticleModal from "@/components/AddArticleModal";
 import ArticleCard from "@/components/ArticleCard";
+import ArticleFilters from "@/components/ArticleFilters";
 import { BackButton } from "@/components/BackButton";
 import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
 import { PageHeader } from "@/components/PageHeader";
-import { Badge } from "@/components/ui/badge";
+import PageNav from "@/components/PageNav";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   useArchiveArticle,
   useArticles,
   useAudioJobs,
   useBookmarks,
   useBriefings,
-  useProfiles,
   useToggleBookmark,
 } from "@/hooks/useApi";
+import { useArticleFilters } from "@/hooks/useArticleFilters";
 import type { ArchiveScope } from "@/types";
 import { MESSAGES } from "@/constants/messages";
 import { toast } from "@/utils/toast";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
-import { format, subDays, subMonths, subWeeks } from "date-fns";
-import { Archive, Calendar, ChevronDown, FileText, Loader2, Plus, Search } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-
-type DatePreset = "yesterday" | "week" | "30d" | "3m" | null;
+import { Archive, FileText, Loader2, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 
 interface ArticlesPageProps {
   // The Archive view is this same page with a different scope. Reusing it means
@@ -55,41 +32,14 @@ interface ArticlesPageProps {
 
 export default function ArticlesPage({ archiveScope = "active" }: ArticlesPageProps) {
   const isArchiveView = archiveScope === "archived";
-  const [searchParams] = useSearchParams();
-  const feedProfileFromUrl = searchParams.get("feedProfile");
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [feedSource, setFeedSource] = useState("all");
-  const [feedProfile, setFeedProfile] = useState(
-    feedProfileFromUrl ?? "all",
-  );
-
-  useEffect(() => {
-    if (feedProfileFromUrl) setFeedProfile(feedProfileFromUrl);
-  }, [feedProfileFromUrl]);
-  const [sortBy, setSortBy] = useState("published_date");
-  const [direction, setDirection] = useState<"asc" | "desc">("desc");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [datePreset, setDatePreset] = useState<DatePreset>(null);
-  const [page, setPage] = useState(1);
+  const { query, setPage } = useArticleFilters();
   const [showAddModal, setShowAddModal] = useState(false);
 
   const { data, isLoading, error } = useArticles({
-    searchTerm: search || undefined,
-    category: category !== "all" ? category : undefined,
-    feedProfile: feedProfile !== "all" ? feedProfile : undefined,
-    feedSource: feedSource !== "all" ? feedSource : undefined,
-    sortBy,
-    direction,
-    startDate: startDate || undefined,
-    endDate: endDate || undefined,
-    page,
-    perPage: 20,
+    ...query,
     archiveScope: isArchiveView ? "archived" : undefined,
   });
 
-  const { data: profilesData } = useProfiles();
   const { data: briefingsData } = useBriefings();
   const { data: bookmarksData } = useBookmarks(1, 100);
   const { add, remove } = useToggleBookmark();
@@ -133,7 +83,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const perPage = data?.pagination?.per_page ?? 20;
   const totalPages = data?.pagination?.total_pages ?? 0;
   const currentPage = data?.pagination?.page ?? 1;
-  const profiles = profilesData ?? [];
 
   const bookmarkedIds = new Set(
     (bookmarksData?.bookmarks ?? []).map((bookmark) => bookmark.article.id),
@@ -145,31 +94,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
     } else {
       add.mutate(articleId);
     }
-  };
-
-  const applyDatePreset = (preset: DatePreset) => {
-    setDatePreset(preset);
-    const today = new Date();
-    const fmt = (d: Date) => format(d, "yyyy-MM-dd");
-    setEndDate(fmt(today));
-    switch (preset) {
-      case "yesterday":
-        setStartDate(fmt(subDays(today, 1)));
-        break;
-      case "week":
-        setStartDate(fmt(subWeeks(today, 1)));
-        break;
-      case "30d":
-        setStartDate(fmt(subDays(today, 30)));
-        break;
-      case "3m":
-        setStartDate(fmt(subMonths(today, 3)));
-        break;
-      default:
-        setStartDate("");
-        setEndDate("");
-    }
-    setPage(1);
   };
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
@@ -217,177 +141,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
           }
         />
 
-        <Collapsible defaultOpen={false} className="mb-6">
-          <div className="rounded-lg border border-border bg-card">
-            <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 rounded-t-lg hover:bg-muted/50 transition-colors">
-              <span className="text-sm font-medium">Filters</span>
-              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=closed]:-rotate-90" />
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="p-4 pt-0 space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <div className="relative flex-1 min-w-0">
-                    <Search className="absolute top-1/2 left-3 w-4 h-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input
-                      placeholder="Search articles..."
-                      value={search}
-                      onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                      }}
-                      className="pl-9 bg-background"
-                    />
-                  </div>
-                  <Select
-                    value={feedProfile}
-                    onValueChange={(v) => {
-                      setFeedProfile(v);
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full bg-background sm:w-44">
-                      <SelectValue placeholder="All Profiles" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Profiles</SelectItem>
-                      {profiles.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={category}
-                    onValueChange={(v) => {
-                      setCategory(v);
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full bg-background sm:w-44">
-                      <SelectValue placeholder="All Categories" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      {categories.map((c) => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={feedSource}
-                    onValueChange={(v) => {
-                      setFeedSource(v);
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full bg-background sm:w-56">
-                      <SelectValue placeholder="All Sources" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Sources</SelectItem>
-                      {sources.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-wrap gap-3 items-center">
-                  <div className="flex gap-2 items-center text-sm text-muted-foreground">
-                    <Calendar className="w-4 h-4" />
-                    <span>Date Range:</span>
-                  </div>
-                  {(["yesterday", "week", "30d", "3m"] as DatePreset[]).map((p) => (
-                    <Badge
-                      key={p}
-                      variant={datePreset === p ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() =>
-                        applyDatePreset(datePreset === p ? null : p)
-                      }
-                    >
-                      {p === "yesterday"
-                        ? "yesterday"
-                        : p === "week"
-                          ? "Last week"
-                          : p === "30d"
-                            ? "Last 30d"
-                            : "Last 3m"}
-                    </Badge>
-                  ))}
-                  <div className="flex flex-col gap-3 w-full sm:flex-row sm:w-auto">
-                    <label className="flex gap-2 items-center text-sm">
-                      <span className="w-10 text-muted-foreground sm:w-auto">From</span>
-                      <Input
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => {
-                          setStartDate(e.target.value);
-                          setDatePreset(null);
-                          setPage(1);
-                        }}
-                        className="flex-1 bg-background sm:w-40 sm:flex-none"
-                      />
-                    </label>
-                    <label className="flex gap-2 items-center text-sm">
-                      <span className="w-10 text-muted-foreground sm:w-auto">To</span>
-                      <Input
-                        type="date"
-                        value={endDate}
-                        onChange={(e) => {
-                          setEndDate(e.target.value);
-                          setDatePreset(null);
-                          setPage(1);
-                        }}
-                        className="flex-1 bg-background sm:w-40 sm:flex-none"
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
-                  <span className="col-span-2 whitespace-nowrap text-sm text-muted-foreground sm:col-span-1">Sort by:</span>
-                  <Select
-                    value={sortBy}
-                    onValueChange={(v) => {
-                      setSortBy(v);
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full bg-background sm:w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="published_date">Date</SelectItem>
-                      <SelectItem value="impact_rating">Impact</SelectItem>
-                      <SelectItem value="title">Title</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={direction}
-                    onValueChange={(v) => {
-                      setDirection(v as "asc" | "desc");
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="w-full bg-background sm:w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="desc">Descending</SelectItem>
-                      <SelectItem value="asc">Ascending</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </div>
-        </Collapsible>
+        <ArticleFilters categories={categories} sources={sources} />
 
         {isLoading ? (
           <div className="flex justify-center py-20">
@@ -418,54 +172,8 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
           />
         )}
 
-        {!isLoading && totalPages > 1 && (
-          <Pagination className="mt-6">
-            <PaginationContent>
-              {currentPage > 1 && (
-                <PaginationItem>
-                  <PaginationPrevious
-                    onClick={() => setPage(Number(currentPage) - 1)}
-                    className="cursor-pointer"
-                  />
-                </PaginationItem>
-              )}
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => {
-                  // Show first page, last page, current page, and pages around current
-                  if (p === 1 || p === totalPages) return true;
-                  if (Math.abs(p - currentPage) <= 1) return true;
-                  return false;
-                })
-                .map((p, idx, arr) => (
-                  <span key={p}>
-                    {idx > 0 && arr[idx - 1] !== p - 1 && (
-                      <PaginationItem>
-                        <span className="px-2">...</span>
-                      </PaginationItem>
-                    )}
-                    <PaginationItem>
-                      <PaginationLink
-                        onClick={() => setPage(Number(p))}
-                        isActive={Number(p) === Number(currentPage)}
-                        className="cursor-pointer"
-                      >
-                        {p}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </span>
-                ))}
-
-              {currentPage < totalPages && (
-                <PaginationItem>
-                  <PaginationNext
-                    onClick={() => setPage(Number(currentPage) + 1)}
-                    className="cursor-pointer"
-                  />
-                </PaginationItem>
-              )}
-            </PaginationContent>
-          </Pagination>
+        {!isLoading && (
+          <PageNav page={currentPage} totalPages={totalPages} onPageChange={setPage} />
         )}
       </div>
 

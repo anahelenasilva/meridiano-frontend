@@ -55,10 +55,7 @@ function AppContent() {
         <Route path="/" element={<Navigate to="/articles" replace />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
-        {/* key: /articles and /archive render the same component at the same
-            tree position, so without it React keeps page and filter state
-            across the two. Item 5 (filters in the URL) removes the need. */}
-        <Route path="/archive" element={<ArticlesPage key="archive" archiveScope="archived" />} />
+        <Route path="/archive" element={<ArticlesPage archiveScope="archived" />} />
         <Route path="/audio" element={<AudioLibraryPage />} />
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="/briefings" element={<BriefingsPage />} />

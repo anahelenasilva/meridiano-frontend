@@ -89,11 +89,11 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
   });
 }
 
-function renderPage(archiveScope?: "active" | "archived") {
+function renderPage(archiveScope?: "active" | "archived", url = "/articles") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[url]}>
         <ArticlesPage archiveScope={archiveScope} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -256,6 +256,47 @@ describe("ArticlesPage source filter", () => {
         ([url]) => typeof url === "string" && url.includes("feedSource=Will+Larson"),
       );
       expect(call).toBeDefined();
+    });
+  });
+});
+
+describe("ArticlesPage filters in the URL", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  const listUrls = () =>
+    fetchMock.mock.calls
+      .map(([url]) => url)
+      .filter((url): url is string => typeof url === "string" && url.includes("/api/articles?"));
+
+  it("requests the filters and page the URL holds", async () => {
+    installFetchRoutes();
+    renderPage(undefined, "/articles?feedSource=Will+Larson&page=3");
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    expect(listUrls()[0]).toContain("feedSource=Will+Larson");
+    expect(listUrls()[0]).toContain("page=3");
+  });
+
+  it("goes back to page 1 when a filter changes", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(
+          jsonResponse({ ...articlesResponse([article()]), available_sources: ["Will Larson"] }),
+        ),
+    });
+    renderPage(undefined, "/articles?page=3");
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Filters"));
+    fireEvent.click(screen.getByText("All Sources"));
+    await waitFor(() => expect(screen.getByText("Will Larson")).toBeInTheDocument());
+    fireEvent.click(screen.getByText("Will Larson"));
+
+    await waitFor(() => {
+      const picked = listUrls().find((url) => url.includes("feedSource=Will+Larson"));
+      expect(picked).toContain("page=1");
     });
   });
 });
