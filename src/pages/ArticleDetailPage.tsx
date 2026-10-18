@@ -216,9 +216,14 @@ export default function ArticleDetail() {
         )}
 
         {article.content_html && (
-          <div className="prose prose-lg max-w-none mt-6"
-            dangerouslySetInnerHTML={{ __html: sanitizedContentHtml }}>
-          </div>
+          <section className="mt-6">
+            <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
+              Full Article
+            </h2>
+            <div className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{ __html: sanitizedContentHtml }}>
+            </div>
+          </section>
         )}
 
         {related.length > 0 && (
