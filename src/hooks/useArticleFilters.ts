@@ -88,8 +88,9 @@ export function useArticleFilters() {
   const page = Math.max(1, Number(params.get("page")) || 1);
 
   const setFilters = (patch: Partial<ArticleFilterValues>) => {
-    // Replace, so typing a search does not add a history entry per keystroke.
-    setParams(toParams({ ...filters, ...patch }), { replace: true });
+    // Filter edits replace the history entry, so Back leaves the list instead
+    // of stepping through every keystroke and select change. Page changes push.
+    setParams((prev) => toParams({ ...readFilters(prev), ...patch }), { replace: true });
   };
 
   const setPage = (next: number) => {

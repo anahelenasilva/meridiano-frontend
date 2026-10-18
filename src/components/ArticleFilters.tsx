@@ -25,7 +25,7 @@ const PRESET_LABELS: Record<DatePreset, string> = {
 
 // Radix Select has no empty item value, so "all" stands in for an unset filter.
 const ALL = "all";
-const fromSelect = (v: string) => (v === ALL ? "" : v);
+const unsetIfAll = (v: string) => (v === ALL ? "" : v);
 
 interface ArticleFiltersProps {
   categories: string[];
@@ -62,7 +62,7 @@ export default function ArticleFilters({ categories, sources }: ArticleFiltersPr
               </div>
               <Select
                 value={filters.feedProfile || ALL}
-                onValueChange={(v) => setFilters({ feedProfile: fromSelect(v) })}
+                onValueChange={(v) => setFilters({ feedProfile: unsetIfAll(v) })}
               >
                 <SelectTrigger className="w-full bg-background sm:w-44">
                   <SelectValue placeholder="All Profiles" />
@@ -78,7 +78,7 @@ export default function ArticleFilters({ categories, sources }: ArticleFiltersPr
               </Select>
               <Select
                 value={filters.category || ALL}
-                onValueChange={(v) => setFilters({ category: fromSelect(v) })}
+                onValueChange={(v) => setFilters({ category: unsetIfAll(v) })}
               >
                 <SelectTrigger className="w-full bg-background sm:w-44">
                   <SelectValue placeholder="All Categories" />
@@ -94,7 +94,7 @@ export default function ArticleFilters({ categories, sources }: ArticleFiltersPr
               </Select>
               <Select
                 value={filters.feedSource || ALL}
-                onValueChange={(v) => setFilters({ feedSource: fromSelect(v) })}
+                onValueChange={(v) => setFilters({ feedSource: unsetIfAll(v) })}
               >
                 <SelectTrigger className="w-full bg-background sm:w-56">
                   <SelectValue placeholder="All Sources" />

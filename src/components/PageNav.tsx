@@ -15,8 +15,8 @@ interface PageNavProps {
 }
 
 /**
- * Previous, next, and a window of first, last and the pages around the
- * current one. Renders nothing for a single page.
+ * Pagination for a list. Pass the current page and the API's total_pages;
+ * renders nothing for a single page.
  */
 export default function PageNav({ page, totalPages, onPageChange }: PageNavProps) {
   if (totalPages <= 1) return null;
