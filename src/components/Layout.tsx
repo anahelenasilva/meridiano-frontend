@@ -8,7 +8,6 @@ import {
   FileText,
   Headphones,
   LogOut,
-  LucideIcon,
   Menu,
   Newspaper,
   PanelLeft,
@@ -18,26 +17,16 @@ import {
   User,
   X,
 } from "lucide-react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  type ComponentType,
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
-
-type NavItem = {
-  to: string;
-  label: string;
-  icon: LucideIcon | "youtube";
-};
-
-const navItems: NavItem[] = [
-  { to: "/articles", label: "Articles", icon: FileText },
-  { to: "/briefings", label: "Briefings", icon: Newspaper },
-  { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" },
-  { to: "/audio", label: "Audio", icon: Headphones },
-  { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
-];
-
-// Not in navItems: admin is a settings area, not a daily destination.
-const adminItem: NavItem = { to: "/admin/youtube-channels", label: "Admin", icon: Settings };
 
 type SidebarContextValue = {
   pinned: boolean;
@@ -63,11 +52,22 @@ function YouTubeIcon({ className }: { className?: string }) {
   );
 }
 
-function NavIcon({ icon, className }: { icon: NavItem["icon"]; className: string }) {
-  if (icon === "youtube") return <YouTubeIcon className={className} />;
-  const Icon = icon;
-  return <Icon className={className} />;
-}
+type NavItem = {
+  to: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+const navItems: NavItem[] = [
+  { to: "/articles", label: "Articles", icon: FileText },
+  { to: "/briefings", label: "Briefings", icon: Newspaper },
+  { to: "/youtube-transcriptions", label: "YouTube", icon: YouTubeIcon },
+  { to: "/audio", label: "Audio", icon: Headphones },
+  { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
+];
+
+// Not in navItems: admin is a settings area, not a daily destination.
+const adminItem: NavItem = { to: "/admin/youtube-channels", label: "Admin", icon: Settings };
 
 function SidebarLink({ item, expanded }: { item: NavItem; expanded: boolean }) {
   return (
@@ -79,7 +79,7 @@ function SidebarLink({ item, expanded }: { item: NavItem; expanded: boolean }) {
       )}
       activeClassName="text-primary bg-secondary"
     >
-      <NavIcon icon={item.icon} className="h-[18px] w-[18px] shrink-0" />
+      <item.icon className="h-[18px] w-[18px] shrink-0" />
       {expanded && <span className="truncate">{item.label}</span>}
     </NavLink>
   );
@@ -93,7 +93,7 @@ function DrawerLink({ item, onClick }: { item: NavItem; onClick: () => void }) {
       activeClassName="text-primary bg-secondary"
       onClick={onClick}
     >
-      <NavIcon icon={item.icon} className="h-4 w-4" />
+      <item.icon className="h-4 w-4" />
       {item.label}
     </NavLink>
   );

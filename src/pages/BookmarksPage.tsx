@@ -3,13 +3,14 @@ import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
 import { PageHeader } from "@/components/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
-import { useBookmarks, useBriefings } from "@/hooks/useApi";
+import { useBookmarks, useBriefings, useToggleBookmark } from "@/hooks/useApi";
 import { Bookmark } from "lucide-react";
 
 export default function BookmarksPage() {
   const { user } = useAuth();
   const { data, isLoading, error } = useBookmarks(1, 20);
   const { data: briefingsData } = useBriefings();
+  const { remove } = useToggleBookmark();
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
 
@@ -54,7 +55,12 @@ export default function BookmarksPage() {
         ) : (
           <div>
             {bookmarks.map((bookmark) => (
-              <ArticleCard key={bookmark.id} article={bookmark.article} />
+              <ArticleCard
+                key={bookmark.id}
+                article={bookmark.article}
+                isBookmarked
+                onToggleBookmark={(id) => remove.mutate(id)}
+              />
             ))}
           </div>
         )}

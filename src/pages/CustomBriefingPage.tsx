@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ import {
   Calendar,
   Check,
   ChevronDown,
+  FileText,
   Loader2,
   Search,
   Sparkles,
@@ -102,7 +104,9 @@ export default function CustomBriefingPage() {
       if (jobData.result?.briefingId) {
         const customTitle =
           jobData.result.customTitle ?? jobData.result.custom_title ?? null;
+        // replace: Back from the new briefing should not return to the form.
         navigate(`/briefings/${jobData.result.briefingId}`, {
+          replace: true,
           state: { customTitle: customTitle?.trim() || null },
         });
       }
@@ -197,7 +201,7 @@ export default function CustomBriefingPage() {
           description="Hand-pick articles to generate a focused intelligence summary"
         />
 
-        <Collapsible defaultOpen={false} className="mt-4 mb-6">
+        <Collapsible defaultOpen={false} className="mb-6">
           <div className="rounded-lg border border-border bg-card">
             <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 rounded-t-lg hover:bg-muted/50 transition-colors">
               <span className="text-sm font-medium">Filters</span>
@@ -423,11 +427,7 @@ export default function CustomBriefingPage() {
                 </Card>
               );
             })}
-            {articles.length === 0 && (
-              <p className="py-12 text-center text-muted-foreground">
-                No articles found.
-              </p>
-            )}
+            {articles.length === 0 && <EmptyState icon={FileText} title="No articles found." />}
 
             {totalPages > 1 && (
               <Pagination className="mt-6">

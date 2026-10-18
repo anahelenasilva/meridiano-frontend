@@ -77,7 +77,7 @@ export default function BriefingDetailPage() {
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
-        <BackButton fallback="/briefings" label="Back to Briefings" className="mb-0" />
+        <BackButton fallback="/briefings" fallbackLabel="Back to Briefings" className="mb-0" />
         <Link
           to={`/articles?feedProfile=${encodeURIComponent(briefing.feed_profile)}`}
           className="text-sm text-primary hover:underline"

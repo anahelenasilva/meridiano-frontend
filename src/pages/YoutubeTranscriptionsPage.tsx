@@ -72,9 +72,8 @@ export default function YoutubeTranscriptionsPage() {
       <PageHeader
         title="YouTube Transcriptions"
         actions={
-          <Button onClick={() => setIsAddModalOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Video
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="h-4 w-4" /> Add Video
           </Button>
         }
       />

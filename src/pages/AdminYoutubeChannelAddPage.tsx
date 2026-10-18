@@ -56,7 +56,7 @@ export default function AdminYoutubeChannelAddPage() {
 
   return (
     <div>
-      <BackButton fallback={CHANNELS_PATH} label="Back to Channels" />
+      <BackButton fallback={CHANNELS_PATH} fallbackLabel="Back to Channels" />
 
       <PageHeader
         title="Add YouTube Channel"

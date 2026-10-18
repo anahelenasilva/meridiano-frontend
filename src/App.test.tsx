@@ -129,7 +129,6 @@ describe("routes", () => {
   it("registers the /archive route on the real route table", async () => {
     renderAppAt("/archive");
 
-    // Match the heading, not bare text: the sidebar also has an "Archive" link.
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Archive" })).toBeInTheDocument(),
     );
