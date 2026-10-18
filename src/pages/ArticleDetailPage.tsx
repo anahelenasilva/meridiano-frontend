@@ -126,7 +126,7 @@ export default function ArticleDetail() {
       </div>
 
       {/* Main content */}
-      <article className="flex-1 min-w-0 max-w-3xl">
+      <article className="flex-1 min-w-0">
         <BackButton fallback="/articles" />
         <p className="text-xs font-medium uppercase tracking-widest text-primary mb-4">{article.feed_source}</p>
 
@@ -174,15 +174,15 @@ export default function ArticleDetail() {
         </div>
 
         <div className="border-t border-border pt-6 mb-6">
-          <div className="w-full aspect-video relative bg-gray-100 dark:bg-gray-900 mb-6">
+          <div className="mb-6">
             <a
               href={article.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full h-full"
+              className="block"
             >
 
-              <img src={displayImage} alt={article.title} className="w-full rounded-lg object-cover mb-6 max-h-96" />
+              <img src={displayImage} alt={article.title} className="w-full max-h-96 rounded-lg object-cover" />
             </a>
           </div>
         </div>
@@ -216,7 +216,7 @@ export default function ArticleDetail() {
         )}
 
         {article.content_html && (
-          <div className="prose prose-lg mt-6"
+          <div className="prose prose-lg max-w-none mt-6"
             dangerouslySetInnerHTML={{ __html: sanitizedContentHtml }}>
           </div>
         )}
