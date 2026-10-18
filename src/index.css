@@ -17,6 +17,7 @@
   --tw-prose-quote-borders: hsl(var(--border));
   --tw-prose-captions: hsl(var(--muted-foreground));
   --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-kbd: hsl(var(--foreground));
   --tw-prose-th-borders: hsl(var(--border));
   --tw-prose-td-borders: hsl(var(--border));
 }

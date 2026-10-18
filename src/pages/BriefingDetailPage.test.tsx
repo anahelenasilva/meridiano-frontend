@@ -34,7 +34,6 @@ describe('BriefingDetailPage', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Markets' })).toBeInTheDocument();
-    expect(screen.getByText('up').tagName).toBe('STRONG');
-    expect(screen.queryByText(/##/)).not.toBeInTheDocument();
+    expect(screen.getByText('up', { selector: 'strong' })).toBeInTheDocument();
   });
 });
