@@ -13,7 +13,7 @@ import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio
 import { format } from "date-fns";
 import { ChevronDown, Loader2, Pencil, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 export default function YoutubeTranscriptionsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

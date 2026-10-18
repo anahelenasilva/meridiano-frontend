@@ -8,7 +8,7 @@ import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 export default function YoutubeTranscriptionDetailPage() {
   const { id } = useParams();

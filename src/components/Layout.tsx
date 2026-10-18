@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router";
 import ThemeToggle from "./ThemeToggle";
 
 const navItems = [

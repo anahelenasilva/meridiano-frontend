@@ -7,7 +7,7 @@ import { getArticleImage } from "@/utils/get-article-image";
 import type { AudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface ArticleCardProps {
   article: Article;

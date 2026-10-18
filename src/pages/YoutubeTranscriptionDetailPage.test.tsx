@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { YouTubeTranscriptionDetailResponse } from '@/types';
 import YoutubeTranscriptionDetailPage from './YoutubeTranscriptionDetailPage';
@@ -8,8 +8,8 @@ import YoutubeTranscriptionDetailPage from './YoutubeTranscriptionDetailPage';
 const mockGenerateAudio = vi.fn();
 let mockTranscriptionData: YouTubeTranscriptionDetailResponse;
 
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('react-router-dom')>();
+vi.mock('react-router', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router')>();
   return {
     ...actual,
     useParams: () => ({ id: 'tr-1' }),

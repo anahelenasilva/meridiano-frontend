@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Calendar, Check, Loader2, Pencil, Tag, X } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router";
 
 export default function BriefingDetailPage() {
   const { id } = useParams();

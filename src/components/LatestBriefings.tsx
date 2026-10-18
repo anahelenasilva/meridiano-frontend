@@ -1,7 +1,7 @@
 import type { Briefing } from "@/types";
 import { getBriefingTitle } from "@/utils/briefing-title";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface LatestBriefingsProps {
   briefings: Briefing[];

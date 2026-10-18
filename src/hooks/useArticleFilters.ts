@@ -1,6 +1,6 @@
 import type { ArticlesQueryParams } from "@/types";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 export const DATE_PRESETS = ["yesterday", "week", "30d", "3m"] as const;
 export type DatePreset = (typeof DATE_PRESETS)[number];

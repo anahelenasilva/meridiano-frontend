@@ -8,7 +8,7 @@ import { useChannels, useToggleChannel } from "@/hooks/useApi";
 import type { YouTubeChannel } from "@/types";
 import { ExternalLink, Loader2, Plus, Settings, Tags, Tv } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 export default function AdminYoutubeChannelsPage() {
   const { data: channels, isLoading } = useChannels();

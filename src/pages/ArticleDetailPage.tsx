@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2, Pencil } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 
 export default function ArticleDetail() {
   const { id } = useParams();

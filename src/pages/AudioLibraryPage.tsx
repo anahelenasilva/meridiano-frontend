@@ -5,7 +5,7 @@ import type { AudioData, AudioLibraryItem } from "@/types";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 function toAudioData(item: AudioLibraryItem): AudioData {
   return {

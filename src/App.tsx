@@ -14,7 +14,7 @@ import LoginPage from "@/pages/LoginPage";
 import YoutubeTranscriptionDetailPage from "@/pages/YoutubeTranscriptionDetailPage";
 import YoutubeTranscriptionsPage from "@/pages/YoutubeTranscriptionsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

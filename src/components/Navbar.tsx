@@ -1,7 +1,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/utils/toast';
 import { Bookmark, ChevronDown, FileText, Home, LogOut, Menu, Music, Newspaper, PenLine, Settings, User, X } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import { useEffect, useRef, useState, startTransition } from 'react';
 import { MESSAGES } from '../constants/messages';
 import ThemeToggle from './ThemeToggle';
