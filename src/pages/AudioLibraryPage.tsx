@@ -1,12 +1,5 @@
 import AudioPlayer from "@/components/AudioPlayer";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import PageNav from "@/components/PageNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudioLibrary } from "@/hooks/useApi";
 import type { AudioData, AudioLibraryItem } from "@/types";
@@ -92,50 +85,7 @@ export default function AudioLibraryPage() {
         </div>
       )}
 
-      {!isLoading && totalPages > 1 && (
-        <Pagination className="mt-6">
-          <PaginationContent>
-            {currentPage > 1 && (
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setPage(currentPage - 1)}
-                  className="cursor-pointer"
-                />
-              </PaginationItem>
-            )}
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
-              .map((p, idx, arr) => (
-                <span key={p}>
-                  {idx > 0 && arr[idx - 1] !== p - 1 && (
-                    <PaginationItem>
-                      <span className="px-2">...</span>
-                    </PaginationItem>
-                  )}
-                  <PaginationItem>
-                    <PaginationLink
-                      onClick={() => setPage(p)}
-                      isActive={p === currentPage}
-                      className="cursor-pointer"
-                    >
-                      {p}
-                    </PaginationLink>
-                  </PaginationItem>
-                </span>
-              ))}
-
-            {currentPage < totalPages && (
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => setPage(currentPage + 1)}
-                  className="cursor-pointer"
-                />
-              </PaginationItem>
-            )}
-          </PaginationContent>
-        </Pagination>
-      )}
+      {!isLoading && <PageNav page={currentPage} totalPages={totalPages} onPageChange={setPage} />}
     </div>
   );
 }
