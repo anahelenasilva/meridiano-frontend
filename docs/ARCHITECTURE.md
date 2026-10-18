@@ -19,10 +19,10 @@
 
 | Layer       | Technology                         |
 | ----------- | ---------------------------------- |
-| Framework   | React 18 + TypeScript              |
+| Framework   | React 19 + TypeScript              |
 | Build       | Vite                               |
 | Styling     | Tailwind CSS v4 + CSS custom props |
-| Routing     | React Router v6                    |
+| Routing     | React Router v8                    |
 | HTTP        | fetch (native)                     |
 | Testing     | Vitest + React Testing Library     |
 | Package Mgr | pnpm                               |
@@ -165,7 +165,7 @@ This is intentional: the app's complexity doesn't warrant a dedicated store. If 
 
 ## Routing & Navigation
 
-React Router v7 with a declarative route config. Routes are code-split at the page level via lazy imports where beneficial.
+React Router v8 with a declarative route config. Routes are code-split at the page level via lazy imports where beneficial.
 
 **Protected routes** are behind one gate: `AppContent` in `App.tsx` renders `LoginPage` in place of the routes when `isAuthenticated` from `useAuth()` is false. The URL is left alone, so a successful login renders the page that was requested. Components behind the gate read the current user with `useUser()`, which returns a non-null `User`.
 

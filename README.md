@@ -15,7 +15,7 @@ This project was migrated from Next.js to Vite with React Router.
 ## Tech Stack
 
 - **Vite** - Build tool and dev server
-- **React 18** - UI library
+- **React 19** - UI library
 - **React Router** - Client-side routing
 - **TypeScript** - Type safety
 - **TanStack Query** - Data fetching and caching

@@ -14,7 +14,7 @@
 
 ## Quick Reference
 
-- **Tech Stack:** React 18, Vite 5, TypeScript 5, Tailwind v4, React Router v6
+- **Tech Stack:** React 19, Vite 8, TypeScript 5, Tailwind v4, React Router v8
 - **Entry Point:** `src/main.tsx` → `App.tsx`
 - **API Base:** `VITE_API_BASE_URL` (default: `http://localhost:3001`)
 
