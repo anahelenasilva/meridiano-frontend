@@ -1,7 +1,10 @@
 import ArticleCard from "@/components/ArticleCard";
+import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
+import { PageHeader } from "@/components/PageHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBookmarks, useBriefings } from "@/hooks/useApi";
+import { Bookmark } from "lucide-react";
 
 export default function BookmarksPage() {
   const { user } = useAuth();
@@ -12,12 +15,10 @@ export default function BookmarksPage() {
 
   if (!user) {
     return (
-      <div className="space-y-4">
-        <h1 className="font-serif text-2xl font-bold mb-1">Bookmarks</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Please log in to view your bookmarks.
-        </p>
-      </div>
+      <>
+        <PageHeader title="Bookmarks" />
+        <p className="text-sm text-muted-foreground">Please log in to view your bookmarks.</p>
+      </>
     );
   }
 
@@ -31,29 +32,25 @@ export default function BookmarksPage() {
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <h1 className="font-serif text-2xl font-bold mb-1">Bookmarks</h1>
-        <p className="text-sm text-destructive">
-          Failed to load bookmarks: {error.message}
-        </p>
-      </div>
+      <>
+        <PageHeader title="Bookmarks" />
+        <p className="text-sm text-destructive">Failed to load bookmarks: {error.message}</p>
+      </>
     );
   }
 
   const bookmarks = data?.bookmarks ?? [];
 
   return (
-    <div className="max-w-7xl mx-auto flex gap-8 px-4 py-6">
+    <div className="flex gap-8">
       <div className="flex-1 min-w-0">
-        <h1 className="font-serif text-2xl font-bold mb-1">Bookmarks</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          View and manage your saved articles and content.
-        </p>
+        <PageHeader
+          title="Bookmarks"
+          description="View and manage your saved articles and content."
+        />
 
         {bookmarks.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            You have no bookmarks yet.
-          </p>
+          <EmptyState icon={Bookmark} title="You have no bookmarks yet." />
         ) : (
           <div>
             {bookmarks.map((bookmark) => (

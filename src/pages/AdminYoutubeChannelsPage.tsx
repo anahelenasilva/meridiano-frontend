@@ -1,4 +1,6 @@
+import { EmptyState } from "@/components/EmptyState";
 import ManageCategoriesModal from "@/components/ManageCategoriesModal";
+import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { Button } from "@/components/ui/button";
@@ -6,7 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useChannels, useToggleChannel } from "@/hooks/useApi";
 import type { YouTubeChannel } from "@/types";
-import { ExternalLink, Loader2, Plus, Settings, Tags, Youtube } from "lucide-react";
+import { ExternalLink, Loader2, Plus, Tags, Youtube } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -34,34 +36,28 @@ export default function AdminYoutubeChannelsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-3">
-          <Settings className="h-7 w-7 text-primary" />
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold">
-            YouTube Channels Admin
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setCategoriesModalOpen(true)}>
-            <Tags className="h-4 w-4" /> Manage Categories
-          </Button>
-          <Button asChild>
-            <Link to="/admin/youtube-channels/add">
-              <Plus className="h-4 w-4" /> Add Channel
-            </Link>
-          </Button>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        title="YouTube Channels Admin"
+        description="Manage YouTube channels. Enable or disable channels to control which ones are actively monitored."
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setCategoriesModalOpen(true)}>
+              <Tags className="h-4 w-4" /> Manage Categories
+            </Button>
+            <Button asChild>
+              <Link to="/admin/youtube-channels/add">
+                <Plus className="h-4 w-4" /> Add Channel
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
       <ManageCategoriesModal
         open={categoriesModalOpen}
         onOpenChange={setCategoriesModalOpen}
       />
-      <p className="text-sm text-muted-foreground mb-8">
-        Manage YouTube channels. Enable or disable channels to control which
-        ones are actively monitored.
-      </p>
 
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
@@ -113,12 +109,7 @@ export default function AdminYoutubeChannelsPage() {
         </div>
       </div>
 
-      {channelList.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <Youtube className="h-10 w-10 mb-3 opacity-20" />
-          <p className="text-sm">No channels added yet.</p>
-        </div>
-      )}
+      {channelList.length === 0 && <EmptyState icon={Youtube} title="No channels added yet." />}
     </div>
   );
 }

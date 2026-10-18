@@ -15,7 +15,7 @@ import YoutubeTranscriptionDetailPage from "@/pages/YoutubeTranscriptionDetailPa
 import YoutubeTranscriptionsPage from "@/pages/YoutubeTranscriptionsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -59,7 +59,7 @@ function AppContent() {
   return (
     <LayoutWrapper>
       <Routes>
-        <Route path="/" element={<BookmarksPage />} />
+        <Route path="/" element={<Navigate to="/articles" replace />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
         <Route path="/archive" element={<ArticlesPage archiveScope="archived" />} />

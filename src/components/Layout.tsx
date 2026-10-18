@@ -4,10 +4,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { toast } from "@/utils/toast";
 import {
-  Archive,
   Bookmark,
   FileText,
+  Headphones,
   LogOut,
+  LucideIcon,
   Menu,
   Newspaper,
   PanelLeft,
@@ -21,14 +22,22 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 
-const navItems = [
-  { to: "/", label: "Bookmarks", icon: Bookmark },
+type NavItem = {
+  to: string;
+  label: string;
+  icon: LucideIcon | "youtube";
+};
+
+const navItems: NavItem[] = [
   { to: "/articles", label: "Articles", icon: FileText },
-  { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" as const },
   { to: "/briefings", label: "Briefings", icon: Newspaper },
-  { to: "/admin/youtube-channels", label: "Admin", icon: Settings },
-  { to: "/archive", label: "Archive", icon: Archive },
+  { to: "/youtube-transcriptions", label: "YouTube", icon: "youtube" },
+  { to: "/audio", label: "Audio", icon: Headphones },
+  { to: "/bookmarks", label: "Bookmarks", icon: Bookmark },
 ];
+
+// Not in navItems: admin is a settings area, not a daily destination.
+const adminItem: NavItem = { to: "/admin/youtube-channels", label: "Admin", icon: Settings };
 
 type SidebarContextValue = {
   pinned: boolean;
@@ -51,6 +60,42 @@ function YouTubeIcon({ className }: { className?: string }) {
     >
       <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
     </svg>
+  );
+}
+
+function NavIcon({ icon, className }: { icon: NavItem["icon"]; className: string }) {
+  if (icon === "youtube") return <YouTubeIcon className={className} />;
+  const Icon = icon;
+  return <Icon className={className} />;
+}
+
+function SidebarLink({ item, expanded }: { item: NavItem; expanded: boolean }) {
+  return (
+    <NavLink
+      to={item.to}
+      className={cn(
+        "flex items-center gap-3 rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary",
+        expanded ? "px-3 py-2" : "justify-center px-0 py-2.5"
+      )}
+      activeClassName="text-primary bg-secondary"
+    >
+      <NavIcon icon={item.icon} className="h-[18px] w-[18px] shrink-0" />
+      {expanded && <span className="truncate">{item.label}</span>}
+    </NavLink>
+  );
+}
+
+function DrawerLink({ item, onClick }: { item: NavItem; onClick: () => void }) {
+  return (
+    <NavLink
+      to={item.to}
+      className="flex items-center gap-3 px-4 py-3 text-sm rounded-md text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
+      activeClassName="text-primary bg-secondary"
+      onClick={onClick}
+    >
+      <NavIcon icon={item.icon} className="h-4 w-4" />
+      {item.label}
+    </NavLink>
   );
 }
 
@@ -116,27 +161,12 @@ function CollapsibleSidebar() {
 
         <nav className="flex flex-col gap-0.5 px-2 flex-1">
           {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className={cn(
-                "flex items-center gap-3 rounded-md text-sm text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary",
-                expanded ? "px-3 py-2" : "justify-center px-0 py-2.5"
-              )}
-              activeClassName="text-primary bg-secondary"
-            >
-              {item.icon === "youtube" ? (
-                <YouTubeIcon className="h-[18px] w-[18px] shrink-0" />
-              ) : (
-                <item.icon className="h-[18px] w-[18px] shrink-0" />
-              )}
-              {expanded && <span className="truncate">{item.label}</span>}
-            </NavLink>
+            <SidebarLink key={item.to} item={item} expanded={expanded} />
           ))}
         </nav>
 
         <div className="px-2 mt-2 space-y-2">
+          <SidebarLink item={adminItem} expanded={expanded} />
           <div className={cn("flex", expanded ? "justify-start" : "justify-center")}>
             <ThemeToggle />
           </div>
@@ -145,22 +175,13 @@ function CollapsibleSidebar() {
               <p className="text-xs text-muted-foreground truncate">
                 {user.username || user.email}
               </p>
-              <div className="flex flex-col gap-0.5">
-                <button
-                  onClick={() => navigate("/bookmarks")}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-foreground hover:bg-secondary transition-colors"
-                >
-                  <Bookmark className="h-4 w-4" />
-                  <span>My Bookmarks</span>
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-destructive hover:bg-destructive/10 transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-2 py-1.5 rounded text-sm text-destructive hover:bg-destructive/10 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </button>
             </div>
           )}
           {isAuthenticated && user && !expanded && (
@@ -226,40 +247,19 @@ function MobileHeader() {
       {open && (
         <nav className="border-t border-border bg-background p-2">
           {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === "/"}
-              className="flex items-center gap-3 px-4 py-3 text-sm rounded-md text-muted-foreground transition-colors hover:text-foreground hover:bg-secondary"
-              activeClassName="text-primary bg-secondary"
-              onClick={() => setOpen(false)}
-            >
-              {item.icon === "youtube" ? (
-                <YouTubeIcon className="h-4 w-4" />
-              ) : (
-                <item.icon className="h-4 w-4" />
-              )}
-              {item.label}
-            </NavLink>
+            <DrawerLink key={item.to} item={item} onClick={() => setOpen(false)} />
           ))}
-          <div className="border-t border-border mt-2 pt-2 px-2">
-            <ThemeToggle />
+          <div className="border-t border-border mt-2 pt-2">
+            <DrawerLink item={adminItem} onClick={() => setOpen(false)} />
+            <div className="px-2 pt-2">
+              <ThemeToggle />
+            </div>
           </div>
           {isAuthenticated && user && (
             <div className="mt-2 space-y-1">
               <p className="px-4 py-2 text-xs text-muted-foreground truncate">
                 {user.username || user.email}
               </p>
-              <button
-                onClick={() => {
-                  navigate("/bookmarks");
-                  setOpen(false);
-                }}
-                className="flex items-center gap-3 w-full px-4 py-3 text-sm rounded-md text-foreground hover:bg-secondary"
-              >
-                <Bookmark className="h-4 w-4" />
-                My Bookmarks
-              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full px-4 py-3 text-sm rounded-md text-destructive hover:bg-destructive/10"

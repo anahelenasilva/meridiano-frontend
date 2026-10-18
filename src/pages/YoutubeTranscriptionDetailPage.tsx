@@ -42,8 +42,8 @@ export default function YoutubeTranscriptionDetailPage() {
   const displayDate = video.postedAt ? format(new Date(video.postedAt), "MMM d, yyyy") : "";
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <BackButton to="/youtube-transcriptions" />
+    <div>
+      <BackButton fallback="/youtube-transcriptions" />
 
       <div className="flex flex-col sm:flex-row gap-6 mb-8 items-start">
         <a

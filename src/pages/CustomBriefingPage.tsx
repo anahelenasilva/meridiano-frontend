@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/PageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -37,7 +38,6 @@ import {
   Check,
   ChevronDown,
   Loader2,
-  PenLine,
   Search,
   Sparkles,
   X,
@@ -190,21 +190,12 @@ export default function CustomBriefingPage() {
   const atMax = selectedArticles.length >= 10;
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-6 mx-auto max-w-7xl lg:flex-row">
+    <div className="flex flex-col gap-8 lg:flex-row">
       <div className="flex-1 min-w-0">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/15">
-              <PenLine className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="font-serif text-2xl font-bold">Custom Briefing</h1>
-              <p className="text-sm text-muted-foreground">
-                Hand-pick articles to generate a focused intelligence summary
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Custom Briefing"
+          description="Hand-pick articles to generate a focused intelligence summary"
+        />
 
         <Collapsible defaultOpen={false} className="mt-4 mb-6">
           <div className="rounded-lg border border-border bg-card">

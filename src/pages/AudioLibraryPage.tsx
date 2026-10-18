@@ -1,4 +1,6 @@
 import AudioPlayer from "@/components/AudioPlayer";
+import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import {
   Pagination,
   PaginationContent,
@@ -11,7 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAudioLibrary } from "@/hooks/useApi";
 import type { AudioData, AudioLibraryItem } from "@/types";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
+import { Headphones, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -38,19 +40,19 @@ export default function AudioLibraryPage() {
 
   if (!user) {
     return (
-      <div className="py-6 px-4 mx-auto max-w-4xl">
-        <h1 className="mb-1 font-serif text-2xl font-bold">Audio Library</h1>
+      <>
+        <PageHeader title="Audio Library" />
         <p className="text-sm text-muted-foreground">Please log in to view your Audio Library.</p>
-      </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="py-6 px-4 mx-auto max-w-4xl">
-        <h1 className="mb-1 font-serif text-2xl font-bold">Audio Library</h1>
+      <>
+        <PageHeader title="Audio Library" />
         <p className="text-sm text-destructive">Failed to load Audio Library: {error.message}</p>
-      </div>
+      </>
     );
   }
 
@@ -59,15 +61,15 @@ export default function AudioLibraryPage() {
   const currentPage = data?.pagination?.page ?? 1;
 
   return (
-    <div className="py-6 px-4 mx-auto max-w-4xl">
-      <h1 className="mb-6 font-serif text-2xl font-bold">Audio Library</h1>
+    <div>
+      <PageHeader title="Audio Library" />
 
       {isLoading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
         </div>
       ) : audios.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">You have no Audio Summaries yet.</p>
+        <EmptyState icon={Headphones} title="You have no Audio Summaries yet." />
       ) : (
         <div className="space-y-6">
           {audios.map((item) => (

@@ -1,3 +1,4 @@
+import { BackButton } from "@/components/BackButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useBriefing, useUpdateBriefingTitle } from "@/hooks/useApi";
 import { getBriefingCustomTitle, getBriefingTitle, isCustomBriefing } from "@/utils/briefing-title";
 import { format } from "date-fns";
-import { ArrowLeft, Calendar, Check, Loader2, Pencil, Tag, X } from "lucide-react";
+import { Calendar, Check, Loader2, Pencil, Tag, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 
@@ -29,7 +30,7 @@ export default function BriefingDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-6">
+      <div>
         {creationTitle && (
           <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight mb-6">
             {creationTitle}
@@ -44,7 +45,7 @@ export default function BriefingDetailPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div>
         <p className="text-sm text-destructive">
           Failed to load briefing: {error.message}
         </p>
@@ -57,7 +58,7 @@ export default function BriefingDetailPage() {
 
   if (!briefing) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center text-muted-foreground">
+      <div className="py-20 text-center text-muted-foreground">
         <p>Briefing not found.</p>
         <Link to="/briefings" className="text-primary underline mt-2 inline-block">
           Back to briefings
@@ -73,14 +74,9 @@ export default function BriefingDetailPage() {
   const briefingTitle = getBriefingTitle(briefing);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
+    <div>
       <div className="flex items-center gap-4 mb-6">
-        <Link
-          to="/briefings"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Briefings
-        </Link>
+        <BackButton fallback="/briefings" label="Back to Briefings" className="mb-0" />
         <Link
           to={`/articles?feedProfile=${encodeURIComponent(briefing.feed_profile)}`}
           className="text-sm text-primary hover:underline"
