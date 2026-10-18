@@ -20,8 +20,8 @@ export interface Article {
   feed_source: string;
   feed_profile: string;
   summary: string;
-  processed_content_html: string;
-  content_html: string;
+  processed_content_html: string | null;
+  content_html: string | null;
   impact_rating: number;
   image_url: string | null;
   categories: string[];
