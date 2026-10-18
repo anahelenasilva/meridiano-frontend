@@ -2,26 +2,15 @@ import ArticleCard from "@/components/ArticleCard";
 import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
 import { PageHeader } from "@/components/PageHeader";
-import { useAuth } from "@/contexts/AuthContext";
 import { useBookmarks, useBriefings, useToggleBookmark } from "@/hooks/useApi";
 import { Bookmark } from "lucide-react";
 
 export default function BookmarksPage() {
-  const { user } = useAuth();
   const { data, isLoading, error } = useBookmarks(1, 20);
   const { data: briefingsData } = useBriefings();
   const { remove } = useToggleBookmark();
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
-
-  if (!user) {
-    return (
-      <>
-        <PageHeader title="Bookmarks" />
-        <p className="text-sm text-muted-foreground">Please log in to view your bookmarks.</p>
-      </>
-    );
-  }
 
   if (isLoading) {
     return (

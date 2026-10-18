@@ -14,7 +14,6 @@
 | BackButton | `BackButton.tsx` | Back navigation, history-aware with a fallback route |
 | PageHeader | `PageHeader.tsx` | Title, description and actions row for list and admin pages |
 | EmptyState | `EmptyState.tsx` | Icon and message shown when a list has no items |
-| AuthGuard | `AuthGuard.tsx` | Protected route wrapper |
 | Providers | `Providers.tsx` | Context provider composition |
 
 ---

@@ -27,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAuth } from "@/contexts/AuthContext";
 import {
   useArchiveArticle,
   useArticles,
@@ -56,7 +55,6 @@ interface ArticlesPageProps {
 
 export default function ArticlesPage({ archiveScope = "active" }: ArticlesPageProps) {
   const isArchiveView = archiveScope === "archived";
-  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const feedProfileFromUrl = searchParams.get("feedProfile");
   const [search, setSearch] = useState("");
@@ -142,9 +140,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   );
 
   const handleToggleBookmark = (articleId: string) => {
-    if (!user) {
-      return;
-    }
     if (bookmarkedIds.has(articleId)) {
       remove.mutate(articleId);
     } else {

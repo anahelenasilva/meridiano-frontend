@@ -9,7 +9,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAudioLibrary } from "@/hooks/useApi";
 import type { AudioData, AudioLibraryItem } from "@/types";
 import { format } from "date-fns";
@@ -34,18 +33,8 @@ function sourceHref(item: AudioLibraryItem): string {
 }
 
 export default function AudioLibraryPage() {
-  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const { data, isLoading, error } = useAudioLibrary({ page, perPage: 20 });
-
-  if (!user) {
-    return (
-      <>
-        <PageHeader title="Audio Library" />
-        <p className="text-sm text-muted-foreground">Please log in to view your Audio Library.</p>
-      </>
-    );
-  }
 
   if (error) {
     return (

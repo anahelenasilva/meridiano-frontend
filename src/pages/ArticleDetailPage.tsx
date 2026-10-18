@@ -6,7 +6,6 @@ import EditArticleModal from "@/components/EditArticleModal";
 import { NoteEditor } from "@/components/NoteEditor";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
 import { getArticleImage } from "@/utils/get-article-image";
@@ -20,7 +19,6 @@ export default function ArticleDetail() {
   const { id } = useParams();
   const { data, isLoading } = useArticle(id);
 
-  const { user } = useAuth();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   const { data: bookmarkStatus } = useBookmarkCheck(id);
@@ -32,7 +30,7 @@ export default function ArticleDetail() {
   });
 
   const handleToggleBookmark = () => {
-    if (!user || !id) {
+    if (!id) {
       return;
     }
     if (isBookmarked) {
@@ -147,22 +145,19 @@ export default function ArticleDetail() {
               {primaryCategory && ` · ${primaryCategory}`}
             </p>
           </div>
-          {user && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditOpen(true)}
-              className="gap-1.5"
-            >
-              <Pencil className="h-4 w-4" />
-              Edit
-            </Button>
-          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditOpen(true)}
+            className="gap-1.5"
+          >
+            <Pencil className="h-4 w-4" />
+            Edit
+          </Button>
           <button
             type="button"
             onClick={handleToggleBookmark}
-            disabled={!user}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground disabled:opacity-50"
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >
@@ -236,7 +231,7 @@ export default function ArticleDetail() {
 
       <div className="hidden lg:block w-12 shrink-0" />
 
-      {user && isEditOpen && (
+      {isEditOpen && (
         <EditArticleModal
           article={article}
           open={isEditOpen}

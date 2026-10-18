@@ -144,7 +144,7 @@ Page/Component
 - **`api.ts`** — Shared fetch wrapper with:
   - `baseURL` from environment variable (`VITE_API_BASE_URL`)
   - `Authorization: Bearer <token>` attached to requests when authenticated
-  - 401 handling (redirect to login, clear token)
+  - 401 handling (clear token, reload so the auth gate shows the login form)
 - **Domain service functions** — Thin wrappers that call `apiFetch` and return typed responses.
 
 ### Environment Configuration
@@ -167,7 +167,7 @@ This is intentional: the app's complexity doesn't warrant a dedicated store. If 
 
 React Router v7 with a declarative route config. Routes are code-split at the page level via lazy imports where beneficial.
 
-**Protected routes** check `isAuthenticated` from `useAuth()` and redirect to `/login` if the user is unauthenticated. This is handled in `App.tsx` via `AppContent` (auth gate) and `AuthGuard` (`src/components/AuthGuard.tsx`) for route-level protection.
+**Protected routes** are behind one gate: `AppContent` in `App.tsx` renders `LoginPage` in place of the routes when `isAuthenticated` from `useAuth()` is false. The URL is left alone, so a successful login renders the page that was requested. Components behind the gate read the current user with `useUser()`, which returns a non-null `User`.
 
 ---
 
@@ -210,7 +210,7 @@ Tests that need context wrap components in a helper that composes required provi
 | **Vite over CRA / Next.js**                 | SPA with no SSR requirement. Vite gives fast HMR and simple config.                                                                                       |
 | **Tailwind CSS v4 + CSS custom properties** | Utility-first styling with design-token theming via custom props. v4's native CSS-based config removes the need for `tailwind.config.js`.                 |
 | **No state library**                        | Context + hooks cover current needs. Avoids dependency and boilerplate for a modest state surface.                                                        |
-| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 redirect. Keeps bundle smaller; interceptors replicated in wrapper.                        |
+| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 session expiry. Keeps bundle smaller; interceptors replicated in wrapper.                        |
 | **pnpm**                                    | Strict dependency resolution, disk-efficient, enforced by project rules.                                                                                  |
 | **Colocation**                              | Tests and feature docs next to source reduces navigation friction and makes ownership obvious.                                                            |
 | **Provider + hook pattern for contexts**    | Consistent API surface, fail-fast `useContext` guards, easy to mock in tests.                                                                             |

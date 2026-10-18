@@ -2,6 +2,7 @@
 
 import { login, setAuthToken, clearAuthToken } from '@/services/api';
 import { User } from '@/types/auth';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { Component, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
 interface AuthContextType {
@@ -76,6 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const queryClient = useQueryClient();
 
   // Load auth data from localStorage on mount
   useEffect(() => {
@@ -148,6 +150,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     setAccessToken(null);
+    // Queries are keyed by resource, not by user, so a stale cache would show
+    // the previous user's bookmarks to the next login in the same tab.
+    queryClient.clear();
 
     try {
       clearAuthToken();
@@ -192,4 +197,14 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+}
+
+// For components behind App's auth gate, where a user is always present.
+// LoginPage is the only screen rendered without one; it uses useAuth.
+export function useUser(): User {
+  const { user } = useAuth();
+  if (user === null) {
+    throw new Error('useUser must be used behind the auth gate');
+  }
+  return user;
 }

@@ -56,15 +56,16 @@ export const getApiBaseUrl = (): string => {
   return import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 }
 
-function redirectToLogin(): void {
+// Called on a 401 with a token present: the session is dead. Clearing storage
+// and reloading drops the in-memory query cache and lands on the login form.
+function expireSession(): void {
   clearAuthToken();
   try {
     localStorage.removeItem("meridiano_user");
   } catch {
     // ignore
   }
-  const redirect = encodeURIComponent(window.location.pathname + window.location.search);
-  window.location.href = `/login?redirect=${redirect}`;
+  window.location.reload();
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -84,7 +85,7 @@ async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> 
   });
 
   if (res.status === 401 && token) {
-    redirectToLogin();
+    expireSession();
     throw new Error("Session expired");
   }
 

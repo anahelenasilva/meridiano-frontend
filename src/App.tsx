@@ -14,8 +14,7 @@ import LoginPage from "@/pages/LoginPage";
 import YoutubeTranscriptionDetailPage from "@/pages/YoutubeTranscriptionDetailPage";
 import YoutubeTranscriptionsPage from "@/pages/YoutubeTranscriptionsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -39,26 +38,20 @@ function ToastContainerWrapper() {
   );
 }
 
+// The only auth gate. Logged-out visitors see the login form at whatever URL
+// they requested, so a successful login renders that page with no redirect
+// plumbing.
 function AppContent() {
   const { isAuthenticated } = useAuth();
-  const [authChecked, setAuthChecked] = useState(false);
-  const location = useLocation();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setAuthChecked(true);
-    }
-  }, [isAuthenticated]);
-
-  if (!isAuthenticated && authChecked) {
-    const redirect = new URLSearchParams(location.search).get("redirect");
-    const redirectTo = redirect && redirect !== "/login" ? redirect : "/";
-    return <LoginPage onLogin={() => setAuthChecked(true)} redirectTo={redirectTo} />;
+  if (!isAuthenticated) {
+    return <LoginPage />;
   }
 
   return (
     <LayoutWrapper>
       <Routes>
+        <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/" element={<Navigate to="/articles" replace />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
