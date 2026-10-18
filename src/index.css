@@ -1,6 +1,30 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 @config "../tailwind.config.js";
+@plugin "@tailwindcss/typography";
+
+/* Maps prose colors to the theme tokens, so `prose` follows light and dark mode without `prose-invert`. */
+.prose {
+  --tw-prose-body: hsl(var(--foreground) / 0.9);
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--border));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-kbd: hsl(var(--foreground));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+}
+
+.prose :where(h1, h2, h3, h4) {
+  @apply font-serif;
+}
 
 @layer base {
   * {
@@ -22,24 +46,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 30 5% 10%;
 
-    --primary: 24 90% 50%;
+    --primary: 24 90% 38%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 30 5% 92%;
     --secondary-foreground: 30 5% 20%;
 
     --muted: 30 5% 94%;
-    --muted-foreground: 30 3% 46%;
+    --muted-foreground: 30 3% 40%;
 
-    --accent: 24 90% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: var(--secondary);
+    --accent-foreground: var(--secondary-foreground);
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 30 5% 88%;
     --input: 30 5% 88%;
-    --ring: 24 90% 50%;
+    --ring: var(--primary);
 
     --radius: 0.5rem;
 
@@ -70,17 +94,17 @@
     --secondary-foreground: 30 5% 80%;
 
     --muted: 30 4% 14%;
-    --muted-foreground: 30 3% 50%;
+    --muted-foreground: 30 3% 55%;
 
-    --accent: 24 90% 55%;
-    --accent-foreground: 30 5% 7%;
+    --accent: var(--secondary);
+    --accent-foreground: var(--secondary-foreground);
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 30 4% 16%;
     --input: 30 4% 16%;
-    --ring: 24 90% 55%;
+    --ring: var(--primary);
 
     --sidebar-background: 30 5% 5%;
     --sidebar-foreground: 30 5% 80%;

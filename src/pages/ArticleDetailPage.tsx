@@ -208,13 +208,13 @@ export default function ArticleDetail() {
         <div>
           <h2 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">AI Summary</h2>
 
-          <div className="prose-custom text-foreground/70 text-[17px] whitespace-pre-line mt-6 rounded-lg border border-border bg-card p-4 text-sm mb-6"
+          <div className="prose max-w-none mt-6 rounded-lg border border-border bg-card p-4 mb-6"
             dangerouslySetInnerHTML={{ __html: sanitizedProcessedContentHtml }}
           />
         </div>
 
         {article.content_html && (
-          <div className="prose-custom text-foreground/90 leading-[1.8] text-[17px] whitespace-pre-line mt-6"
+          <div className="prose prose-lg mt-6"
             dangerouslySetInnerHTML={{ __html: sanitizedContentHtml }}>
           </div>
         )}
