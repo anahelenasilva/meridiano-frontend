@@ -3,15 +3,17 @@ import { AudioBadge } from "@/components/AudioBadge";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import EditChannelCategoriesModal from "@/components/EditChannelCategoriesModal";
+import { EmptyState } from "@/components/EmptyState";
 import FailedTranscriptionJobs from "@/components/FailedTranscriptionJobs";
 import { NoteEditor } from "@/components/NoteEditor";
+import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAudioJobs, useTranscriptions } from "@/hooks/useApi";
 import type { Category } from "@/types";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
-import { ChevronDown, Loader2, Pencil, Plus } from "lucide-react";
+import { ChevronDown, Loader2, Pencil, Plus, Tv } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -66,14 +68,15 @@ export default function YoutubeTranscriptionsPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="font-serif text-2xl font-bold">YouTube Transcriptions</h1>
-        <Button onClick={() => setIsAddModalOpen(true)} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Video
-        </Button>
-      </div>
+    <div>
+      <PageHeader
+        title="YouTube Transcriptions"
+        actions={
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="h-4 w-4" /> Add Video
+          </Button>
+        }
+      />
 
       <AddTranscriptionModal
         open={isAddModalOpen}
@@ -87,9 +90,7 @@ export default function YoutubeTranscriptionsPage() {
         onOpenChange={(open) => !open && setEditingChannel(null)}
       />
 
-      {grouped.length === 0 && (
-        <p className="text-center text-muted-foreground py-12">No transcriptions found.</p>
-      )}
+      {grouped.length === 0 && <EmptyState icon={Tv} title="No transcriptions found." />}
 
       <div className="space-y-4">
         {grouped.map(({ channelId, channelName, videos: channelVideos }) => {

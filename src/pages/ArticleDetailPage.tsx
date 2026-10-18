@@ -96,7 +96,7 @@ export default function ArticleDetail() {
   const displayImage = getArticleImage(article);
 
   return (
-    <div className="max-w-7xl mx-auto flex gap-8 px-4 py-6">
+    <div className="flex gap-8">
       {/* Prev/Next nav */}
       <div className="hidden lg:flex flex-col items-center pt-16 gap-2 w-12 shrink-0">
         {prevArticle ? (
@@ -127,7 +127,7 @@ export default function ArticleDetail() {
 
       {/* Main content */}
       <article className="flex-1 min-w-0 max-w-3xl">
-        <BackButton to="/articles" />
+        <BackButton fallback="/articles" />
         <p className="text-xs font-medium uppercase tracking-widest text-primary mb-4">{article.feed_source}</p>
 
         <h1 className="font-serif text-3xl sm:text-4xl font-bold leading-tight mb-3">{article.title}</h1>

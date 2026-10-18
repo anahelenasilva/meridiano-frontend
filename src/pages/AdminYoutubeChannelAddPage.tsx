@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
+import { BackButton } from "@/components/BackButton";
+import { PageHeader } from "@/components/PageHeader";
 import { useCreateChannel } from "@/hooks/useApi";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +13,7 @@ import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
 import type { Category } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
-import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 const CHANNELS_PATH = "/admin/youtube-channels";
 
@@ -53,25 +55,15 @@ export default function AdminYoutubeChannelAddPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6">
-      <Link
-        to={CHANNELS_PATH}
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back to Channels
-      </Link>
+    <div>
+      <BackButton fallback={CHANNELS_PATH} fallbackLabel="Back to Channels" />
 
-      <div className="flex items-center gap-2 mb-1">
-        <Plus className="h-6 w-6 text-primary" />
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold">
-          Add YouTube Channel
-        </h1>
-      </div>
-      <p className="text-sm text-muted-foreground mb-6">
-        Add a new YouTube channel to monitor for transcriptions.
-      </p>
+      <PageHeader
+        title="Add YouTube Channel"
+        description="Add a new YouTube channel to monitor for transcriptions."
+      />
 
-      <Card className="p-6">
+      <Card className="max-w-3xl p-6">
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label className="mb-1.5">

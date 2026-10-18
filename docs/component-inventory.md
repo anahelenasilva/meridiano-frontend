@@ -9,10 +9,11 @@
 | Component | Path | Purpose |
 |-----------|------|---------|
 | Layout | `Layout.tsx` | Main app shell with sidebar/nav |
-| LayoutWrapper | `LayoutWrapper.tsx` | Route-level layout wrapper |
-| Navbar | `Navbar.tsx` | Top navigation |
+| LayoutWrapper | `LayoutWrapper.tsx` | Route-level layout wrapper, owns the single `main` width |
 | NavLink | `NavLink.tsx` | Styled router link |
-| BackButton | `BackButton.tsx` | Back navigation |
+| BackButton | `BackButton.tsx` | Back navigation, history-aware with a fallback route |
+| PageHeader | `PageHeader.tsx` | Title, description and actions row for list and admin pages |
+| EmptyState | `EmptyState.tsx` | Icon and message shown when a list has no items |
 | Providers | `Providers.tsx` | Context provider composition |
 
 ---

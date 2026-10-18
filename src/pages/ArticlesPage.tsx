@@ -1,7 +1,10 @@
 import AddArticleModal from "@/components/AddArticleModal";
 import ArticleCard from "@/components/ArticleCard";
 import ArticleFilters from "@/components/ArticleFilters";
+import { BackButton } from "@/components/BackButton";
+import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
+import { PageHeader } from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +20,9 @@ import type { ArchiveScope } from "@/types";
 import { MESSAGES } from "@/constants/messages";
 import { toast } from "@/utils/toast";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
-import { Loader2, Plus } from "lucide-react";
+import { Archive, FileText, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 
 interface ArticlesPageProps {
   // The Archive view is this same page with a different scope. Reusing it means
@@ -101,37 +105,41 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const startItem = (currentPage - 1) * perPage + 1;
   const endItem = Math.min(currentPage * perPage, total);
 
+  const title = isArchiveView ? "Archive" : "Articles";
+
   if (error) {
     return (
-      <div className="py-6 px-4 mx-auto max-w-6xl">
-        <h1 className="mb-1 font-serif text-2xl font-bold">
-          {isArchiveView ? "Archive" : "Articles"}
-        </h1>
+      <>
+        <PageHeader title={title} />
         <p className="text-sm text-destructive">
           Failed to load articles: {error.message}
         </p>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="flex gap-8 py-6 px-4 mx-auto max-w-7xl">
+    <div className="flex gap-8">
       <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-start mb-1">
-          <div>
-            <h1 className="font-serif text-2xl font-bold">
-              {isArchiveView ? "Archive" : "Articles"}
-            </h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Showing {startItem} - {endItem} of {total} articles
-            </p>
-          </div>
-          {!isArchiveView && (
-            <Button onClick={() => setShowAddModal(true)}>
-              <Plus className="mr-1 w-4 h-4" /> Add Article
-            </Button>
-          )}
-        </div>
+        {isArchiveView && <BackButton fallback="/articles" />}
+        <PageHeader
+          title={title}
+          description={`Showing ${startItem} - ${endItem} of ${total} articles`}
+          actions={
+            !isArchiveView && (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/archive">
+                    <Archive className="w-4 h-4" /> Archive
+                  </Link>
+                </Button>
+                <Button onClick={() => setShowAddModal(true)}>
+                  <Plus className="w-4 h-4" /> Add Article
+                </Button>
+              </>
+            )
+          }
+        />
 
         <ArticleFilters categories={categories} sources={sources} />
 
@@ -158,9 +166,10 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
         )}
 
         {!isLoading && articles.length === 0 && (
-          <p className="py-12 text-center text-muted-foreground">
-            {isArchiveView ? "Nothing archived." : "No articles found."}
-          </p>
+          <EmptyState
+            icon={isArchiveView ? Archive : FileText}
+            title={isArchiveView ? "Nothing archived." : "No articles found."}
+          />
         )}
 
         {!isLoading && (

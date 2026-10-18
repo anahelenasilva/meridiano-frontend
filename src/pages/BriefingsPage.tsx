@@ -11,6 +11,8 @@ import {
   PenLine,
 } from "lucide-react";
 import { format } from "date-fns";
+import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -40,44 +42,29 @@ export default function BriefingsPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="font-serif text-2xl font-bold mb-1">Briefings</h1>
+      <>
+        <PageHeader title="Briefings" />
         <p className="text-sm text-destructive">
           Failed to load briefings: {error.message}
         </p>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/15 mb-4">
-          <FileText className="h-7 w-7 text-primary" />
-        </div>
-        <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-2">
-          News Briefings
-        </h1>
-        <p className="text-muted-foreground">
-          AI-powered summaries and insights from your curated news feeds
-        </p>
-        <div className="flex items-center justify-center gap-6 mt-4 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
-            {data?.total ?? briefings.length} briefings available
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-primary" />
-            {uniqueProfiles.length} profiles active
-          </span>
-        </div>
-        <Button asChild className="mt-6">
-          <Link to="/custom-briefing">
-            <PenLine className="h-4 w-4" />
-            Generate Custom Briefing
-          </Link>
-        </Button>
-      </div>
+    <div>
+      <PageHeader
+        title="Briefings"
+        description="AI-powered summaries and insights from your curated news feeds"
+        actions={
+          <Button asChild>
+            <Link to="/custom-briefing">
+              <PenLine className="h-4 w-4" />
+              Generate Custom Briefing
+            </Link>
+          </Button>
+        }
+      />
 
       <Card className="p-4 mb-6">
         <div className="flex items-center justify-between gap-4">
@@ -158,11 +145,7 @@ export default function BriefingsPage() {
               </div>
             </Card>
           ))}
-          {briefings.length === 0 && (
-            <p className="text-center text-muted-foreground py-12">
-              No briefings found.
-            </p>
-          )}
+          {briefings.length === 0 && <EmptyState icon={FileText} title="No briefings found." />}
         </div>
       )}
     </div>

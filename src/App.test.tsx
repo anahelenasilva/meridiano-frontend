@@ -25,10 +25,18 @@ vi.mock("@/contexts/AuthContext", () => ({
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
 
-const emptyList = {
-  articles: [],
-  pagination: { page: 1, per_page: 20, total_pages: 0, total_articles: 0 },
-};
+const pagination = { page: 1, per_page: 20, total_pages: 0, total_articles: 0 };
+
+// App shares one QueryClient across tests, so every endpoint the Articles page
+// hits has to answer with its own shape or a later render reads the wrong
+// cached body.
+function emptyBodyFor(url: string) {
+  if (url.includes("/api/profiles")) return [];
+  if (url.includes("/api/audio/jobs")) return { jobs: [] };
+  if (url.includes("/api/bookmarks")) return { bookmarks: [], pagination };
+  if (url.includes("/api/briefings")) return { briefings: [], total: 0 };
+  return { articles: [], pagination };
+}
 
 beforeEach(() => {
   auth.isAuthenticated = true;
@@ -53,19 +61,18 @@ beforeEach(() => {
     })),
   );
   fetchMock.mockReset();
-  fetchMock.mockImplementation(() =>
-    Promise.resolve({
+  fetchMock.mockImplementation((url: string) => {
+    const body = emptyBodyFor(url);
+    return Promise.resolve({
       ok: true,
       status: 200,
       statusText: "OK",
-      json: async () => emptyList,
-      text: async () => JSON.stringify(emptyList),
-    } as Response),
-  );
+      json: async () => body,
+      text: async () => JSON.stringify(body),
+    } as Response);
+  });
 });
 
-// Layout owns the sidebar the app actually ships. Navbar.tsx also defines a nav
-// but nothing imports it, so asserting against that one would prove nothing.
 function renderSidebarAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -85,44 +92,49 @@ function renderSidebarAt(path: string) {
 const linksTo = (href: string) =>
   Array.from(document.querySelectorAll<HTMLAnchorElement>(`a[href="${href}"]`));
 
-describe("archive navigation", () => {
-  it("offers an Archive link in the sidebar", () => {
+// App owns a BrowserRouter, so routes are exercised by pointing the real
+// browser history at the path before mounting, rather than by a hand-built
+// <Routes> that could drift from App.tsx's own route table.
+function renderAppAt(path: string) {
+  window.history.pushState({}, "", path);
+  return render(<App />);
+}
+
+describe("sidebar", () => {
+  it("links to the Audio Library", () => {
     renderSidebarAt("/articles");
 
-    expect(linksTo("/archive").length).toBeGreaterThan(0);
+    expect(linksTo("/audio").length).toBeGreaterThan(0);
   });
 
-  it("marks Archive as the current page on /archive, and Articles as not", () => {
-    renderSidebarAt("/archive");
-
-    expect(linksTo("/archive").some((el) => el.getAttribute("aria-current") === "page")).toBe(
-      true,
-    );
-    expect(linksTo("/articles").every((el) => el.getAttribute("aria-current") === null)).toBe(
-      true,
-    );
-  });
-
-  it("marks Articles as the current page on /articles, and Archive as not", () => {
+  it("marks Articles as the current page on /articles", () => {
     renderSidebarAt("/articles");
 
     expect(linksTo("/articles").some((el) => el.getAttribute("aria-current") === "page")).toBe(
       true,
     );
-    expect(linksTo("/archive").every((el) => el.getAttribute("aria-current") === null)).toBe(
-      true,
+  });
+});
+
+describe("routes", () => {
+  it("lands on Articles from /", async () => {
+    renderAppAt("/");
+
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Articles" })).toBeInTheDocument(),
     );
   });
 
+  it("links to the Archive from the Articles page", async () => {
+    renderAppAt("/articles");
+
+    await waitFor(() => expect(screen.getByRole("link", { name: "Archive" })).toBeInTheDocument());
+    expect(screen.getByRole("link", { name: "Archive" })).toHaveAttribute("href", "/archive");
+  });
+
   it("registers the /archive route on the real route table", async () => {
-    // App owns a BrowserRouter, so the route is exercised by pointing the real
-    // browser history at /archive before mounting, rather than by a hand-built
-    // <Routes> that could drift from App.tsx's own route table.
-    window.history.pushState({}, "", "/archive");
+    renderAppAt("/archive");
 
-    render(<App />);
-
-    // Match the heading, not bare text: the sidebar also has an "Archive" link.
     await waitFor(() =>
       expect(screen.getByRole("heading", { name: "Archive" })).toBeInTheDocument(),
     );

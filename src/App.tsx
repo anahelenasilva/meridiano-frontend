@@ -52,7 +52,7 @@ function AppContent() {
     <LayoutWrapper>
       <Routes>
         <Route path="/login" element={<Navigate to="/" replace />} />
-        <Route path="/" element={<BookmarksPage />} />
+        <Route path="/" element={<Navigate to="/articles" replace />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:id" element={<ArticleDetailPage />} />
         <Route path="/archive" element={<ArticlesPage archiveScope="archived" />} />

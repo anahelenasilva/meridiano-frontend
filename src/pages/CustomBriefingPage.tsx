@@ -1,4 +1,6 @@
 import ArticleFilters from "@/components/ArticleFilters";
+import { EmptyState } from "@/components/EmptyState";
+import { PageHeader } from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,7 +23,7 @@ import { useArticleFilters } from "@/hooks/useArticleFilters";
 import { Article } from "@/types";
 import { toast } from "@/utils/toast";
 import { format } from "date-fns";
-import { Check, Loader2, PenLine, Sparkles, X } from "lucide-react";
+import { Check, FileText, Loader2, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -61,7 +63,9 @@ export default function CustomBriefingPage() {
       if (jobData.result?.briefingId) {
         const customTitle =
           jobData.result.customTitle ?? jobData.result.custom_title ?? null;
+        // replace: Back from the new briefing should not return to the form.
         navigate(`/briefings/${jobData.result.briefingId}`, {
+          replace: true,
           state: { customTitle: customTitle?.trim() || null },
         });
       }
@@ -124,21 +128,12 @@ export default function CustomBriefingPage() {
   const atMax = selectedArticles.length >= 10;
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-6 mx-auto max-w-7xl lg:flex-row">
+    <div className="flex flex-col gap-8 lg:flex-row">
       <div className="flex-1 min-w-0">
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/15">
-              <PenLine className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="font-serif text-2xl font-bold">Custom Briefing</h1>
-              <p className="text-sm text-muted-foreground">
-                Hand-pick articles to generate a focused intelligence summary
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          title="Custom Briefing"
+          description="Hand-pick articles to generate a focused intelligence summary"
+        />
 
         <ArticleFilters categories={categories} sources={sources} />
 
@@ -196,11 +191,7 @@ export default function CustomBriefingPage() {
                 </Card>
               );
             })}
-            {articles.length === 0 && (
-              <p className="py-12 text-center text-muted-foreground">
-                No articles found.
-              </p>
-            )}
+            {articles.length === 0 && <EmptyState icon={FileText} title="No articles found." />}
 
             <PageNav page={currentPage} totalPages={totalPages} onPageChange={setPage} />
           </div>
