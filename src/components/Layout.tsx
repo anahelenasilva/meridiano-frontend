@@ -57,7 +57,7 @@ function YouTubeIcon({ className }: { className?: string }) {
 function CollapsibleSidebar() {
   const { pinned, setPinned } = useContext(SidebarContext);
   const [hovered, setHovered] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { logout } = useAuth();
   const user = useUser();
   const navigate = useNavigate();

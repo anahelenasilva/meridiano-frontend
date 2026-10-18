@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useChannels, useToggleChannel } from "@/hooks/useApi";
 import type { YouTubeChannel } from "@/types";
-import { ExternalLink, Loader2, Plus, Settings, Tags, Youtube } from "lucide-react";
+import { ExternalLink, Loader2, Plus, Settings, Tags, Tv } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -115,7 +115,7 @@ export default function AdminYoutubeChannelsPage() {
 
       {channelList.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <Youtube className="h-10 w-10 mb-3 opacity-20" />
+          <Tv className="h-10 w-10 mb-3 opacity-20" />
           <p className="text-sm">No channels added yet.</p>
         </div>
       )}
