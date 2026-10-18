@@ -90,7 +90,7 @@ export default function YoutubeTranscriptionDetailPage() {
         <div>
           <h2 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">AI Summary</h2>
 
-          <div className="prose-custom text-foreground/70 text-[16px] whitespace-pre-line mt-6 rounded-lg border border-border bg-card p-4 text-sm mb-6">
+          <div className="prose mt-6 rounded-lg border border-border bg-card p-4 mb-6">
             <ReactMarkdown>{video.transcriptionSummary}</ReactMarkdown>
           </div>
         </div>

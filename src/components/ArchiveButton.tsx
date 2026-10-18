@@ -21,12 +21,10 @@ const iconSizeClasses = {
 // ArticleCard renders this at "sm" in a tight row of icon buttons, matching its
 // bookmark button's plain p-1. Everywhere else it sits in the detail page's action
 // row next to an h-9 Edit button, so it gets a fixed square that lines up with it.
-// Note the hover fill is `secondary`, not `accent`: this theme sets --accent to the
-// same orange as --primary, so bg-accent would paint the icon out of existence.
 const buttonSizeClasses = {
   sm: "p-1 hover:text-primary",
-  md: "h-9 w-9 justify-center rounded-full hover:bg-secondary hover:text-foreground",
-  lg: "h-10 w-10 justify-center rounded-full hover:bg-secondary hover:text-foreground",
+  md: "h-9 w-9 justify-center rounded-full hover:bg-accent hover:text-accent-foreground",
+  lg: "h-10 w-10 justify-center rounded-full hover:bg-accent hover:text-accent-foreground",
 };
 
 export default function ArchiveButton({
