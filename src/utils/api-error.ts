@@ -62,7 +62,7 @@ export function parseErrorResponse(
       // Extract message from various common formats
       if (typeof parsed.message === 'string') {
         message = parsed.message;
-      } else if (Array.isArray(parsed.message) && parsed.message.length > 0) {
+      } else if (Array.isArray(parsed.message) && parsed.message.some((m) => typeof m === 'string')) {
         message = parsed.message.filter((m) => typeof m === 'string').join('. ');
       } else if (typeof parsed.error === 'string') {
         message = parsed.error;

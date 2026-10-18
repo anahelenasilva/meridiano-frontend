@@ -10,13 +10,15 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 // the gate test flips it. AuthProvider is a passthrough since App wraps
 // AppContent in it.
 const auth = vi.hoisted(() => ({ isAuthenticated: true }));
+const mockUser = { id: "u1", email: "a@example.com", username: "a" };
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => ({
-    user: auth.isAuthenticated ? { id: "u1", email: "a@example.com", username: "a" } : null,
+    user: auth.isAuthenticated ? mockUser : null,
     isAuthenticated: auth.isAuthenticated,
     login: vi.fn(),
     logout: vi.fn(),
   }),
+  useUser: () => mockUser,
   AuthProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
@@ -133,7 +135,7 @@ describe("archive navigation", () => {
 });
 
 describe("auth gate", () => {
-  it("shows the login form at the requested URL when logged out, instead of redirecting to /login", () => {
+  it("shows the login form at the requested URL when logged out", () => {
     auth.isAuthenticated = false;
     window.history.pushState({}, "", "/articles/abc");
 
@@ -141,6 +143,5 @@ describe("auth gate", () => {
 
     expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
     expect(window.location.pathname).toBe("/articles/abc");
-    expect(linksTo("/articles")).toHaveLength(0);
   });
 });

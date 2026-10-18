@@ -13,7 +13,6 @@
 | Navbar | `Navbar.tsx` | Top navigation |
 | NavLink | `NavLink.tsx` | Styled router link |
 | BackButton | `BackButton.tsx` | Back navigation |
-| AuthGuard | `AuthGuard.tsx` | Protected route wrapper |
 | Providers | `Providers.tsx` | Context provider composition |
 
 ---

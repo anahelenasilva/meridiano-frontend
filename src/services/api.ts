@@ -57,8 +57,7 @@ export const getApiBaseUrl = (): string => {
 }
 
 // Called on a 401 with a token present: the session is dead. Clearing storage
-// and reloading lets App's auth gate show the login form at the current URL,
-// and the reload drops the in-memory query cache with it.
+// and reloading drops the in-memory query cache and lands on the login form.
 function expireSession(): void {
   clearAuthToken();
   try {

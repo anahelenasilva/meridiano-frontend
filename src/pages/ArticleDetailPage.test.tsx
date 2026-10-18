@@ -16,10 +16,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuth: () => ({ user: { id: 'u1' } }),
-}));
-
 vi.mock('@/hooks/useApi', () => ({
   useArticle: () => ({
     data: mockArticleData,

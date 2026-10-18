@@ -40,7 +40,7 @@ function ToastContainerWrapper() {
 
 // The only auth gate. Logged-out visitors see the login form at whatever URL
 // they requested, so a successful login renders that page with no redirect
-// plumbing. A 401 from the API clears storage and reloads, which lands here.
+// plumbing.
 function AppContent() {
   const { isAuthenticated } = useAuth();
 

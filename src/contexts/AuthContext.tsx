@@ -198,3 +198,13 @@ export function useAuth() {
   }
   return context;
 }
+
+// For components behind App's auth gate, where a user is always present.
+// LoginPage is the only screen rendered without one; it uses useAuth.
+export function useUser(): User {
+  const { user } = useAuth();
+  if (user === null) {
+    throw new Error('useUser must be used behind the auth gate');
+  }
+  return user;
+}
