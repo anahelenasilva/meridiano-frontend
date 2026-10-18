@@ -78,7 +78,7 @@ function CollapsibleSidebar() {
   const handleLogout = () => {
     logout();
     toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -205,7 +205,7 @@ function MobileHeader() {
     logout();
     setOpen(false);
     toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
-    navigate("/login");
+    navigate("/");
   };
 
   return (

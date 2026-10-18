@@ -24,6 +24,7 @@ export class ApiError extends Error {
  * Parses an error response body and extracts a user-friendly message.
  * Handles various API error formats:
  * - { message: "..." }
+ * - { message: ["...", "..."] } (NestJS ValidationPipe)
  * - { error: "..." }
  * - { error: { message: "..." } }
  * - { errors: [...] }
@@ -61,6 +62,8 @@ export function parseErrorResponse(
       // Extract message from various common formats
       if (typeof parsed.message === 'string') {
         message = parsed.message;
+      } else if (Array.isArray(parsed.message) && parsed.message.length > 0) {
+        message = parsed.message.filter((m) => typeof m === 'string').join('. ');
       } else if (typeof parsed.error === 'string') {
         message = parsed.error;
       } else if (typeof parsed.error === 'object' && parsed.error !== null) {
