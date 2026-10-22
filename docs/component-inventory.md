@@ -14,7 +14,6 @@
 | BackButton | `BackButton.tsx` | Back navigation, history-aware with a fallback route |
 | PageHeader | `PageHeader.tsx` | Title, description and actions row for list and admin pages |
 | EmptyState | `EmptyState.tsx` | Icon and message shown when a list has no items |
-| Providers | `Providers.tsx` | Context provider composition |
 
 ---
 
@@ -23,7 +22,6 @@
 | Component | Path | Purpose |
 |-----------|------|---------|
 | ArticleCard | `ArticleCard.tsx` | Article list item |
-| BookmarkButton | `BookmarkButton.tsx` | Toggle bookmark |
 | AddArticleModal | `AddArticleModal.tsx` | Add article by URL/file |
 | EditArticleModal | `EditArticleModal.tsx` | Edit article metadata (detail page) |
 | AddTranscriptionModal | `AddTranscriptionModal.tsx` | Add YouTube transcription |
@@ -45,10 +43,9 @@ Located in `components/ui/`. shadcn/ui-style primitives:
 
 | Category | Components |
 |----------|------------|
-| Form | `button`, `input`, `label`, `textarea`, `checkbox`, `radio-group`, `select`, `switch`, `form`, `input-otp`, `calendar` |
-| Layout | `card`, `separator`, `aspect-ratio`, `resizable`, `scroll-area` |
-| Overlay | `dialog`, `sheet`, `drawer`, `popover`, `tooltip`, `alert-dialog`, `dropdown-menu`, `context-menu` |
-| Feedback | `toast`, `toaster`, `sonner`, `alert`, `progress`, `skeleton` |
-| Navigation | `tabs`, `accordion`, `collapsible`, `breadcrumb`, `navigation-menu`, `menubar` |
-| Data display | `table`, `badge`, `avatar`, `chart` |
-| Misc | `command`, `carousel`, `slider`, `toggle`, `toggle-group`, `hover-card`, `pagination` |
+| Form | `button`, `input`, `label`, `textarea`, `checkbox`, `select`, `switch` |
+| Layout | `card` |
+| Overlay | `dialog`, `popover`, `alert-dialog` |
+| Navigation | `collapsible`, `pagination` |
+| Data display | `badge` |
+| Misc | `command` |
