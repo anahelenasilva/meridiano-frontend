@@ -26,7 +26,7 @@
   @apply font-serif;
 }
 
-/* Maps react-toastify colors to the theme tokens. The tokens already flip under `.dark`, so the light and dark toast themes read the same tokens. Scoped to the container root so the order of the two stylesheets does not matter. */
+/* Maps react-toastify's light and dark toast themes to the theme tokens, set on the container root so they win over the library's `:root` defaults. */
 .Toastify {
   --toastify-font-family: "Inter", system-ui, sans-serif;
   --toastify-toast-bd-radius: var(--radius);
@@ -34,10 +34,10 @@
   --toastify-color-dark: hsl(var(--popover));
   --toastify-text-color-light: hsl(var(--popover-foreground));
   --toastify-text-color-dark: hsl(var(--popover-foreground));
-  --toastify-color-success: hsl(var(--primary));
-  --toastify-color-error: hsl(var(--destructive));
-  --toastify-color-info: hsl(var(--muted-foreground));
-  --toastify-color-warning: hsl(var(--primary));
+  --toastify-icon-color-success: hsl(var(--primary));
+  --toastify-icon-color-error: hsl(var(--destructive));
+  --toastify-icon-color-info: hsl(var(--muted-foreground));
+  --toastify-icon-color-warning: hsl(var(--primary));
 }
 
 .Toastify__toast {

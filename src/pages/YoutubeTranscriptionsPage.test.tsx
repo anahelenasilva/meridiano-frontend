@@ -120,7 +120,6 @@ function renderPage() {
 describe("YoutubeTranscriptionsPage categories", () => {
   beforeEach(() => {
     fetchMock.mockReset();
-    vi.mocked(toast.success).mockReset();
     vi.mocked(toast.error).mockReset();
   });
 
