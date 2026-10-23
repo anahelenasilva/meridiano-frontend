@@ -138,7 +138,7 @@ Spec: [`docs/00-dark-theme/tech-spec.md`](./00-dark-theme/tech-spec.md)
 
 ## Routing and the auth gate
 
-`App.tsx` declares every route in one `<Routes>` block, with pages imported eagerly.
+`App.tsx` declares every route in one `<Routes>` block inside a `<Suspense>` boundary. Pages load with `React.lazy`, except `LoginPage`, which stays eager so logged-out visitors get the form with no extra request.
 
 `AppContent` is the only auth gate. It renders `LoginPage` in place of the routes when `isAuthenticated` is false and leaves the URL alone, so a successful login renders the page that was requested.
 
