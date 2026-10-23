@@ -39,7 +39,6 @@ export default function EditChannelCategoriesModal({
     if (channel) setCategories(channel.categories);
   }
 
-
   const handleSave = async () => {
     if (!channel) return;
     try {
