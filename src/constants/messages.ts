@@ -1,15 +1,7 @@
 export const MESSAGES = {
   SUCCESS: {
-    CHANNEL_UPDATED: 'Channel updated successfully!',
-    CHANNEL_CREATED: 'Channel created successfully!',
-    TRANSCRIPTION_DELETED: 'Transcription deleted successfully',
-    ARTICLE_ADDED: 'Article added successfully!',
-    ARTICLE_DELETED: 'Article deleted successfully',
-    ARTICLE_BOOKMARKED: 'Article bookmarked',
-    ARTICLE_UNBOOKMARKED: 'Bookmark removed',
     ARTICLE_ARCHIVED: 'Article archived',
     ARTICLE_UNARCHIVED: 'Article restored',
-    MARKDOWN_UPLOADED: 'Markdown file uploaded successfully! Article will be processed shortly.',
     AUDIO_GENERATION_QUEUED: 'Audio is being generated. Please refresh the page soon.',
   },
 
