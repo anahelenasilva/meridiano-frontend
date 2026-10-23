@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "@/App";
 import Layout from "@/components/Layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
@@ -117,6 +117,11 @@ describe("sidebar", () => {
 });
 
 describe("routes", () => {
+  // App lazy-loads its pages, and vitest's first transform of ArticlesPage
+  // outlasts waitFor's 1s default. Warming the module cache keeps each test
+  // independent of the order they run in.
+  beforeAll(() => import("@/pages/ArticlesPage"));
+
   it("lands on Articles from /", async () => {
     renderAppAt("/");
 
