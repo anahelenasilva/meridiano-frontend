@@ -36,7 +36,7 @@ function setup() {
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
 
-  const { result } = renderHook(() => useArchiveArticle(), { wrapper });
+  const { result } = renderHook(() => useArchiveArticle("a-1"), { wrapper });
   return { queryClient, result };
 }
 
@@ -54,7 +54,7 @@ describe("useArchiveArticle", () => {
     const { queryClient, result } = setup();
 
     act(() => {
-      result.current.mutate({ id: "a-1", action: "archive" });
+      result.current.mutate("archive");
     });
 
     await waitFor(() => {
@@ -71,7 +71,7 @@ describe("useArchiveArticle", () => {
     const { queryClient, result } = setup();
 
     act(() => {
-      result.current.mutate({ id: "a-1", action: "archive" });
+      result.current.mutate("archive");
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -86,7 +86,7 @@ describe("useArchiveArticle", () => {
     const { result } = setup();
 
     act(() => {
-      result.current.mutate({ id: "a-1", action: "unarchive" });
+      result.current.mutate("unarchive");
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));

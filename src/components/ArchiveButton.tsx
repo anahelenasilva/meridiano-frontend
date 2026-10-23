@@ -29,7 +29,7 @@ export default function ArchiveButton({
   archivedAt,
   size = "md",
 }: ArchiveButtonProps) {
-  const archiveMutation = useArchiveArticle();
+  const archiveMutation = useArchiveArticle(articleId);
   const isArchived = archivedAt !== null;
   const label = isArchived ? "Unarchive" : "Archive";
 
@@ -45,16 +45,14 @@ export default function ArchiveButton({
     // listeners left. Notify at mutate time instead, so the toast always fires;
     // the error toast lives on the mutation itself in useApi.ts for the same reason.
     // Undo still works after unmount: mutate itself runs without a mounted observer.
-    archiveMutation.mutate({ id: articleId, action: isArchived ? "unarchive" : "archive" });
+    archiveMutation.mutate(isArchived ? "unarchive" : "archive");
     toast.success(
       <span className="flex items-center gap-3">
         {isArchived ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED : MESSAGES.SUCCESS.ARTICLE_ARCHIVED}
         <button
           type="button"
           className="underline font-medium"
-          onClick={() =>
-            archiveMutation.mutate({ id: articleId, action: isArchived ? "archive" : "unarchive" })
-          }
+          onClick={() => archiveMutation.mutate(isArchived ? "archive" : "unarchive")}
         >
           Undo
         </button>

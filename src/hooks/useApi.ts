@@ -167,16 +167,16 @@ type ArchiveAction = "archive" | "unarchive";
  * The optimistic update does not decrement the pagination total; the onSettled
  * invalidation corrects it on the next fetch.
  */
-export function useArchiveArticle() {
+export function useArchiveArticle(articleId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: ArchiveAction }) =>
-      action === "archive" ? archiveArticle(id) : unarchiveArticle(id),
-    // One scope runs these mutations in order, so an Undo clicked while the
-    // archive is in flight cannot reach the backend first.
-    scope: { id: "archive-article" },
-    onMutate: async ({ id }) => {
+    mutationFn: (action: ArchiveAction) =>
+      action === "archive" ? archiveArticle(articleId) : unarchiveArticle(articleId),
+    // One scope per article runs its mutations in order, so an Undo clicked
+    // while the archive is in flight cannot reach the backend first.
+    scope: { id: `archive-article-${articleId}` },
+    onMutate: async () => {
       await queryClient.cancelQueries({ queryKey: ["articles"] });
 
       const previous = queryClient.getQueriesData<ArticlesResponse>({
@@ -187,7 +187,7 @@ export function useArchiveArticle() {
         { queryKey: ["articles"] },
         (old) =>
           old
-            ? { ...old, articles: old.articles.filter((a) => a.id !== id) }
+            ? { ...old, articles: old.articles.filter((a) => a.id !== articleId) }
             : old,
       );
 
@@ -196,7 +196,7 @@ export function useArchiveArticle() {
     // Hook-level (as opposed to mutate-level) callbacks live on the mutation
     // itself rather than its observer, so they still run even after the
     // optimistic removal above has unmounted the button that called mutate.
-    onError: (error, { action }, context) => {
+    onError: (error, action, context) => {
       context?.previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
@@ -204,12 +204,12 @@ export function useArchiveArticle() {
         `${action === "archive" ? MESSAGES.ERROR.ARTICLE_ARCHIVE : MESSAGES.ERROR.ARTICLE_UNARCHIVE} ${getErrorMessage(error)}`,
       );
     },
-    onSettled: (_data, _error, { id }) => {
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["articles"] });
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
       // Partial key match: covers every ["article", id, includeAudio] cache
       // entry regardless of the includeAudio flag it was fetched with.
-      queryClient.invalidateQueries({ queryKey: ["article", id] });
+      queryClient.invalidateQueries({ queryKey: ["article", articleId] });
     },
   });
 }
