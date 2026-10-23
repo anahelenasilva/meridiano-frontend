@@ -22,7 +22,7 @@ import type { Article, UpdateArticlePayload } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
 import { Loader2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 interface EditArticleModalProps {
   article: Article;
@@ -54,20 +54,12 @@ export default function EditArticleModal({
   const originalDate = toDateInputValue(article.published_date);
   const originalCategories = article.categories ?? [];
 
+  // The form seeds once per mount, so the caller mounts this modal only while it is open.
   const [title, setTitle] = useState(article.title);
   const [publishedDate, setPublishedDate] = useState(originalDate);
   const [feedSource, setFeedSource] = useState(article.feed_source);
   const [feedProfile, setFeedProfile] = useState(article.feed_profile);
   const [categories, setCategories] = useState<string[]>(originalCategories);
-
-  // Re-seed the form whenever a different Article is opened.
-  useEffect(() => {
-    setTitle(article.title);
-    setPublishedDate(toDateInputValue(article.published_date));
-    setFeedSource(article.feed_source);
-    setFeedProfile(article.feed_profile);
-    setCategories(article.categories ?? []);
-  }, [article, open]);
 
   const { data: profilesData } = useProfiles();
   const { data: articlesData } = useArticles({ perPage: 50 });

@@ -39,6 +39,20 @@ describe("NoteEditor", () => {
     expect(screen.getByDisplayValue("Loaded note")).toBeInTheDocument();
   });
 
+  it("drops the typed draft when it switches to a different source", () => {
+    const { rerender } = render(
+      <NoteEditor sourceType="article" sourceId="article-1" note={null} />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/add a private note/i), {
+      target: { value: "Draft for article 1" },
+    });
+
+    rerender(<NoteEditor sourceType="article" sourceId="article-2" note={null} />);
+
+    expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue("");
+  });
+
   it("renders collapsed preview and expands into the editor", () => {
     render(
       <NoteEditor

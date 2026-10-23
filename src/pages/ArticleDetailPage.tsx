@@ -43,22 +43,18 @@ export default function ArticleDetail() {
   // Fetch all articles for prev/next and related
   const { data: allData } = useArticles({ perPage: 50 });
 
-  // Memoized sanitized content (must be at top level, not after early returns)
+  // Memoized sanitized content (must be at top level, not after early returns).
+  // Both are undefined until the article loads.
+  const processedContentHtml = data?.article?.processed_content_html;
   const sanitizedProcessedContentHtml = useMemo(
-    () => {
-      // These will be undefined until article is loaded
-      if (!data?.article?.processed_content_html) return "";
-      return DOMPurify.sanitize(data.article.processed_content_html);
-    },
-    [data?.article?.processed_content_html]
+    () => (processedContentHtml ? DOMPurify.sanitize(processedContentHtml) : ""),
+    [processedContentHtml]
   );
 
+  const contentHtml = data?.article?.content_html;
   const sanitizedContentHtml = useMemo(
-    () => {
-      if (!data?.article?.content_html) return "";
-      return DOMPurify.sanitize(data.article.content_html);
-    },
-    [data?.article?.content_html]
+    () => (contentHtml ? DOMPurify.sanitize(contentHtml) : ""),
+    [contentHtml]
   );
 
   if (isLoading) {

@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useSaveNote } from "@/hooks/useApi";
@@ -16,15 +16,19 @@ interface NoteEditorProps {
 }
 
 export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: NoteEditorProps) {
-  const [content, setContent] = useState(note?.content ?? "");
+  const savedContent = note?.content ?? "";
+  const [content, setContent] = useState(savedContent);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(mode === "expanded");
   const saveNoteMutation = useSaveNote();
 
-  useEffect(() => {
-    setContent(note?.content ?? "");
+  // Re-seed the draft when the source or its saved note changes.
+  const [seededFrom, setSeededFrom] = useState({ sourceId, savedContent });
+  if (seededFrom.sourceId !== sourceId || seededFrom.savedContent !== savedContent) {
+    setSeededFrom({ sourceId, savedContent });
+    setContent(savedContent);
     setError(null);
-  }, [sourceId, note?.content]);
+  }
 
   const handleSave = () => {
     setError(null);

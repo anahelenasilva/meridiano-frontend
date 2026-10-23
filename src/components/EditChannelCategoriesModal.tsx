@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,12 +29,16 @@ export default function EditChannelCategoriesModal({
   channel,
   onOpenChange,
 }: EditChannelCategoriesModalProps) {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>(channel?.categories ?? []);
   const setChannelCategories = useSetChannelCategories();
 
-  useEffect(() => {
+  // Re-seed the selection whenever the modal opens on a channel.
+  const [seededFrom, setSeededFrom] = useState(channel);
+  if (channel !== seededFrom) {
+    setSeededFrom(channel);
     if (channel) setCategories(channel.categories);
-  }, [channel]);
+  }
+
 
   const handleSave = async () => {
     if (!channel) return;

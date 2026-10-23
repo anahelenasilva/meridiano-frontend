@@ -27,7 +27,16 @@ import { Check, FileText, Loader2, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
-type Status = "idle" | "generating" | "done" | "error";
+function mostCommonProfile(articles: Article[]): string | undefined {
+  return articles
+    .map((a) => a.feed_profile)
+    .sort(
+      (a, b) =>
+        articles.filter((x) => x.feed_profile === a).length -
+        articles.filter((x) => x.feed_profile === b).length,
+    )
+    .pop();
+}
 
 export default function CustomBriefingPage() {
   const navigate = useNavigate();
@@ -37,14 +46,16 @@ export default function CustomBriefingPage() {
   const [selectedFeedProfile, setSelectedFeedProfile] = useState("");
 
   const [selectedArticles, setSelectedArticles] = useState<Article[]>([]);
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [status, setStatus] = useState<Status>("idle");
 
   const { data, isLoading } = useArticles(query);
 
   const { data: profilesData } = useProfiles();
   const createCustomBriefing = useCreateCustomBriefing();
+  const jobId = createCustomBriefing.data?.jobId ?? null;
   const { data: jobData } = useBriefingJobStatus(jobId);
+  const isGenerating =
+    createCustomBriefing.isPending ||
+    (jobId !== null && jobData?.state !== "completed" && jobData?.state !== "failed");
 
   const articles = data?.articles ?? [];
   const totalPages = data?.pagination?.total_pages ?? 0;
@@ -52,42 +63,23 @@ export default function CustomBriefingPage() {
   const profiles = profilesData ?? [];
   const categories = [...new Set(articles.flatMap((a) => a.categories || []))].sort();
   const sources = data?.available_sources ?? [];
+  // Until the user picks one, default to the profile most of the selected articles share.
+  const feedProfile = selectedFeedProfile || mostCommonProfile(selectedArticles) || profiles[0] || "";
 
   const selectedIds = useMemo(() => new Set(selectedArticles.map((a) => a.id)), [selectedArticles]);
 
   useEffect(() => {
-    if (!jobId) return;
-    if (jobData?.state === "completed") {
-      setStatus("done");
-      setJobId(null);
-      if (jobData.result?.briefingId) {
-        const customTitle =
-          jobData.result.customTitle ?? jobData.result.custom_title ?? null;
-        // replace: Back from the new briefing should not return to the form.
-        navigate(`/briefings/${jobData.result.briefingId}`, {
-          replace: true,
-          state: { customTitle: customTitle?.trim() || null },
-        });
-      }
+    if (jobData?.state === "completed" && jobData.result?.briefingId) {
+      const customTitle = jobData.result.customTitle ?? jobData.result.custom_title ?? null;
+      // replace: Back from the new briefing should not return to the form.
+      navigate(`/briefings/${jobData.result.briefingId}`, {
+        replace: true,
+        state: { customTitle: customTitle?.trim() || null },
+      });
     } else if (jobData?.state === "failed") {
-      setStatus("error");
-      setJobId(null);
       toast.error(jobData.error || "Failed to generate custom briefing");
     }
-  }, [jobData, jobId, navigate]);
-
-  useEffect(() => {
-    if (selectedArticles.length > 0 && !selectedFeedProfile) {
-      const mostCommon = selectedArticles
-        .map((a) => a.feed_profile)
-        .sort((a, b) =>
-          selectedArticles.filter((x) => x.feed_profile === a).length -
-          selectedArticles.filter((x) => x.feed_profile === b).length,
-        )
-        .pop();
-      setSelectedFeedProfile(mostCommon || profiles[0] || "");
-    }
-  }, [selectedArticles, profiles, selectedFeedProfile]);
+  }, [jobData, navigate]);
 
   const toggleArticle = (article: Article) => {
     if (selectedIds.has(article.id)) {
@@ -101,28 +93,26 @@ export default function CustomBriefingPage() {
     setSelectedArticles((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = () => {
     if (selectedArticles.length < 2) {
       toast.error("Select at least 2 articles");
       return;
     }
-    if (!selectedFeedProfile) {
+    if (!feedProfile) {
       toast.error("Select a feed profile");
       return;
     }
 
-    setStatus("generating");
-    try {
-      const { jobId: newJobId } = await createCustomBriefing.mutateAsync({
+    createCustomBriefing.mutate(
+      {
         articleIds: selectedArticles.map((a) => a.id),
-        feedProfile: selectedFeedProfile,
+        feedProfile,
         customPrompt: customPrompt || undefined,
-      });
-      setJobId(newJobId);
-    } catch (e) {
-      setStatus("error");
-      toast.error(e instanceof Error ? e.message : "Failed to queue briefing");
-    }
+      },
+      {
+        onError: (e) => toast.error(e instanceof Error ? e.message : "Failed to queue briefing"),
+      },
+    );
   };
 
   const atMax = selectedArticles.length >= 10;
@@ -236,7 +226,7 @@ export default function CustomBriefingPage() {
             <div>
               <label className="text-xs font-medium mb-1.5 block">Feed Profile</label>
               <Select
-                value={selectedFeedProfile}
+                value={feedProfile}
                 onValueChange={setSelectedFeedProfile}
               >
                 <SelectTrigger className="w-full">
@@ -268,12 +258,12 @@ export default function CustomBriefingPage() {
               className="w-full"
               disabled={
                 selectedArticles.length < 2 ||
-                status === "generating" ||
-                !selectedFeedProfile
+                isGenerating ||
+                !feedProfile
               }
               onClick={handleGenerate}
             >
-              {status === "generating" ? (
+              {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Generating...

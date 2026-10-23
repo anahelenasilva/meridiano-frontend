@@ -3,7 +3,7 @@
 import { login, setAuthToken, clearAuthToken } from '@/services/api';
 import { User } from '@/types/auth';
 import { useQueryClient } from '@tanstack/react-query';
-import React, { Component, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, { Component, createContext, useContext, useState, type ReactNode } from 'react';
 
 interface AuthContextType {
   user: User | null;
@@ -73,71 +73,45 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   }
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const queryClient = useQueryClient();
+interface Session {
+  user: User;
+  accessToken: string;
+}
 
-  // Load auth data from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem('auth_token');
-      const storedUser = localStorage.getItem('meridiano_user');
-
-      // Check for partial storage state (token exists but user missing/invalid)
-      if (storedToken && !storedUser) {
-        // Clear partial storage - token alone doesn't mean authenticated
-        clearAuthToken();
-        localStorage.removeItem('auth_token');
-        setAccessToken(null);
-        setUser(null);
-      } else if (storedToken && storedUser) {
-        try {
-          const parsedUser = JSON.parse(storedUser);
-          // Validate that user has required fields
-          if (parsedUser && typeof parsedUser === 'object' && parsedUser.id) {
-            setAccessToken(storedToken);
-            setUser(parsedUser);
-          } else {
-            // Invalid user structure - clear both
-            clearAuthToken();
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('meridiano_user');
-            setAccessToken(null);
-            setUser(null);
-          }
-        } catch {
-          // Corrupted user data - clear both
-          clearAuthToken();
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('meridiano_user');
-          setAccessToken(null);
-          setUser(null);
-        }
+// Reads the session login saved to localStorage. A token without a valid
+// user is not a session, so partial or corrupted storage is cleared.
+function readStoredSession(): Session | null {
+  try {
+    const accessToken = localStorage.getItem('auth_token');
+    const storedUser = localStorage.getItem('meridiano_user');
+    if (accessToken && storedUser) {
+      const user: unknown = JSON.parse(storedUser);
+      if (typeof user === 'object' && user !== null && 'id' in user && user.id) {
+        return { accessToken, user: user as User };
       }
-    } catch (error) {
-      console.error('Failed to load auth data from localStorage:', error);
-      // Clear potentially corrupted data
-      try {
-        clearAuthToken();
-        localStorage.removeItem('meridiano_user');
-      } catch {
-        // ignore
-      }
-      setAccessToken(null);
-      setUser(null);
-    } finally {
-      setIsInitialized(true);
     }
-  }, []);
+  } catch (error) {
+    console.error('Failed to load auth data from localStorage:', error);
+  }
+
+  try {
+    clearAuthToken();
+    localStorage.removeItem('meridiano_user');
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState(readStoredSession);
+  const queryClient = useQueryClient();
 
   const loginFn = async (email: string, password: string) => {
     const response = await login(email, password);
     const { access_token, user: userData } = response;
 
-    setAccessToken(access_token);
-    setUser(userData);
+    setSession({ user: userData, accessToken: access_token });
 
     try {
       setAuthToken(access_token);
@@ -148,8 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    setUser(null);
-    setAccessToken(null);
+    setSession(null);
     // Queries are keyed by resource, not by user, so a stale cache would show
     // the previous user's bookmarks to the next login in the same tab.
     queryClient.clear();
@@ -162,25 +135,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Derive isAuthenticated from in-memory state (user !== null)
-  const isAuthenticated = user !== null;
-
-  // Don't render children until we've checked localStorage
-  if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <AuthContext.Provider
         value={{
-          user,
-          accessToken,
-          isAuthenticated,
+          user: session?.user ?? null,
+          accessToken: session?.accessToken ?? null,
+          isAuthenticated: session !== null,
           login: loginFn,
           logout,
         }}

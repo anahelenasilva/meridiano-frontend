@@ -531,7 +531,11 @@ export function useBriefingJobStatus(jobId: string | null) {
     queryKey: ["briefing-job", jobId],
     queryFn: () => fetchBriefingJobStatus(jobId as string),
     enabled: Boolean(jobId),
-    refetchInterval: 2000,
+    // Poll until the job completes or fails.
+    refetchInterval: (query) => {
+      const state = query.state.data?.state;
+      return state === "completed" || state === "failed" ? false : 2000;
+    },
   });
 }
 

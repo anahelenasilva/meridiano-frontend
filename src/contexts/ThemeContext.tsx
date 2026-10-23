@@ -1,6 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -14,31 +22,31 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const THEME_STORAGE_KEY = 'theme-preference';
+const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === 'undefined') {
     return 'light';
   }
-  
+
   try {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return window.matchMedia(DARK_QUERY).matches ? 'dark' : 'light';
   } catch {
     return 'light';
   }
 }
 
-function resolveTheme(themeMode: ThemeMode): ResolvedTheme {
-  if (themeMode === 'system') {
-    return getSystemTheme();
-  }
-  return themeMode;
+function subscribeToSystemTheme(onChange: () => void) {
+  const mediaQuery = window.matchMedia(DARK_QUERY);
+  mediaQuery.addEventListener('change', onChange);
+  return () => mediaQuery.removeEventListener('change', onChange);
 }
 
 function getStoredTheme(): ThemeMode | null {
   if (typeof window === 'undefined') {
     return null;
   }
-  
+
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark' || stored === 'system') {
@@ -54,7 +62,7 @@ function applyThemeClass(resolvedTheme: ResolvedTheme) {
   if (typeof document === 'undefined') {
     return;
   }
-  
+
   const root = document.documentElement;
   if (resolvedTheme === 'dark') {
     root.classList.add('dark');
@@ -64,30 +72,16 @@ function applyThemeClass(resolvedTheme: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<ThemeMode>('system');
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>(() => getStoredTheme() ?? 'system');
+  const systemTheme = useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => 'light' as const);
+  const resolvedTheme = theme === 'system' ? systemTheme : theme;
+
+  // Layout effect so the first paint already has the right theme class.
+  useLayoutEffect(() => {
+    applyThemeClass(resolvedTheme);
+  }, [resolvedTheme]);
 
   useEffect(() => {
-    const storedTheme = getStoredTheme();
-    const initialTheme = storedTheme || 'system';
-    const initialResolved = resolveTheme(initialTheme);
-    
-    setTheme(initialTheme);
-    setResolvedTheme(initialResolved);
-    applyThemeClass(initialResolved);
-    setIsInitialized(true);
-  }, []);
-
-  useEffect(() => {
-    if (!isInitialized) {
-      return;
-    }
-
-    const resolved = resolveTheme(theme);
-    setResolvedTheme(resolved);
-    applyThemeClass(resolved);
-
     if (theme !== 'system') {
       try {
         localStorage.setItem(THEME_STORAGE_KEY, theme);
@@ -101,29 +95,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         console.error('Failed to remove theme preference from localStorage:', error);
       }
     }
-  }, [theme, isInitialized]);
-
-  useEffect(() => {
-    if (theme !== 'system' || !isInitialized) {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    const handleChange = () => {
-      const resolved = resolveTheme('system');
-      setResolvedTheme(resolved);
-      applyThemeClass(resolved);
-    };
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    } else {
-      mediaQuery.addListener(handleChange);
-      return () => mediaQuery.removeListener(handleChange);
-    }
-  }, [theme, isInitialized]);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme((current) => {
@@ -132,10 +104,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       return 'light';
     });
   };
-
-  if (!isInitialized) {
-    return null;
-  }
 
   return (
     <ThemeContext.Provider

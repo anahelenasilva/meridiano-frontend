@@ -11,11 +11,6 @@ export default defineConfig([
   reactRefresh.configs.vite(),
   {
     rules: {
-      // Warn until the existing effects these React Compiler rules flag
-      // are rewritten, then promote each back to error.
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/purity": "warn",
-      "react-hooks/preserve-manual-memoization": "warn",
       // The ui primitives and both contexts export helpers next to
       // components; fast refresh falls back to a reload there.
       "react-refresh/only-export-components": "warn",
