@@ -9,7 +9,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Each page is its own chunk, fetched the first time its route renders.
 // LoginPage stays eager so logged-out visitors get the form with no extra request.
 const AdminYoutubeChannelAddPage = lazy(() => import("@/pages/AdminYoutubeChannelAddPage"));
 const AdminYoutubeChannelsPage = lazy(() => import("@/pages/AdminYoutubeChannelsPage"));
