@@ -173,6 +173,9 @@ export function useArchiveArticle() {
   return useMutation({
     mutationFn: ({ id, action }: { id: string; action: ArchiveAction }) =>
       action === "archive" ? archiveArticle(id) : unarchiveArticle(id),
+    // One scope runs these mutations in order, so an Undo clicked while the
+    // archive is in flight cannot reach the backend first.
+    scope: { id: "archive-article" },
     onMutate: async ({ id }) => {
       await queryClient.cancelQueries({ queryKey: ["articles"] });
 

@@ -85,13 +85,35 @@ describe("ArchiveButton", () => {
 
     // The list drops the archived card, so the button is gone by the time Undo is clicked.
     rerender(<QueryClientProvider client={queryClient}>{null}</QueryClientProvider>);
-    render(<>{vi.mocked(toast.success).mock.calls[0][0]}</>);
+    render(vi.mocked(toast.success).mock.calls[0][0]);
     fireEvent.click(screen.getByRole("button", { name: /undo/i }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     const [url, options] = fetchMock.mock.calls[1];
     expect(url).toContain("/api/articles/a-1/archive");
     expect(options.method).toBe("DELETE");
+  });
+
+  it("holds Undo until the archive request settles, so the requests cannot land out of order", async () => {
+    let finishArchive = () => {};
+    fetchMock.mockReturnValueOnce(
+      new Promise<Response>((resolve) => {
+        finishArchive = () => resolve(jsonResponse({ id: "a-1", archived_at: "2026-06-01" }));
+      }),
+    );
+    renderButton(null);
+
+    fireEvent.click(screen.getByRole("button", { name: /^archive$/i }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    render(vi.mocked(toast.success).mock.calls[0][0]);
+    fireEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    finishArchive();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    expect(fetchMock.mock.calls[1][1].method).toBe("DELETE");
   });
 
   it("does not navigate when it sits inside a link", async () => {
