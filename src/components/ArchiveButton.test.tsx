@@ -1,7 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { toast } from "@/utils/toast";
 import ArchiveButton from "./ArchiveButton";
+
+vi.mock("@/utils/toast", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
 
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
@@ -30,6 +35,7 @@ function renderButton(archivedAt: string | null) {
 describe("ArchiveButton", () => {
   beforeEach(() => {
     fetchMock.mockReset();
+    vi.mocked(toast.success).mockReset();
     fetchMock.mockResolvedValue(jsonResponse({ id: "a-1", archived_at: null }));
   });
 
@@ -61,6 +67,30 @@ describe("ArchiveButton", () => {
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalled());
     const [, options] = fetchMock.mock.calls[0];
+    expect(options.method).toBe("DELETE");
+  });
+
+  it("offers Undo in the toast, which unarchives even after the button unmounts", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+    });
+    const { rerender } = render(
+      <QueryClientProvider client={queryClient}>
+        <ArchiveButton articleId="a-1" archivedAt={null} />
+      </QueryClientProvider>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /^archive$/i }));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledTimes(1));
+
+    // The list drops the archived card, so the button is gone by the time Undo is clicked.
+    rerender(<QueryClientProvider client={queryClient}>{null}</QueryClientProvider>);
+    render(<>{vi.mocked(toast.success).mock.calls[0][0]}</>);
+    fireEvent.click(screen.getByRole("button", { name: /undo/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+    const [url, options] = fetchMock.mock.calls[1];
+    expect(url).toContain("/api/articles/a-1/archive");
     expect(options.method).toBe("DELETE");
   });
 

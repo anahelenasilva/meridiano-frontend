@@ -15,7 +15,6 @@ interface ArticleCardProps {
   isBookmarked?: boolean;
   variant?: "feed" | "compact";
   audioState?: AudioBadgeState;
-  onArchived?: () => void;
 }
 
 export default function ArticleCard({
@@ -24,7 +23,6 @@ export default function ArticleCard({
   isBookmarked,
   variant = "feed",
   audioState = "none",
-  onArchived,
 }: ArticleCardProps) {
   const displayDate = article.published_date
     ? format(new Date(article.published_date), "MMM d, yyyy")
@@ -111,7 +109,6 @@ export default function ArticleCard({
                 articleId={article.id}
                 archivedAt={article.archived_at ?? null}
                 size="sm"
-                onArchived={onArchived}
               />
             </div>
           </div>

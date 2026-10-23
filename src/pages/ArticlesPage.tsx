@@ -8,7 +8,6 @@ import { PageHeader } from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
 import { Button } from "@/components/ui/button";
 import {
-  useArchiveArticle,
   useArticles,
   useAudioJobs,
   useBookmarks,
@@ -17,8 +16,6 @@ import {
 } from "@/hooks/useApi";
 import { useArticleFilters } from "@/hooks/useArticleFilters";
 import type { ArchiveScope } from "@/types";
-import { MESSAGES } from "@/constants/messages";
-import { toast } from "@/utils/toast";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { Archive, FileText, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -44,34 +41,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const { data: bookmarksData } = useBookmarks(1, 100);
   const { add, remove } = useToggleBookmark();
   const { data: audioJobsData } = useAudioJobs();
-  const archiveMutation = useArchiveArticle();
-
-  // Undo costs a few lines because both mutations already exist, and fast
-  // triage is exactly where a mis-tap happens.
-  const handleArchived = (articleId: string) => {
-    toast.success(
-      <span className="flex items-center gap-3">
-        {isArchiveView
-          ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED
-          : MESSAGES.SUCCESS.ARTICLE_ARCHIVED}
-        <button
-          type="button"
-          className="underline font-medium"
-          onClick={() =>
-            archiveMutation.mutate({
-              id: articleId,
-              action: isArchiveView ? "archive" : "unarchive",
-            })
-          }
-        >
-          Undo
-        </button>
-      </span>,
-      // Undo needs longer than the default 3s: noticing the toast and
-      // clicking it is slower than reading a plain confirmation message.
-      { autoClose: 8000 },
-    );
-  };
 
   const audioJobsBySource = useMemo(
     () => buildAudioJobMap(audioJobsData?.jobs),
@@ -155,7 +124,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
                 article={article}
                 onToggleBookmark={handleToggleBookmark}
                 isBookmarked={bookmarkedIds.has(article.id)}
-                onArchived={() => handleArchived(article.id)}
                 audioState={getAudioBadgeState(
                   article.has_audio,
                   audioJobsBySource.get(audioJobKey("article", article.id)),

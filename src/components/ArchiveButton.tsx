@@ -7,9 +7,6 @@ interface ArchiveButtonProps {
   articleId: string;
   archivedAt: string | null;
   size?: "sm" | "md" | "lg";
-  // Lets a page own the post-success toast, so the list can offer Undo while
-  // the detail page shows a plain confirmation.
-  onArchived?: () => void;
 }
 
 const iconSizeClasses = {
@@ -31,7 +28,6 @@ export default function ArchiveButton({
   articleId,
   archivedAt,
   size = "md",
-  onArchived,
 }: ArchiveButtonProps) {
   const archiveMutation = useArchiveArticle();
   const isArchived = archivedAt !== null;
@@ -48,14 +44,25 @@ export default function ArchiveButton({
     // TanStack Query drops mutate-level callbacks once the observer has no
     // listeners left. Notify at mutate time instead, so the toast always fires;
     // the error toast lives on the mutation itself in useApi.ts for the same reason.
+    // Undo still works after unmount: mutate itself runs without a mounted observer.
     archiveMutation.mutate({ id: articleId, action: isArchived ? "unarchive" : "archive" });
-    if (onArchived) {
-      onArchived();
-    } else {
-      toast.success(
-        isArchived ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED : MESSAGES.SUCCESS.ARTICLE_ARCHIVED,
-      );
-    }
+    toast.success(
+      <span className="flex items-center gap-3">
+        {isArchived ? MESSAGES.SUCCESS.ARTICLE_UNARCHIVED : MESSAGES.SUCCESS.ARTICLE_ARCHIVED}
+        <button
+          type="button"
+          className="underline font-medium"
+          onClick={() =>
+            archiveMutation.mutate({ id: articleId, action: isArchived ? "archive" : "unarchive" })
+          }
+        >
+          Undo
+        </button>
+      </span>,
+      // Undo needs longer than the default 3s: noticing the toast and
+      // clicking it is slower than reading a plain confirmation message.
+      { autoClose: 8000 },
+    );
   };
 
   const Icon = isArchived ? ArchiveRestore : Archive;
