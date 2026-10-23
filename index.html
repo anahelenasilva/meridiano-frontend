@@ -10,6 +10,16 @@
     <meta property="og:title" content="Meridiano" />
     <meta property="og:description" content="Meridiano" />
     <meta property="og:type" content="website" />
+
+    <!-- Playfair starts at 600 since every font-serif heading is semibold or heavier (prose h1 is 800).
+         Inter 700 and JetBrains Mono 600 are left out on purpose: font-bold Inter text falls back to the 600 face
+         and prose inline code to the 500 face, and requesting them would change how that text looks. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
   </head>
 
   <body>
