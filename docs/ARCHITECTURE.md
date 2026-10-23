@@ -39,7 +39,7 @@ Server data moves through three layers:
 2. **Query hooks** (`src/hooks/useApi.ts`) wrap each endpoint in a TanStack Query `useQuery` or `useMutation`. They own query keys and the cache updates after a mutation.
 3. **The fetch wrapper** (`src/services/api.ts`) holds `apiFetch` and one typed function per endpoint. It adds the bearer token, parses JSON and turns error responses into thrown errors.
 
-Components in `src/components/` follow the same rule as pages and call query hooks, not the fetch wrapper. `AuthContext` and `useAudioGeneration` are the two other callers of the wrapper. Pages and components show success and error toasts with the strings in `src/constants/messages.ts`.
+Components in `src/components/` follow the same rule as pages and call query hooks, not the fetch wrapper. `AuthContext` and `useAudioGeneration` are the two other callers of the wrapper.
 
 ---
 
@@ -154,7 +154,7 @@ Spec: [`docs/00-dark-theme/tech-spec.md`](./00-dark-theme/tech-spec.md)
 | Playwright            | End-to-end tests in `e2e/`     |
 
 - Tests sit next to the module they cover as `<module>.test.ts(x)`.
-- Page and component tests mock `@/hooks/useApi`.
+- Page and component tests that need server data either stub the global `fetch` and render in a real `QueryClientProvider`, or mock `@/hooks/useApi`.
 - Query hook tests stub the global `fetch` and render the hook in a fresh `QueryClientProvider` with retries off.
 - Query by role, label or text, and use `data-testid` only as a last resort.
 
