@@ -1,223 +1,183 @@
-# Architecture Overview
+# Architecture overview
 
 > Technical reference for the Meridiano Frontend project.
 
-## Table of Contents
+## Table of contents
 
 - [Stack](#stack)
-- [Architectural Patterns](#architectural-patterns)
-- [Project Structure](#project-structure)
-- [Context Patterns](#context-patterns)
-- [Data Flow & Service Layer](#data-flow--service-layer)
-- [Routing & Navigation](#routing--navigation)
-- [Testing Approach](#testing-approach)
-- [Design Decisions & Rationale](#design-decisions--rationale)
+- [Shape of the app](#shape-of-the-app)
+- [Project structure](#project-structure)
+- [Data flow](#data-flow)
+- [Contexts](#contexts)
+- [Routing and the auth gate](#routing-and-the-auth-gate)
+- [Testing](#testing)
+- [Design decisions](#design-decisions)
 
 ---
 
 ## Stack
 
-| Layer       | Technology                         |
-| ----------- | ---------------------------------- |
-| Framework   | React 19 + TypeScript              |
-| Build       | Vite                               |
-| Styling     | Tailwind CSS v4 + CSS custom props |
-| Routing     | React Router v8                    |
-| HTTP        | fetch (native)                     |
-| Testing     | Vitest + React Testing Library     |
-| Package Mgr | pnpm                               |
-| Linting     | ESLint (flat config)               |
+| Layer       | Technology                                       |
+| ----------- | ------------------------------------------------ |
+| Framework   | React 19 + TypeScript                            |
+| Build       | Vite                                             |
+| Styling     | Tailwind CSS v4 + CSS custom props               |
+| Routing     | React Router v8                                  |
+| Server data | TanStack Query                                   |
+| HTTP        | Native `fetch`, wrapped in `src/services/api.ts` |
+| Testing     | Vitest + React Testing Library                   |
+| Package Mgr | pnpm                                             |
+| Linting     | ESLint (flat config)                             |
 
 ---
 
-## Architectural Patterns
+## Shape of the app
 
-### Functional Core / Imperative Shell
+Server data moves through three layers:
 
-The codebase separates **pure logic** from **side-effectful orchestration**:
+1. **Pages** (`src/pages/`) render a route. They read and change server data through query hooks, and keep UI state in `useState` or the URL.
+2. **Query hooks** (`src/hooks/useApi.ts`) wrap each endpoint in a TanStack Query `useQuery` or `useMutation`. They own query keys and the cache updates after a mutation.
+3. **The fetch wrapper** (`src/services/api.ts`) holds `apiFetch` and one typed function per endpoint. It adds the bearer token, parses JSON and turns error responses into thrown errors.
 
-- **Functional Core** — Pure components, utility functions, type definitions, and context value derivations. These are deterministic and easy to test in isolation.
-- **Imperative Shell** — Components and hooks that perform side effects: API calls (`src/services/`), browser storage access (`localStorage`), and router navigation. The shell wires the core to the outside world.
+Components in `src/components/` follow the same rule as pages and call query hooks, not the fetch wrapper. `AuthContext` and `useAudioGeneration` are the two other callers of the wrapper. Pages and components show success and error toasts with the strings in `src/constants/messages.ts`.
 
-In practice this manifests as:
+---
+
+## Project structure
 
 ```text
 src/
-├── components/   ← Presentational (core)
-├── contexts/     ← State + effects boundary (shell)
-├── services/     ← HTTP / external IO (shell)
-├── pages/        ← Route-level orchestration (shell)
-├── types/        ← Pure type definitions (core)
-└── utils/        ← Pure helpers (core)
+├── pages/        ← one component per route
+├── components/   ← shared components; ui/ holds the UI primitives
+├── hooks/        ← query hooks (useApi.ts) and other custom hooks
+├── services/     ← api.ts, the fetch wrapper and endpoint functions
+├── contexts/     ← AuthContext, ThemeContext
+├── types/        ← api.ts is generated from the backend OpenAPI spec
+├── utils/        ← small helpers (error parsing, toasts, YouTube URLs)
+├── constants/    ← user-facing messages
+└── lib/          ← cn() class-name helper
 ```
-
-### Component Composition over Inheritance
-
-React function components + hooks exclusively. No class components, no HOCs. Shared behavior is extracted into custom hooks or context providers.
-
-### Colocation
-
-Tests live next to the modules they cover (`*.test.ts(x)` siblings). Feature-specific docs live under `docs/<feature>/`.
 
 ---
 
-## Context Patterns
-
-### AuthContext
-
-**Location:** `src/contexts/AuthContext.tsx`
-
-Provides authentication state and operations to the entire app.
+## Data flow
 
 ```text
-AuthProvider
-├── state: { user, token, isAuthenticated }
-├── actions: { login(), logout(), register() }
-└── effects: localStorage persistence, token hydration on mount
+Page or component
+  → query hook in src/hooks/useApi.ts (useQuery / useMutation)
+    → endpoint function in src/services/api.ts
+      → apiFetch (base URL, bearer token, JSON parsing, error handling)
+        → backend REST API
+  ← TanStack Query caches the result and re-renders consumers
 ```
 
-**Key behaviors:**
+### The fetch wrapper (`src/services/api.ts`)
 
-1. On mount, reads a stored token from `localStorage` and rehydrates session state (imperative shell).
-2. Exposes `login` / `logout` / `register` that call the API service layer, then update internal state.
-3. Consumed via `useAuth()` custom hook that wraps `useContext` with a guard (`throw` if used outside provider).
+- `getApiBaseUrl()` returns `VITE_API_BASE_URL` in development (default `http://localhost:3001`), and otherwise derives the URL from the current hostname on port 3001 unless `VITE_API_BASE_URL` points at Railway.
+- `apiFetch` reads the token from `localStorage` (`auth_token`) and sends it as `Authorization: Bearer <token>`.
+- A 401 with a token present expires the session: it clears stored auth and reloads, which drops the query cache and lands on the login form.
+- Other non-2xx responses throw the error built by `parseErrorResponse` in `src/utils/api-error.ts`.
+- `typedApiFetch` infers request paths and response bodies from the generated `src/types/api.ts`. Run `pnpm generate:api-types` to regenerate it; CI fails if it drifts from the backend spec.
 
-**Composition point:** Wraps `<App />` at the router/layout level so every route has access.
+### Query hooks (`src/hooks/useApi.ts`)
 
-### ThemeContext
+- Query keys name the resource and its params, e.g. `["articles", params]` or `["article", id, includeAudio]`.
+- Mutations update or invalidate the affected queries once they succeed.
+- `App.tsx` sets the defaults: 5 minute `staleTime` and 1 retry.
 
-**Location:** `src/contexts/ThemeContext.tsx`
-**Spec:** [`docs/00-dark-theme/tech-spec.md`](./00-dark-theme/tech-spec.md)
+### State
 
-Follows the **same provider + custom hook** pattern established by `AuthContext`:
+There is no client state library. State lives in:
 
-```text
-ThemeProvider
-├── state: { theme: 'light' | 'dark' }
-├── actions: { toggleTheme() }
-└── effects: localStorage persistence, system-preference detection, <html> class manipulation
-```
+1. **TanStack Query** for anything that comes from the backend.
+2. **React Context** for auth and theme.
+3. **URL search params** for filters and pagination (see `src/hooks/useArticleFilters.ts`).
+4. **Component `useState`** for everything else.
 
-**Key behaviors:**
+---
 
-1. Reads initial preference: `localStorage` → OS `prefers-color-scheme` → falls back to `light`.
-2. Toggles a `dark` class on `<html>` so Tailwind's `dark:` variant works globally.
-3. Consumed via `useTheme()` hook.
+## Contexts
 
-### Provider Composition
+Each context exposes a `use<Name>()` hook that throws when called outside its provider.
 
-Providers are nested at the app root following a **top-down dependency order** — outermost providers have no dependencies on inner ones:
+### AuthContext (`src/contexts/AuthContext.tsx`)
+
+- State: `user`, `accessToken`, `isAuthenticated` (true when `user` is set).
+- Actions: `login(email, password)` and `logout()`.
+- On mount it restores the session from `localStorage` (`auth_token`, `meridiano_user`) only when both are stored and the user has an `id`.
+- `logout()` clears the query cache, because query keys are not scoped by user.
+- `useUser()` returns a non-null `User` for components behind the auth gate.
+
+### ThemeContext (`src/contexts/ThemeContext.tsx`)
+
+Spec: [`docs/00-dark-theme/tech-spec.md`](./00-dark-theme/tech-spec.md)
+
+- State: `theme` (`light`, `dark` or `system`) and `resolvedTheme` (`light` or `dark`).
+- `toggleTheme()` cycles light → dark → system.
+- The preference is stored in `localStorage` (`theme-preference`), and `system` follows `prefers-color-scheme`.
+- It toggles a `dark` class on `<html>` so Tailwind's `dark:` variant applies.
+
+### Provider order
 
 ```tsx
-<ThemeProvider>
-  {" "}
-  {/* no deps */}
-  <AuthProvider>
-    {" "}
-    {/* no deps on Theme */}
-    <RouterProvider />
-  </AuthProvider>
-</ThemeProvider>
+<QueryClientProvider client={queryClient}>
+  <ThemeProvider>
+    <AuthProvider>
+      <ToastContainerWrapper />
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </AuthProvider>
+  </ThemeProvider>
+</QueryClientProvider>
 ```
 
-> **Convention:** Every new context must expose a `use<Name>()` hook that throws when called outside its provider. This guarantees fail-fast behavior and clear error messages during development.
+`AuthProvider` sits inside `QueryClientProvider` because `logout()` clears the query cache.
 
 ---
 
-## Data Flow & Service Layer
+## Routing and the auth gate
 
-### Request Lifecycle
+`App.tsx` declares every route in one `<Routes>` block, with pages imported eagerly.
 
-```text
-Page/Component
-  → calls useAuth() or direct service fn
-    → src/services/api.ts (Axios instance, base URL, interceptors)
-      → Backend REST API
-        ← JSON response
-      ← service fn returns typed data
-    ← state update (context setState or local useState)
-  ← re-render
-```
-
-### Service Layer (`src/services/`)
-
-- **`api.ts`** — Shared fetch wrapper with:
-  - `baseURL` from environment variable (`VITE_API_BASE_URL`)
-  - `Authorization: Bearer <token>` attached to requests when authenticated
-  - 401 handling (clear token, reload so the auth gate shows the login form)
-- **Domain service functions** — Thin wrappers that call `apiFetch` and return typed responses.
-
-### Environment Configuration
-
-Vite env vars prefixed with `VITE_` are exposed to client code. `.env` / `.env.local` files are used per-environment; `.env.example` documents required variables.
-
-### State Management Philosophy
-
-No external state library (Redux, Zustand, etc.). State lives in:
-
-1. **React Context** — Global cross-cutting concerns (auth, theme).
-2. **Component-local `useState` / `useReducer`** — Page or feature state.
-3. **URL state** — React Router params and search params for navigational state.
-
-This is intentional: the app's complexity doesn't warrant a dedicated store. If that changes, context can be swapped for Zustand with minimal surface-area impact since consumers already go through hooks.
+`AppContent` is the only auth gate. It renders `LoginPage` in place of the routes when `isAuthenticated` is false and leaves the URL alone, so a successful login renders the page that was requested.
 
 ---
 
-## Routing & Navigation
-
-React Router v8 with a declarative route config. Routes are code-split at the page level via lazy imports where beneficial.
-
-**Protected routes** are behind one gate: `AppContent` in `App.tsx` renders `LoginPage` in place of the routes when `isAuthenticated` from `useAuth()` is false. The URL is left alone, so a successful login renders the page that was requested. Components behind the gate read the current user with `useUser()`, which returns a non-null `User`.
-
----
-
-## Testing Approach
-
-### Tools
+## Testing
 
 | Tool                  | Purpose                        |
 | --------------------- | ------------------------------ |
-| Vitest                | Test runner + assertions       |
+| Vitest                | Unit and component tests       |
 | React Testing Library | DOM-based component testing    |
 | jsdom                 | Browser environment simulation |
+| Playwright            | End-to-end tests in `e2e/`     |
 
-### Conventions
-
-- **File naming:** `<module>.test.ts(x)` colocated with source.
-- **Unit tests** for pure utilities and hooks.
-- **Integration tests** for components — render with necessary providers, interact via user events, assert on DOM output.
-- **No snapshot tests** unless explicitly justified — prefer explicit assertions.
-- **Testing Library philosophy:** test behavior, not implementation. Query by role/label/text, not by class or test-id (use `data-testid` only as last resort).
-
-### Running Tests
+- Tests sit next to the module they cover as `<module>.test.ts(x)`.
+- Page and component tests mock `@/hooks/useApi`.
+- Query hook tests stub the global `fetch` and render the hook in a fresh `QueryClientProvider` with retries off.
+- Query by role, label or text, and use `data-testid` only as a last resort.
 
 ```bash
-pnpm test        # single run
-pnpm test:watch  # watch mode
-pnpm coverage    # with coverage report
+pnpm test        # Vitest, single run
+pnpm test:e2e    # Playwright, starts the frontend and the backend
 ```
 
-### Provider Wrapper
+---
 
-Tests that need context wrap components in a helper that composes required providers (Auth, Theme, Router memory history). This avoids duplicating boilerplate across test files.
+## Design decisions
+
+| Decision                                | Rationale                                                                                                 |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Vite SPA over Next.js**               | The app has no SSR requirement. It was migrated from Next.js.                                             |
+| **TanStack Query for server data**      | Caching, refetching and mutation invalidation live in one place, so pages stay small.                     |
+| **Native fetch, no HTTP library**       | `apiFetch` covers the token header and 401 handling in a few lines.                                       |
+| **Types generated from OpenAPI**        | `src/types/api.ts` comes from the backend spec, and CI catches drift.                                     |
+| **No client state library**             | Query cache, two contexts and the URL cover the state the app has.                                        |
+| **Dark theme via CSS class strategy**   | Tailwind's `dark:` variant on a `<html>` class, with `localStorage` and system preference for the choice. |
 
 ---
 
-## Design Decisions & Rationale
+## Related docs
 
-| Decision                                    | Rationale                                                                                                                                                 |
-| ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Vite over CRA / Next.js**                 | SPA with no SSR requirement. Vite gives fast HMR and simple config.                                                                                       |
-| **Tailwind CSS v4 + CSS custom properties** | Utility-first styling with design-token theming via custom props. v4's native CSS-based config removes the need for `tailwind.config.js`.                 |
-| **No state library**                        | Context + hooks cover current needs. Avoids dependency and boilerplate for a modest state surface.                                                        |
-| **Native fetch over Axios**                 | Custom `apiFetch` wrapper handles auth token injection and 401 session expiry. Keeps bundle smaller; interceptors replicated in wrapper.                        |
-| **pnpm**                                    | Strict dependency resolution, disk-efficient, enforced by project rules.                                                                                  |
-| **Colocation**                              | Tests and feature docs next to source reduces navigation friction and makes ownership obvious.                                                            |
-| **Provider + hook pattern for contexts**    | Consistent API surface, fail-fast `useContext` guards, easy to mock in tests.                                                                             |
-| **Dark theme via CSS class strategy**       | Tailwind `dark:` variant is mature, performant, and avoids runtime style recalculation. `localStorage` + system preference gives good UX with zero flash. |
-
----
-
-## Related Docs
-
-- [Dark Theme Tech Spec](./00-dark-theme/tech-spec.md) — Feature spec for theming implementation.
+- [Dark Theme Tech Spec](./00-dark-theme/tech-spec.md), the feature spec for theming.

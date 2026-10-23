@@ -19,7 +19,7 @@ This project was migrated from Next.js to Vite with React Router.
 - **React Router** - Client-side routing
 - **TypeScript** - Type safety
 - **TanStack Query** - Data fetching and caching
-- **Axios** - HTTP client
+- **fetch** - HTTP client, wrapped in `src/services/api.ts`
 - **Tailwind CSS v4** - Styling
 - **Lucide React** - Icons
 - **date-fns** - Date formatting
@@ -102,7 +102,6 @@ For production builds, you can set `VITE_API_BASE_URL` as a fallback in your `.e
 - `pnpm preview` - Preview production build locally
 - `pnpm serve` - Start production server (port 8080)
 - `pnpm lint` - Run ESLint
-- `pnpm lint:biome` - Run Biome linter
 
 ## Learn More
 

@@ -8,7 +8,7 @@
 
 - **Type:** Monolith (single-part web app)
 - **Primary Language:** TypeScript
-- **Architecture:** Functional Core / Imperative Shell
+- **Architecture:** Pages call TanStack Query hooks (`src/hooks/useApi.ts`), which call a thin fetch wrapper (`src/services/api.ts`)
 
 ---
 

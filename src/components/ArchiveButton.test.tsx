@@ -71,7 +71,6 @@ describe("ArchiveButton", () => {
     });
     render(
       <QueryClientProvider client={queryClient}>
-        {/* biome-ignore lint/a11y/useValidAnchor: exercising click propagation */}
         <a href="/articles/a-1" onClick={onClick}>
           <ArchiveButton articleId="a-1" archivedAt={null} />
         </a>

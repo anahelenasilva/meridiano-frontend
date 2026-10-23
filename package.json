@@ -11,7 +11,6 @@
     "generate:api-types": "openapi-typescript ${OPENAPI_SPEC_URL:-https://raw.githubusercontent.com/anahelenasilva/meridiano-nestjs/main/openapi.json} -o src/types/api.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "lint:biome": "biome check .",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -42,7 +41,6 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.14",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.1.18",

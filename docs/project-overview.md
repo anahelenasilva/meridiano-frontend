@@ -33,7 +33,7 @@ Meridiano Frontend is a single-page application for viewing AI-powered news brie
 ## Architecture
 
 - **Type:** Monolith (single cohesive frontend)
-- **Pattern:** Functional Core / Imperative Shell
+- **Pattern:** Pages → TanStack Query hooks (`src/hooks/useApi.ts`) → fetch wrapper (`src/services/api.ts`)
 - **State:** React Context (auth, theme) + TanStack Query + local state
 
 ---
