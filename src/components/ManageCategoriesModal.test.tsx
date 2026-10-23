@@ -98,7 +98,7 @@ describe("ManageCategoriesModal", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /add/i }));
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    await waitFor(() => expect(screen.getByPlaceholderText(/new category name/i)).toHaveValue(""));
     const createCall = fetchMock.mock.calls.find(
       ([url, opts]) => (opts?.method || "").toUpperCase() === "POST" && url.includes("/api/youtube/categories"),
     );
@@ -122,7 +122,7 @@ describe("ManageCategoriesModal", () => {
     fireEvent.change(input, { target: { value: "Renamed" } });
     fireEvent.click(screen.getByRole("button", { name: /^save$/i }));
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    await waitFor(() => expect(screen.queryByDisplayValue("Renamed")).not.toBeInTheDocument());
     const patchCall = fetchMock.mock.calls.find(
       ([url, opts]) => (opts?.method || "").toUpperCase() === "PATCH" && url.includes("cat-1"),
     );
@@ -146,7 +146,7 @@ describe("ManageCategoriesModal", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /^delete$/i }));
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    await waitFor(() => expect(screen.queryByText(/delete "news"/i)).not.toBeInTheDocument());
     expect(
       fetchMock.mock.calls.some(
         ([url, opts]) =>

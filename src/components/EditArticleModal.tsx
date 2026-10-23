@@ -127,7 +127,6 @@ export default function EditArticleModal({
     if (Object.keys(patch).length === 0) return;
     try {
       await updateArticleMutation.mutateAsync({ id: article.id, patch });
-      toast.success("Article updated successfully");
       onOpenChange(false);
     } catch (e) {
       toast.error(getErrorMessage(e));

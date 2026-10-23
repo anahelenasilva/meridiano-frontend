@@ -58,7 +58,6 @@ export default function ManageCategoriesModal({
 
     try {
       await createCategory.mutateAsync(name);
-      toast.success(MESSAGES.SUCCESS.CATEGORY_CREATED);
       setNewCategoryName("");
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.CATEGORY_CREATE} ${getErrorMessage(e)}`);
@@ -217,7 +216,6 @@ function CategoryEditRow({
 
     try {
       await renameCategory.mutateAsync({ id: category.id, name: trimmed });
-      toast.success(MESSAGES.SUCCESS.CATEGORY_RENAMED);
       onDone();
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.CATEGORY_RENAME} ${getErrorMessage(e)}`);
@@ -289,7 +287,6 @@ function DeleteCategoryDialog({
     if (!category) return;
     try {
       await deleteCategory.mutateAsync(category.id);
-      toast.success(MESSAGES.SUCCESS.CATEGORY_DELETED);
       onClose();
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.CATEGORY_DELETE} ${getErrorMessage(e)}`);

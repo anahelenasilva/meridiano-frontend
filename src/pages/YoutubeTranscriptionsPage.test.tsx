@@ -170,7 +170,6 @@ describe("YoutubeTranscriptionsPage categories", () => {
         }),
       ),
     );
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
     await waitFor(() => expect(screen.queryByText("Edit Categories")).not.toBeInTheDocument());
   });
 

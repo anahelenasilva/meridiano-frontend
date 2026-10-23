@@ -19,7 +19,6 @@ export default function LoginPage() {
 
     try {
       await login(username, password);
-      toast.success(MESSAGES.SUCCESS.LOGGED_IN);
     } catch (error) {
       const errorMessage = getErrorMessage(error);
 

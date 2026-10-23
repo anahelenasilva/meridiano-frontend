@@ -174,18 +174,17 @@ describe("EditArticleModal", () => {
     expect(lastPatchBody()).toEqual({ categories: [] });
   });
 
-  it("on success shows a success toast and invalidates the article, list and bookmark queries", async () => {
+  it("on success closes and invalidates the article, list and bookmark queries", async () => {
     const { invalidateSpy, onOpenChange } = renderModal();
     fireEvent.change(screen.getByLabelText(/title/i), {
       target: { value: "Fixed Title" },
     });
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
-    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+    await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["article", "art-1"] });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["articles"] });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ["bookmarks"] });
-    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it("on a failed save shows an error toast and does not close", async () => {

@@ -43,7 +43,6 @@ export default function EditChannelCategoriesModal({
         channelId: channel.id,
         categoryNames: categories.map((c) => c.name),
       });
-      toast.success(MESSAGES.SUCCESS.CHANNEL_CATEGORIES_UPDATED);
       onOpenChange(false);
     } catch (e) {
       toast.error(`${MESSAGES.ERROR.CHANNEL_CATEGORIES_UPDATE} ${getErrorMessage(e)}`);

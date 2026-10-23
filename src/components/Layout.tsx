@@ -1,8 +1,6 @@
 import { NavLink } from "@/components/NavLink";
-import { MESSAGES } from "@/constants/messages";
 import { useAuth, useUser } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
-import { toast } from "@/utils/toast";
 import {
   Bookmark,
   FileText,
@@ -123,7 +121,6 @@ function CollapsibleSidebar() {
 
   const handleLogout = () => {
     logout();
-    toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
     navigate("/");
   };
 
@@ -227,7 +224,6 @@ function MobileHeader() {
   const handleLogout = () => {
     logout();
     setOpen(false);
-    toast.success(MESSAGES.SUCCESS.LOGGED_OUT);
     navigate("/");
   };
 
