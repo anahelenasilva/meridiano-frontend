@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { login, setAuthToken, clearAuthToken } from '@/services/api';
 import { User } from '@/types/auth';
 import { useQueryClient } from '@tanstack/react-query';
@@ -37,29 +38,29 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
-          <div className="max-w-md w-full bg-white rounded-lg border border-red-200 shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-red-600 mb-4">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-background p-8">
+          <div className="max-w-md w-full bg-card text-card-foreground rounded-lg border border-destructive/40 shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-destructive mb-4">
               Something went wrong
             </h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-muted-foreground mb-4">
               An error occurred in the authentication system. Please refresh the page to try again.
             </p>
-            <button
+            <Button
+              className="w-full"
               onClick={() => {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();
               }}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
             >
               Refresh Page
-            </button>
+            </Button>
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <details className="mt-4">
-                <summary className="text-sm text-gray-600 cursor-pointer">
+                <summary className="text-sm text-muted-foreground cursor-pointer">
                   Error Details
                 </summary>
-                <pre className="mt-2 text-xs bg-gray-100 p-2 rounded overflow-auto">
+                <pre className="mt-2 text-xs bg-muted text-muted-foreground p-2 rounded overflow-auto">
                   {this.state.error.toString()}
                 </pre>
               </details>
