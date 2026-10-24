@@ -30,7 +30,7 @@ This project was migrated from Next.js to Vite with React Router.
 ### Prerequisites
 
 - Node.js 26.12.1 (see .nvmrc)
-- pnpm (or npm/yarn)
+- pnpm (it downloads the Node version in `devEngines.runtime`)
 
 ### Installation
 
