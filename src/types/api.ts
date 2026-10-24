@@ -633,7 +633,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a YouTube transcription by id */
+        /** Get a YouTube transcription by id (the owner note attaches only for a JWT user) */
         get: operations["YoutubeTranscriptionsController_getTranscription"];
         put?: never;
         post?: never;
