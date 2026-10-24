@@ -61,7 +61,6 @@ export default function CustomBriefingPage() {
   const totalPages = data?.pagination?.total_pages ?? 0;
   const currentPage = data?.pagination?.page ?? 1;
   const profiles = profilesData ?? [];
-  const categories = [...new Set(articles.flatMap((a) => a.categories || []))].sort();
   const sources = data?.available_sources ?? [];
   // Until the user picks one, default to the profile most of the selected articles share.
   const feedProfile = selectedFeedProfile || mostCommonProfile(selectedArticles) || profiles[0] || "";
@@ -125,7 +124,7 @@ export default function CustomBriefingPage() {
           description="Hand-pick articles to generate a focused intelligence summary"
         />
 
-        <ArticleFilters categories={categories} sources={sources} />
+        <ArticleFilters sources={sources} />
 
         {isLoading ? (
           <div className="flex justify-center py-20">

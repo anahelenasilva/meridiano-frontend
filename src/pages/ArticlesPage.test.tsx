@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
+import { ARTICLE_CATEGORIES } from "@/constants/categories";
 import { toast } from "@/utils/toast";
 
 vi.mock("@/utils/toast", () => ({
@@ -41,6 +42,7 @@ function article(overrides: Partial<{
   id: string;
   title: string;
   has_audio: boolean;
+  categories: string[];
 }> = {}) {
   return {
     id: "art-1",
@@ -257,6 +259,28 @@ describe("ArticlesPage source filter", () => {
       );
       expect(call).toBeDefined();
     });
+  });
+});
+
+describe("ArticlesPage category filter", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  it("lists every category even when this page of articles only has one", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(jsonResponse(articlesResponse([article({ categories: ["news"] })]))),
+    });
+    renderPage();
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("Filters"));
+    fireEvent.click(screen.getByText("All Categories"));
+
+    for (const category of ARTICLE_CATEGORIES) {
+      expect(await screen.findByRole("option", { name: category })).toBeInTheDocument();
+    }
   });
 });
 
