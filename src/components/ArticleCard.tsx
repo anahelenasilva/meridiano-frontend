@@ -3,7 +3,6 @@ import ArchiveButton from "@/components/ArchiveButton";
 import { AudioBadge } from "@/components/AudioBadge";
 import { CustomPromptBadge } from "@/components/CustomPromptBadge";
 import { NoteEditor } from "@/components/NoteEditor";
-import { getArticleImage } from "@/utils/get-article-image";
 import type { AudioBadgeState } from "@/utils/audio-badge";
 import { format } from "date-fns";
 import { Bookmark, BookmarkCheck } from "lucide-react";
@@ -29,7 +28,6 @@ export default function ArticleCard({
     : "";
   const displaySource = article.feed_source || "";
   const displayCategory = article.categories?.[0] || "";
-  const displayImage = getArticleImage(article);
 
   if (variant === "compact") {
     return (
@@ -48,21 +46,25 @@ export default function ArticleCard({
           </h3>
           <p className="text-xs text-muted-foreground">{displayDate}</p>
         </div>
-        <img
-          src={displayImage}
-          alt=""
-          className="w-16 h-16 rounded-md object-cover shrink-0 bg-muted"
-          loading="lazy"
-        />
+        {article.image_url && (
+          <img
+            src={article.image_url}
+            alt=""
+            className="w-16 h-16 rounded-md object-cover shrink-0 bg-muted"
+            loading="lazy"
+          />
+        )}
       </Link>
     );
   }
 
+  // The title is a stretched link: its ::after covers the whole card, so a
+  // click anywhere outside a control opens the article while the link's
+  // accessible name stays the title. The controls are siblings of the link
+  // rather than children, which keeps the markup valid, and z-10 lifts them
+  // above the ::after so their own clicks land on them.
   return (
-    <Link
-      to={`/articles/${article.id}`}
-      className="group block py-5 border-b border-border"
-    >
+    <div className="group relative py-5 border-b border-border">
       <div className="flex items-start gap-4">
         <div className="flex-1 min-w-0 space-y-2">
           <div className="flex items-center gap-2">
@@ -75,8 +77,13 @@ export default function ArticleCard({
             {article.custom_prompt && <CustomPromptBadge />}
             <AudioBadge state={audioState} />
           </div>
-          <h3 className="text-lg font-semibold leading-snug group-hover:text-primary transition-colors">
-            {article.title}
+          <h3 className="text-lg font-semibold leading-snug">
+            <Link
+              to={`/articles/${article.id}`}
+              className="transition-colors after:absolute after:inset-0 group-hover:text-primary"
+            >
+              {article.title}
+            </Link>
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
             {article.summary}
@@ -89,14 +96,12 @@ export default function ArticleCard({
                 <span className="text-primary/80">{displayCategory}</span>
               </>
             )}
-            <div className="ml-auto flex items-center gap-1">
+            <div className="relative z-10 ml-auto flex items-center gap-1">
               {onToggleBookmark && (
                 <button
+                  type="button"
                   className="p-1 hover:text-primary transition-colors"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onToggleBookmark(article.id);
-                  }}
+                  onClick={() => onToggleBookmark(article.id)}
                 >
                   {isBookmarked ? (
                     <BookmarkCheck className="h-4 w-4 text-primary" />
@@ -112,20 +117,24 @@ export default function ArticleCard({
               />
             </div>
           </div>
-          <NoteEditor
-            sourceType="article"
-            sourceId={article.id}
-            note={article.note}
-            mode="collapsed"
-          />
+          <div className="relative z-10">
+            <NoteEditor
+              sourceType="article"
+              sourceId={article.id}
+              note={article.note}
+              mode="collapsed"
+            />
+          </div>
         </div>
-        <img
-          src={displayImage}
-          alt=""
-          className="w-28 h-28 rounded-md object-cover shrink-0 bg-muted hidden sm:block"
-          loading="lazy"
-        />
+        {article.image_url && (
+          <img
+            src={article.image_url}
+            alt=""
+            className="w-28 h-28 rounded-md object-cover shrink-0 bg-muted hidden sm:block"
+            loading="lazy"
+          />
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
