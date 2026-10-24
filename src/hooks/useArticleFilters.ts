@@ -1,3 +1,4 @@
+import { usePageParam } from "@/hooks/usePageParam";
 import type { ArticlesQueryParams } from "@/types";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { useSearchParams } from "react-router";
@@ -85,21 +86,12 @@ function toParams(filters: ArticleFilterValues): URLSearchParams {
 export function useArticleFilters() {
   const [params, setParams] = useSearchParams();
   const filters = readFilters(params);
-  const page = Math.max(1, Number(params.get("page")) || 1);
+  const { page, setPage } = usePageParam();
 
   const setFilters = (patch: Partial<ArticleFilterValues>) => {
     // Filter edits replace the history entry, so Back leaves the list instead
     // of stepping through every keystroke and select change. Page changes push.
     setParams((prev) => toParams({ ...readFilters(prev), ...patch }), { replace: true });
-  };
-
-  const setPage = (next: number) => {
-    setParams((prev) => {
-      const updated = new URLSearchParams(prev);
-      if (next === 1) updated.delete("page");
-      else updated.set("page", String(next));
-      return updated;
-    });
   };
 
   const query: ArticlesQueryParams = {
