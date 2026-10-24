@@ -8,7 +8,6 @@ import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
-import { getArticleImage } from "@/utils/get-article-image";
 import { format } from "date-fns";
 import DOMPurify from "dompurify";
 import { Bookmark, BookmarkCheck, ChevronDown, ChevronUp, Loader2, Pencil } from "lucide-react";
@@ -89,7 +88,6 @@ export default function ArticleDetail() {
     .slice(0, 3);
 
   const displayDate = article.published_date ? format(new Date(article.published_date), "MMM d, yyyy") : "";
-  const displayImage = getArticleImage(article);
 
   return (
     <div className="flex gap-8">
@@ -158,9 +156,9 @@ export default function ArticleDetail() {
             aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
           >
             {isBookmarked ? (
-              <Bookmark className="h-5 w-5 text-primary" />
+              <BookmarkCheck className="h-5 w-5 text-primary" />
             ) : (
-              <BookmarkCheck className="h-5 w-5 text-muted-foreground" />
+              <Bookmark className="h-5 w-5 text-muted-foreground" />
             )}
           </button>
           <ArchiveButton
@@ -169,19 +167,19 @@ export default function ArticleDetail() {
           />
         </div>
 
-        <div className="border-t border-border pt-6 mb-6">
-          <div className="mb-6">
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block"
-            >
-
-              <img src={displayImage} alt={article.title} className="w-full max-h-96 rounded-lg object-cover" />
-            </a>
+        {article.image_url && (
+          <div className="border-t border-border pt-6 mb-6">
+            <div className="mb-6">
+              <a href={article.url} target="_blank" rel="noopener noreferrer" className="block">
+                <img
+                  src={article.image_url}
+                  alt={article.title}
+                  className="w-full max-h-96 rounded-lg object-cover"
+                />
+              </a>
+            </div>
           </div>
-        </div>
+        )}
 
         <AudioSection
           audio={audio}

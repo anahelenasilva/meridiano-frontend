@@ -157,7 +157,9 @@ describe("ArticlesPage audio badge", () => {
     expect(screen.queryByText("Failed")).not.toBeInTheDocument();
   });
 
-  it("clicking the badge's row navigates to the article's detail route", async () => {
+  // The badge sits next to the card's stretched link rather than inside it,
+  // so the route is read off the link the badge shares a card with.
+  it("sits on a card whose link points at the article's detail route", async () => {
     installFetchRoutes({
       audioJobs: () =>
         Promise.resolve(
@@ -167,7 +169,10 @@ describe("ArticlesPage audio badge", () => {
     renderPage();
 
     await waitFor(() => expect(screen.getByText("Queued")).toBeInTheDocument());
-    expect(screen.getByText("Queued").closest("a")).toHaveAttribute("href", "/articles/art-1");
+    expect(screen.getByRole("link", { name: "Article One" })).toHaveAttribute(
+      "href",
+      "/articles/art-1",
+    );
   });
 
   it("keeps the badge state correct after a page change, driven by the new list response", async () => {
