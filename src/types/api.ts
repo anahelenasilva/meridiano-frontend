@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List articles (all articles are global; per-user notes attach only for a JWT user) */
+        /** List articles (all articles are global; per-user notes and bookmark state attach only for a JWT user) */
         get: operations["ArticlesController_listArticles"];
         put?: never;
         /** Scrape a URL and queue the resulting article for processing */
@@ -706,6 +706,47 @@ export interface components {
             created_at: string;
             id: string;
         };
+        ArticleListItemDto: {
+            /** Format: date-time */
+            archived_at?: string | null;
+            categories?: ("news" | "blog" | "research" | "nodejs" | "typescript" | "tutorial" | "other")[] | null;
+            content_html: string | null;
+            /** Format: date-time */
+            created_at: string;
+            custom_prompt?: string | null;
+            feed_profile: string;
+            feed_source: string;
+            has_audio: boolean;
+            id: string;
+            image_url?: string | null;
+            impact_rating?: number | null;
+            is_bookmarked: boolean;
+            note: components["schemas"]["NoteResponseDto"] | null;
+            processed_content?: string | null;
+            processed_content_html: string | null;
+            /** Format: date-time */
+            published_date: string;
+            raw_content: string;
+            title: string;
+            url: string;
+        };
+        ArticlesFiltersDto: {
+            category: string;
+            direction: string;
+            end_date: string;
+            feed_profile: string;
+            feed_source: string;
+            preset: string;
+            search_term: string;
+            sort_by: string;
+            start_date: string;
+        };
+        ArticlesPaginationDto: {
+            page: number;
+            per_page: number;
+            total_articles: number;
+            total_pages: number;
+        };
         CategoryResponseDto: {
             color: string;
             id: string;
@@ -784,6 +825,14 @@ export interface components {
             contentType?: string;
             fileSize?: number;
             s3Bucket?: string;
+        };
+        ListArticlesResponseDto: {
+            articles: components["schemas"]["ArticleListItemDto"][];
+            available_categories: string[];
+            available_profiles: string[];
+            available_sources: string[];
+            filters: components["schemas"]["ArticlesFiltersDto"];
+            pagination: components["schemas"]["ArticlesPaginationDto"];
         };
         LoginDto: {
             /** Format: email */
@@ -907,7 +956,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ListArticlesResponseDto"];
+                };
             };
             /** @description Request failed class-validator validation */
             400: {
