@@ -21,8 +21,10 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = 'theme-preference';
-const DARK_QUERY = '(prefers-color-scheme: dark)';
+// Exported so the first-paint script in index.html, which has to repeat the key and the query as
+// literals, can be checked against them. See src/theme-first-paint.test.ts.
+export const THEME_STORAGE_KEY = 'theme-preference';
+export const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 function getSystemTheme(): ResolvedTheme {
   if (typeof window === 'undefined') {

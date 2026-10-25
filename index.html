@@ -3,6 +3,36 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Puts the theme class on <html> before any stylesheet paints, so a dark reader never sees a light frame.
+         ThemeProvider's layout effect runs only after React mounts, which is one bundle download too late.
+         Stays first in <head>: an inline script after a stylesheet link waits for that link to load.
+         Reads the same key and values as THEME_STORAGE_KEY in src/contexts/ThemeContext.tsx; the
+         "reads the same storage key as ThemeContext" case in src/theme-first-paint.test.ts guards the pair. -->
+    <script>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem('theme-preference');
+        } catch (error) {
+          // Safari in private mode throws here. Fall through to the system preference.
+        }
+
+        var dark = stored === 'dark';
+        if (!dark && stored !== 'light') {
+          try {
+            dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          } catch (error) {
+            dark = false;
+          }
+        }
+
+        if (dark) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
     <title>Meridiano</title>
     <meta name="description" content="Meridiano" />
     <meta name="author" content="Meridiano" />
