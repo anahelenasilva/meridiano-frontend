@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomPromptInput } from "@/components/CustomPromptInput";
 import { useChannels, useAddTranscriptions } from "@/hooks/useApi";
@@ -86,7 +86,8 @@ export default function AddTranscriptionModal({
     setGenerateAudio(false);
   };
 
-  const handleAddVideos = async () => {
+  const handleAddVideos = async (event: FormEvent) => {
+    event.preventDefault();
     if (urls.length === 0) {
       toast.error(MESSAGES.VALIDATION.NO_URLS);
       return;
@@ -132,88 +133,93 @@ export default function AddTranscriptionModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-5">
-          <div>
-            <Label htmlFor="videoUrls" className="text-muted-foreground mb-2 block">
-              Video URLs
-            </Label>
-            <Textarea
-              id="videoUrls"
-              rows={6}
-              placeholder={"https://youtube.com/watch?v=...\nhttps://youtu.be/..."}
-              value={rawUrls}
-              onChange={(e) => setRawUrls(e.target.value)}
-              className="bg-background font-mono text-xs"
+        <form onSubmit={handleAddVideos}>
+          <div className="space-y-5">
+            <div>
+              <Label htmlFor="videoUrls" className="text-muted-foreground mb-2 block">
+                Video URLs
+              </Label>
+              {/* A textarea takes Enter as a newline, so the batch is submitted
+                  from the Add Videos button rather than from this field. */}
+              <Textarea
+                id="videoUrls"
+                rows={6}
+                placeholder={"https://youtube.com/watch?v=...\nhttps://youtu.be/..."}
+                value={rawUrls}
+                onChange={(e) => setRawUrls(e.target.value)}
+                className="bg-background font-mono text-xs"
+                disabled={addTranscriptions.isPending}
+              />
+              <p
+                className={`mt-1 text-xs ${isOverCap ? "text-destructive" : "text-muted-foreground"}`}
+              >
+                {urls.length === 0
+                  ? "One URL per line"
+                  : isOverCap
+                    ? `${urls.length} URLs, ${MAX_URLS_PER_BATCH} max per batch. Remove ${urls.length - MAX_URLS_PER_BATCH} to continue.`
+                    : `${urls.length} URL${urls.length === 1 ? "" : "s"}`}
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-muted-foreground mb-2 block">Channel</Label>
+              <Select
+                value={selectedChannelId}
+                onValueChange={setSelectedChannelId}
+                disabled={addTranscriptions.isPending}
+              >
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select a channel" />
+                </SelectTrigger>
+                <SelectContent>
+                  {channels.map((channel) => (
+                    <SelectItem key={channel.id} value={channel.id}>
+                      {channel.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
+
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="generateAudio"
+                checked={generateAudio}
+                onCheckedChange={(v) => setGenerateAudio(!!v)}
+              />
+              <Label htmlFor="generateAudio" className="cursor-pointer text-sm font-normal">
+                Generate audio
+              </Label>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
               disabled={addTranscriptions.isPending}
-            />
-            <p
-              className={`mt-1 text-xs ${isOverCap ? "text-destructive" : "text-muted-foreground"}`}
             >
-              {urls.length === 0
-                ? "One URL per line"
-                : isOverCap
-                  ? `${urls.length} URLs, ${MAX_URLS_PER_BATCH} max per batch. Remove ${urls.length - MAX_URLS_PER_BATCH} to continue.`
-                  : `${urls.length} URL${urls.length === 1 ? "" : "s"}`}
-            </p>
-          </div>
-
-          <div>
-            <Label className="text-muted-foreground mb-2 block">Channel</Label>
-            <Select
-              value={selectedChannelId}
-              onValueChange={setSelectedChannelId}
-              disabled={addTranscriptions.isPending}
+              Close
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                urls.length === 0 ||
+                isOverCap ||
+                !selectedChannelId ||
+                addTranscriptions.isPending
+              }
             >
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select a channel" />
-              </SelectTrigger>
-              <SelectContent>
-                {channels.map((channel) => (
-                  <SelectItem key={channel.id} value={channel.id}>
-                    {channel.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <CustomPromptInput value={customPrompt} onChange={setCustomPrompt} />
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="generateAudio"
-              checked={generateAudio}
-              onCheckedChange={(v) => setGenerateAudio(!!v)}
-            />
-            <Label htmlFor="generateAudio" className="cursor-pointer text-sm font-normal">
-              Generate audio
-            </Label>
-          </div>
-        </div>
-
-        <DialogFooter className="mt-4">
-          <Button
-            variant="outline"
-            onClick={() => handleOpenChange(false)}
-            disabled={addTranscriptions.isPending}
-          >
-            Close
-          </Button>
-          <Button
-            onClick={handleAddVideos}
-            disabled={
-              urls.length === 0 ||
-              isOverCap ||
-              !selectedChannelId ||
-              addTranscriptions.isPending
-            }
-          >
-            {addTranscriptions.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
-            ) : null}
-            Add Videos
-          </Button>
-        </DialogFooter>
+              {addTranscriptions.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              ) : null}
+              Add Videos
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
