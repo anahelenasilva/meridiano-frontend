@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { CategoryMultiSelect } from "@/components/CategoryMultiSelect";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +39,8 @@ export default function EditChannelCategoriesModal({
     if (channel) setCategories(channel.categories);
   }
 
-  const handleSave = async () => {
+  const handleSave = async (event: FormEvent) => {
+    event.preventDefault();
     if (!channel) return;
     try {
       await setChannelCategories.mutateAsync({
@@ -62,25 +63,28 @@ export default function EditChannelCategoriesModal({
           </DialogDescription>
         </DialogHeader>
 
-        <CategoryMultiSelect
-          selected={categories}
-          onChange={setCategories}
-          disabled={setChannelCategories.isPending}
-        />
-
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
+        <form onSubmit={handleSave}>
+          <CategoryMultiSelect
+            selected={categories}
+            onChange={setCategories}
             disabled={setChannelCategories.isPending}
-          >
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={setChannelCategories.isPending}>
-            {setChannelCategories.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-            Save
-          </Button>
-        </DialogFooter>
+          />
+
+          <DialogFooter className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={setChannelCategories.isPending}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={setChannelCategories.isPending}>
+              {setChannelCategories.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

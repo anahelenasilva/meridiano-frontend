@@ -110,6 +110,27 @@ describe('useAudioGeneration', () => {
       });
     });
 
+    it('invalidates the audio-jobs and audio-library queries, so the list badges update', async () => {
+      mockGenerateArticleAudio.mockResolvedValue({ jobId: 'j1', message: 'ok' });
+      const queryClient = new QueryClient();
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+      const Wrapper = ({ children }: { children: React.ReactNode }) => (
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      );
+      const { result } = renderHook(
+        () => useAudioGeneration({ sourceType: 'article', sourceId: 'art-1' }),
+        { wrapper: Wrapper }
+      );
+
+      await act(async () => {
+        result.current.generateAudio();
+      });
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['audio-jobs'] });
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['audio-library'] });
+    });
+
     it('invalidates transcription query on success', async () => {
       mockGenerateTranscriptionAudio.mockResolvedValue({ jobId: 'j2', message: 'ok' });
       const queryClient = new QueryClient();

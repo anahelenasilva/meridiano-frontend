@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ARTICLE_CATEGORIES } from "@/constants/categories";
 import { useProfiles } from "@/hooks/useApi";
 import { DATE_PRESETS, type DatePreset, useArticleFilters } from "@/hooks/useArticleFilters";
 import { Calendar, ChevronDown, Search } from "lucide-react";
@@ -28,7 +29,6 @@ const ALL = "all";
 const unsetIfAll = (v: string) => (v === ALL ? "" : v);
 
 interface ArticleFiltersProps {
-  categories: string[];
   sources: string[];
 }
 
@@ -37,7 +37,7 @@ interface ArticleFiltersProps {
  * through useArticleFilters, so the page pairs it with the same hook to get
  * its query.
  */
-export default function ArticleFilters({ categories, sources }: ArticleFiltersProps) {
+export default function ArticleFilters({ sources }: ArticleFiltersProps) {
   const { filters, setFilters, isFiltered } = useArticleFilters();
   const { data: profiles = [] } = useProfiles();
 
@@ -85,7 +85,7 @@ export default function ArticleFilters({ categories, sources }: ArticleFiltersPr
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value={ALL}>All Categories</SelectItem>
-                  {categories.map((c) => (
+                  {ARTICLE_CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
                     </SelectItem>
