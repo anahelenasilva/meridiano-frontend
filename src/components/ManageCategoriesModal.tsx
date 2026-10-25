@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +49,8 @@ export default function ManageCategoriesModal({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingCategory, setDeletingCategory] = useState<CategoryWithCount | null>(null);
 
-  const handleCreate = async () => {
+  const handleCreate = async (event: FormEvent) => {
+    event.preventDefault();
     const name = newCategoryName.trim();
     if (!name) {
       toast.error(MESSAGES.VALIDATION.CATEGORY_NAME_REQUIRED);
@@ -87,22 +88,16 @@ export default function ManageCategoriesModal({
           <Label htmlFor="new-category-name" className="mb-2 block text-muted-foreground">
             New category
           </Label>
-          <div className="flex gap-2">
+          <form className="flex gap-2" onSubmit={handleCreate}>
             <Input
               id="new-category-name"
               placeholder="New category name"
               value={newCategoryName}
               onChange={(e) => setNewCategoryName(e.target.value)}
               disabled={createCategory.isPending}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleCreate();
-                }
-              }}
             />
             <Button
-              onClick={handleCreate}
+              type="submit"
               disabled={!newCategoryName.trim() || createCategory.isPending}
             >
               {createCategory.isPending ? (
@@ -112,7 +107,7 @@ export default function ManageCategoriesModal({
               )}
               Add
             </Button>
-          </div>
+          </form>
         </div>
 
         <div className="space-y-1 max-h-80 overflow-y-auto">
@@ -207,7 +202,8 @@ function CategoryEditRow({
   const [name, setName] = useState(category.name);
   const renameCategory = useRenameCategory();
 
-  const handleSave = async () => {
+  const handleSave = async (event: FormEvent) => {
+    event.preventDefault();
     const trimmed = name.trim();
     if (!trimmed || trimmed === category.name) {
       onDone();
@@ -223,7 +219,7 @@ function CategoryEditRow({
   };
 
   return (
-    <div className="flex items-center gap-2 py-2 px-1">
+    <form className="flex items-center gap-2 py-2 px-1" onSubmit={handleSave}>
       <span
         className="h-3 w-3 rounded-full shrink-0"
         style={{ backgroundColor: category.color }}
@@ -236,10 +232,6 @@ function CategoryEditRow({
         disabled={renameCategory.isPending}
         className="h-8"
         onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            handleSave();
-          }
           if (e.key === "Escape") {
             e.preventDefault();
             onDone();
@@ -247,10 +239,10 @@ function CategoryEditRow({
         }}
       />
       <Button
+        type="submit"
         variant="ghost"
         size="icon"
         className="h-7 w-7"
-        onClick={handleSave}
         disabled={!name.trim() || renameCategory.isPending}
       >
         {renameCategory.isPending ? (
@@ -261,6 +253,7 @@ function CategoryEditRow({
         <span className="sr-only">Save</span>
       </Button>
       <Button
+        type="button"
         variant="ghost"
         size="icon"
         className="h-7 w-7"
@@ -270,7 +263,7 @@ function CategoryEditRow({
         <X className="h-3.5 w-3.5" />
         <span className="sr-only">Cancel</span>
       </Button>
-    </div>
+    </form>
   );
 }
 
