@@ -70,6 +70,7 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
         audio: null,
         has_audio: false,
         archived_at: null,
+        is_bookmarked: false,
         note: {
           id: 'n1',
           content: 'Existing note',
@@ -135,6 +136,7 @@ describe('ArticleDetailPage cover and bookmark icon', () => {
         audio: null,
         has_audio: false,
         archived_at: null,
+        is_bookmarked: false,
       },
     };
   });

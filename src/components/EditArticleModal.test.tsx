@@ -43,6 +43,7 @@ const baseArticle: Article = {
   audio: null,
   has_audio: false,
   archived_at: null,
+  is_bookmarked: false,
 };
 
 // Route fetch by method/url so the service function + hooks run for real.

@@ -29,6 +29,7 @@ const baseArticle: Article = {
   audio: null,
   has_audio: false,
   archived_at: null,
+  is_bookmarked: false,
 };
 
 function renderCard(article: Partial<Article> = {}, props = {}) {

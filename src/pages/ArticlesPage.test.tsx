@@ -43,6 +43,7 @@ function article(overrides: Partial<{
   title: string;
   has_audio: boolean;
   categories: string[];
+  is_bookmarked: boolean;
 }> = {}) {
   return {
     id: "art-1",
@@ -60,6 +61,7 @@ function article(overrides: Partial<{
     audio: null,
     has_audio: false,
     archived_at: null,
+    is_bookmarked: false,
     ...overrides,
   };
 }
@@ -232,6 +234,107 @@ describe("ArticlesPage audio badge", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+});
+
+describe("ArticlesPage bookmark state", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  // The card's bookmark control has no accessible name, so it is reached
+  // through the icon it renders, the same way ArticleCard.test.tsx does.
+  function bookmarkButton(container: HTMLElement) {
+    const icon = container.querySelector(".lucide-bookmark-check, .lucide-bookmark");
+    return icon?.closest("button") as HTMLButtonElement;
+  }
+
+  const bookmarkCalls = (method: string) =>
+    fetchMock.mock.calls.filter(
+      ([url, options = {}]) =>
+        typeof url === "string" &&
+        url.includes("/api/bookmarks") &&
+        ((options as RequestInit).method ?? "GET").toUpperCase() === method,
+    );
+
+  it("shows the filled icon for an article the list reports as bookmarked", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(jsonResponse(articlesResponse([article({ is_bookmarked: true })]))),
+    });
+    const { container } = renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    expect(container.querySelector(".lucide-bookmark-check")).not.toBeNull();
+  });
+
+  it("shows the empty icon for an article the list reports as not bookmarked", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(jsonResponse(articlesResponse([article({ is_bookmarked: false })]))),
+    });
+    const { container } = renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    expect(container.querySelector(".lucide-bookmark-check")).toBeNull();
+    expect(container.querySelector(".lucide-bookmark")).not.toBeNull();
+  });
+
+  // The bug this issue is about: state used to come from the first page of
+  // /api/bookmarks, so an article bookmarked past the 100th looked unbookmarked
+  // and the toggle added it again instead of removing it.
+  it("removes the bookmark of a bookmarked article instead of adding it again", async () => {
+    installFetchRoutes({
+      list: () =>
+        Promise.resolve(jsonResponse(articlesResponse([article({ is_bookmarked: true })]))),
+    });
+    const { container } = renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    fireEvent.click(bookmarkButton(container));
+
+    await waitFor(() => expect(bookmarkCalls("DELETE")).toHaveLength(1));
+    expect(bookmarkCalls("DELETE")[0][0]).toContain("article_id=art-1");
+    expect(bookmarkCalls("POST")).toHaveLength(0);
+  });
+
+  it("adds the bookmark of an unbookmarked article", async () => {
+    installFetchRoutes();
+    const { container } = renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    fireEvent.click(bookmarkButton(container));
+
+    await waitFor(() => expect(bookmarkCalls("POST")).toHaveLength(1));
+    expect(bookmarkCalls("DELETE")).toHaveLength(0);
+  });
+
+  // Only an invalidation of ["articles"] refetches the list the flag lives on,
+  // so without it the icon keeps the state the first response carried.
+  it("switches the icon after a toggle, off the refetched articles list", async () => {
+    let listCall = 0;
+    installFetchRoutes({
+      list: () => {
+        listCall += 1;
+        return Promise.resolve(
+          jsonResponse(articlesResponse([article({ is_bookmarked: listCall === 1 })])),
+        );
+      },
+    });
+    const { container } = renderPage();
+
+    await waitFor(() => expect(container.querySelector(".lucide-bookmark-check")).not.toBeNull());
+    fireEvent.click(bookmarkButton(container));
+
+    await waitFor(() => expect(container.querySelector(".lucide-bookmark-check")).toBeNull());
+  });
+
+  it("asks for no page of /api/bookmarks", async () => {
+    installFetchRoutes();
+    renderPage();
+
+    await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+    expect(bookmarkCalls("GET")).toHaveLength(0);
   });
 });
 
