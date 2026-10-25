@@ -119,6 +119,22 @@ describe("EditArticleModal", () => {
     expect(lastPatchBody()).toEqual({ title: "Fixed Title" });
   });
 
+  // What Enter in a field does in a browser: submit the form the field sits
+  // in. jsdom has no implicit submission, so the test raises submit directly.
+  it("submitting the form saves, so Enter in a field is enough", async () => {
+    renderModal();
+    const titleField = screen.getByLabelText(/title/i);
+    fireEvent.change(titleField, { target: { value: "Fixed Title" } });
+
+    const form = titleField.closest("form");
+    expect(form).not.toBeNull();
+    expect(screen.getByRole("button", { name: /save/i })).toHaveAttribute("type", "submit");
+    fireEvent.submit(form!);
+
+    await waitFor(() => expect(lastPatchBody()).not.toBeNull());
+    expect(lastPatchBody()).toEqual({ title: "Fixed Title" });
+  });
+
   it("editing multiple fields sends all changed fields in one request", async () => {
     renderModal();
     fireEvent.change(screen.getByLabelText(/title/i), {

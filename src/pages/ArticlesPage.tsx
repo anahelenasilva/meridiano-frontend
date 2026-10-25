@@ -66,9 +66,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   };
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
-  const categories = [
-    ...new Set(articles.flatMap((a) => a.categories || [])),
-  ].sort();
   const sources = data?.available_sources ?? [];
 
   const startItem = (currentPage - 1) * perPage + 1;
@@ -110,7 +107,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
           }
         />
 
-        <ArticleFilters categories={categories} sources={sources} />
+        <ArticleFilters sources={sources} />
 
         {isLoading ? (
           <div className="flex justify-center py-20">

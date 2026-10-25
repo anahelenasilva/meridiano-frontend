@@ -54,8 +54,10 @@ async function renderAndSubmit(rawUrls = "https://youtu.be/aaa") {
     target: { value: rawUrls },
   });
   fireEvent.click(screen.getByRole("combobox"));
-  await waitFor(() => expect(screen.getByText("Test Channel")).toBeInTheDocument());
-  fireEvent.click(screen.getByText("Test Channel"));
+  // By role, not by text: inside a form Radix also renders a hidden native
+  // select carrying the same channel name for form submission.
+  const channelOption = await screen.findByRole("option", { name: "Test Channel" });
+  fireEvent.click(channelOption);
   fireEvent.click(screen.getByRole("button", { name: /add videos/i }));
 
   return onOpenChange;

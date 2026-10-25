@@ -44,13 +44,17 @@ export function useAudioGeneration({
 
       toast.success(MESSAGES.SUCCESS.AUDIO_GENERATION_QUEUED);
 
-      if (sourceType === 'article') {
-        queryClient.invalidateQueries({ queryKey: ['article', sourceId] });
-      } else {
-        queryClient.invalidateQueries({
-          queryKey: ['youtube-transcription', sourceId],
-        });
-      }
+      // The audio badges on the Articles and YouTube lists read audio-jobs,
+      // and the Audio Library lists the finished files. Both are stale the
+      // moment a job is queued, so the badge changes without a reload.
+      queryClient.invalidateQueries({ queryKey: ['audio-jobs'] });
+      queryClient.invalidateQueries({ queryKey: ['audio-library'] });
+      queryClient.invalidateQueries({
+        queryKey:
+          sourceType === 'article'
+            ? ['article', sourceId]
+            : ['youtube-transcription', sourceId],
+      });
     } catch (err) {
       toast.error(`${MESSAGES.ERROR.AUDIO_GENERATION} ${getErrorMessage(err)}`);
     } finally {
