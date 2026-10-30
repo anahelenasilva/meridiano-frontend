@@ -2,20 +2,36 @@ import ArticleCard from "@/components/ArticleCard";
 import { EmptyState } from "@/components/EmptyState";
 import LatestBriefings from "@/components/LatestBriefings";
 import { PageHeader } from "@/components/PageHeader";
+import PageNav from "@/components/PageNav";
 import { useBookmarks, useBriefings, useToggleBookmark } from "@/hooks/useApi";
-import { Bookmark } from "lucide-react";
+import { usePageParam } from "@/hooks/usePageParam";
+import { Bookmark, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+
+const PER_PAGE = 20;
 
 export default function BookmarksPage() {
-  const { data, isLoading, error } = useBookmarks(1, 20);
+  const { page, setPage } = usePageParam();
+  const { data, isLoading, error } = useBookmarks(page, PER_PAGE);
   const { data: briefingsData } = useBriefings();
   const { remove } = useToggleBookmark();
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
+  const totalPages = data?.totalPages ?? 0;
+
+  // Unbookmarking the last item on a page leaves the URL past the end of the
+  // list. Replace rather than push, so Back does not return to the page that
+  // just emptied and bounce the user forward again.
+  useEffect(() => {
+    if (totalPages >= 1 && page > totalPages) {
+      setPage(totalPages, { replace: true });
+    }
+  }, [page, totalPages, setPage]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -53,6 +69,8 @@ export default function BookmarksPage() {
             ))}
           </div>
         )}
+
+        <PageNav page={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
       <LatestBriefings briefings={recentBriefings} />

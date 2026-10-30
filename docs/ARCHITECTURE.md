@@ -77,7 +77,7 @@ Page or component
 - `apiFetch` reads the token from `localStorage` (`auth_token`) and sends it as `Authorization: Bearer <token>`.
 - A 401 with a token present expires the session: it clears stored auth and reloads, which drops the query cache and lands on the login form.
 - Other non-2xx responses throw the error built by `parseErrorResponse` in `src/utils/api-error.ts`.
-- `typedApiFetch` infers request paths and response bodies from the generated `src/types/api.ts`. Run `pnpm generate:api-types` to regenerate it; CI fails if it drifts from the backend spec.
+- `typedApiFetch` checks request paths, methods and request bodies against the generated `src/types/api.ts`, and infers response bodies from it. An operation the spec gives no request body takes no body. `src/services/api.contract.test-d.ts` holds the compile-time probes that guard this; `pnpm typecheck` runs them. Run `pnpm generate:api-types` to regenerate the types; CI fails if they drift from the backend spec.
 
 ### Query hooks (`src/hooks/useApi.ts`)
 

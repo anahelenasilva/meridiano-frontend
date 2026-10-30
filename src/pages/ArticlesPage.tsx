@@ -10,12 +10,11 @@ import { Button } from "@/components/ui/button";
 import {
   useArticles,
   useAudioJobs,
-  useBookmarks,
   useBriefings,
   useToggleBookmark,
 } from "@/hooks/useApi";
 import { useArticleFilters } from "@/hooks/useArticleFilters";
-import type { ArchiveScope } from "@/types";
+import type { ArchiveScope, Article } from "@/types";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { Archive, FileText, Loader2, Plus } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -38,7 +37,6 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   });
 
   const { data: briefingsData } = useBriefings();
-  const { data: bookmarksData } = useBookmarks(1, 100);
   const { add, remove } = useToggleBookmark();
   const { data: audioJobsData } = useAudioJobs();
 
@@ -53,22 +51,18 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const totalPages = data?.pagination?.total_pages ?? 0;
   const currentPage = data?.pagination?.page ?? 1;
 
-  const bookmarkedIds = new Set(
-    (bookmarksData?.bookmarks ?? []).map((bookmark) => bookmark.article.id),
-  );
-
-  const handleToggleBookmark = (articleId: string) => {
-    if (bookmarkedIds.has(articleId)) {
-      remove.mutate(articleId);
+  // The flag comes off the article the list response gave us, so the toggle is
+  // right at any bookmark count. Reading it out of a page of /api/bookmarks
+  // broke past the first 100.
+  const handleToggleBookmark = (article: Article) => {
+    if (article.is_bookmarked) {
+      remove.mutate(article.id);
     } else {
-      add.mutate(articleId);
+      add.mutate(article.id);
     }
   };
 
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
-  const categories = [
-    ...new Set(articles.flatMap((a) => a.categories || [])),
-  ].sort();
   const sources = data?.available_sources ?? [];
 
   const startItem = (currentPage - 1) * perPage + 1;
@@ -110,7 +104,7 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
           }
         />
 
-        <ArticleFilters categories={categories} sources={sources} />
+        <ArticleFilters sources={sources} />
 
         {isLoading ? (
           <div className="flex justify-center py-20">
@@ -122,8 +116,8 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
               <ArticleCard
                 key={article.id}
                 article={article}
-                onToggleBookmark={handleToggleBookmark}
-                isBookmarked={bookmarkedIds.has(article.id)}
+                onToggleBookmark={() => handleToggleBookmark(article)}
+                isBookmarked={article.is_bookmarked}
                 audioState={getAudioBadgeState(
                   article.has_audio,
                   audioJobsBySource.get(audioJobKey("article", article.id)),

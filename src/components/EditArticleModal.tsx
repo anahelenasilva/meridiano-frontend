@@ -22,7 +22,7 @@ import type { Article, UpdateArticlePayload } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
 import { Loader2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 
 interface EditArticleModalProps {
   article: Article;
@@ -115,8 +115,9 @@ export default function EditArticleModal({
     );
   };
 
-  const handleSave = async () => {
-    if (Object.keys(patch).length === 0) return;
+  const handleSave = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!isFormValid || Object.keys(patch).length === 0) return;
     try {
       await updateArticleMutation.mutateAsync({ id: article.id, patch });
       onOpenChange(false);
@@ -135,120 +136,122 @@ export default function EditArticleModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="min-w-0 space-y-5">
-          <div>
-            <Label htmlFor="edit-title" className="text-muted-foreground mb-2 block">
-              Title
-            </Label>
-            <Input
-              id="edit-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="bg-background"
-            />
-            {!isTitleValid && (
-              <p className="mt-1 text-xs text-destructive">Title is required.</p>
-            )}
+        <form onSubmit={handleSave}>
+          <div className="min-w-0 space-y-5">
+            <div>
+              <Label htmlFor="edit-title" className="text-muted-foreground mb-2 block">
+                Title
+              </Label>
+              <Input
+                id="edit-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="bg-background"
+              />
+              {!isTitleValid && (
+                <p className="mt-1 text-xs text-destructive">Title is required.</p>
+              )}
+            </div>
+
+            <div>
+              <Label
+                htmlFor="edit-published-date"
+                className="text-muted-foreground mb-2 block"
+              >
+                Published date
+              </Label>
+              <Input
+                id="edit-published-date"
+                type="date"
+                max={todayStr}
+                value={publishedDate}
+                onChange={(e) => setPublishedDate(e.target.value)}
+                className="bg-background"
+              />
+              {!isDateValid && (
+                <p className="mt-1 text-xs text-destructive">
+                  Enter a valid date that is not in the future.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="edit-source" className="text-muted-foreground mb-2 block">
+                Source
+              </Label>
+              <Input
+                id="edit-source"
+                value={feedSource}
+                onChange={(e) => setFeedSource(e.target.value)}
+                className="bg-background"
+              />
+              {!isSourceValid && (
+                <p className="mt-1 text-xs text-destructive">Source is required.</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-muted-foreground mb-2 block">Feed Profile</Label>
+              <Select value={feedProfile} onValueChange={setFeedProfile}>
+                <SelectTrigger className="bg-background">
+                  <SelectValue placeholder="Select a profile" />
+                </SelectTrigger>
+                <SelectContent>
+                  {profileOptions.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-muted-foreground mb-2 block">Categories</Label>
+              {categoryVocabulary.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No categories available.
+                </p>
+              ) : (
+                <div className="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-md border border-input bg-background p-3">
+                  {categoryVocabulary.map((category) => {
+                    const checkboxId = `edit-category-${category}`;
+                    return (
+                      <div key={category} className="flex items-center gap-2">
+                        <Checkbox
+                          id={checkboxId}
+                          checked={categories.includes(category)}
+                          onCheckedChange={(v) => toggleCategory(category, !!v)}
+                        />
+                        <Label
+                          htmlFor={checkboxId}
+                          className="cursor-pointer text-sm font-normal"
+                        >
+                          {category}
+                        </Label>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div>
-            <Label
-              htmlFor="edit-published-date"
-              className="text-muted-foreground mb-2 block"
+          <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={!isFormValid || !hasChanges || updateArticleMutation.isPending}
             >
-              Published date
-            </Label>
-            <Input
-              id="edit-published-date"
-              type="date"
-              max={todayStr}
-              value={publishedDate}
-              onChange={(e) => setPublishedDate(e.target.value)}
-              className="bg-background"
-            />
-            {!isDateValid && (
-              <p className="mt-1 text-xs text-destructive">
-                Enter a valid date that is not in the future.
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="edit-source" className="text-muted-foreground mb-2 block">
-              Source
-            </Label>
-            <Input
-              id="edit-source"
-              value={feedSource}
-              onChange={(e) => setFeedSource(e.target.value)}
-              className="bg-background"
-            />
-            {!isSourceValid && (
-              <p className="mt-1 text-xs text-destructive">Source is required.</p>
-            )}
-          </div>
-
-          <div>
-            <Label className="text-muted-foreground mb-2 block">Feed Profile</Label>
-            <Select value={feedProfile} onValueChange={setFeedProfile}>
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select a profile" />
-              </SelectTrigger>
-              <SelectContent>
-                {profileOptions.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-muted-foreground mb-2 block">Categories</Label>
-            {categoryVocabulary.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No categories available.
-              </p>
-            ) : (
-              <div className="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto rounded-md border border-input bg-background p-3">
-                {categoryVocabulary.map((category) => {
-                  const checkboxId = `edit-category-${category}`;
-                  return (
-                    <div key={category} className="flex items-center gap-2">
-                      <Checkbox
-                        id={checkboxId}
-                        checked={categories.includes(category)}
-                        onCheckedChange={(v) => toggleCategory(category, !!v)}
-                      />
-                      <Label
-                        htmlFor={checkboxId}
-                        className="cursor-pointer text-sm font-normal"
-                      >
-                        {category}
-                      </Label>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!isFormValid || !hasChanges || updateArticleMutation.isPending}
-          >
-            {updateArticleMutation.isPending ? (
-              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-            ) : null}
-            Save
-          </Button>
-        </DialogFooter>
+              {updateArticleMutation.isPending ? (
+                <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+              ) : null}
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

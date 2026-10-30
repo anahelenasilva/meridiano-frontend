@@ -310,24 +310,27 @@ export function useBookmarkCheck(
 export function useToggleBookmark() {
   const queryClient = useQueryClient();
 
+  // The articles list embeds is_bookmarked per item, so a card's icon only
+  // follows a toggle if ["articles"] is invalidated alongside the two bookmark
+  // keys.
+  const invalidateBookmarkState = () => {
+    queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+    queryClient.invalidateQueries({ queryKey: ["bookmark-check"] });
+    queryClient.invalidateQueries({ queryKey: ["articles"] });
+  };
+
   const add = useMutation({
     mutationFn: (articleId: string) => {
       return addBookmark(articleId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
-      queryClient.invalidateQueries({ queryKey: ["bookmark-check"] });
-    },
+    onSuccess: invalidateBookmarkState,
   });
 
   const remove = useMutation({
     mutationFn: (articleId: string) => {
       return removeBookmark(articleId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
-      queryClient.invalidateQueries({ queryKey: ["bookmark-check"] });
-    },
+    onSuccess: invalidateBookmarkState,
   });
 
   return { add, remove };

@@ -29,6 +29,10 @@ export interface Article {
   has_audio: boolean;
   archived_at: string | null;
   note?: Note | null;
+  // Per-user bookmark state, embedded on every list item the same way `note`
+  // is. Lists read it off the article; the detail page asks
+  // /api/bookmarks/check for the one article it shows.
+  is_bookmarked: boolean;
   // Detail-only fields
   raw_content?: string;
   processed_content?: string | null;

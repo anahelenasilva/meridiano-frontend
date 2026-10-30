@@ -34,8 +34,8 @@ export default function ArchiveButton({
   const label = isArchived ? "Unarchive" : "Archive";
 
   const handleClick = (event: React.MouseEvent) => {
-    // ArticleCard wraps its body in a Link. Without this the click archives the
-    // article and navigates away from the list at the same time.
+    // Archiving is not navigation, so a click never activates a link this
+    // button sits inside.
     event.preventDefault();
     event.stopPropagation();
 

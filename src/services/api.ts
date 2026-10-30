@@ -114,11 +114,20 @@ type JsonResponse<Operation> = Operation extends {
     }
   ? Response
   : unknown;
+// The request-body mirror of JsonResponse. An operation that declares no JSON
+// request body generates `requestBody?: never`, which lands on `undefined`, so
+// passing a body to such an operation is a type error.
+type JsonRequestBody<Operation> = Operation extends {
+  requestBody: { content: { "application/json": infer Body } };
+}
+  ? Body
+  : undefined;
 
-function typedApiFetch<P extends ApiPath, M extends ApiMethod<P>>(
+// Exported for the compile-time probes in api.contract.test-d.ts.
+export function typedApiFetch<P extends ApiPath, M extends ApiMethod<P>>(
   path: P,
   method: M,
-  body?: unknown,
+  body?: JsonRequestBody<ApiOperation<P, M>>,
 ): Promise<JsonResponse<ApiOperation<P, M>>> {
   return apiFetch<JsonResponse<ApiOperation<P, M>>>(path, {
     method: method.toUpperCase(),
