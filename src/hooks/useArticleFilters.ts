@@ -32,11 +32,23 @@ const DEFAULTS: ArticleFilterValues = {
 
 const fmt = (d: Date) => format(d, "yyyy-MM-dd");
 
-const presetStart: Record<DatePreset, (today: Date) => Date> = {
-  yesterday: (today) => subDays(today, 1),
-  week: (today) => subWeeks(today, 1),
-  "30d": (today) => subDays(today, 30),
-  "3m": (today) => subMonths(today, 3),
+type DateWindow = { startDate: string; endDate: string };
+
+/** One calendar day: both bounds are that day. */
+const calendarDay = (day: Date): DateWindow => ({ startDate: fmt(day), endDate: fmt(day) });
+/** A window that ends today and reaches back to `start`. */
+const trailing = (start: Date, today: Date): DateWindow => ({
+  startDate: fmt(start),
+  endDate: fmt(today),
+});
+
+// Each preset names both of its bounds, so a new one has to pick an end date
+// instead of inheriting today.
+const presetWindow: Record<DatePreset, (today: Date) => DateWindow> = {
+  yesterday: (today) => calendarDay(subDays(today, 1)),
+  week: (today) => trailing(subWeeks(today, 1), today),
+  "30d": (today) => trailing(subDays(today, 30), today),
+  "3m": (today) => trailing(subMonths(today, 3), today),
 };
 
 function isPreset(value: string | null): value is DatePreset {
@@ -49,7 +61,7 @@ function readFilters(params: URLSearchParams): ArticleFilterValues {
   // last week whenever it is opened.
   const today = new Date();
   const dates = isPreset(preset)
-    ? { preset, startDate: fmt(presetStart[preset](today)), endDate: fmt(today) }
+    ? { preset, ...presetWindow[preset](today) }
     : {
         preset: null,
         startDate: params.get("startDate") ?? "",
