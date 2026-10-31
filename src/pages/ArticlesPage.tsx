@@ -17,7 +17,7 @@ import { useArticleFilters } from "@/hooks/useArticleFilters";
 import type { ArchiveScope, Article } from "@/types";
 import { audioJobKey, buildAudioJobMap, getAudioBadgeState } from "@/utils/audio-badge";
 import { Archive, FileText, Loader2, Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
 interface ArticlesPageProps {
@@ -28,7 +28,7 @@ interface ArticlesPageProps {
 
 export default function ArticlesPage({ archiveScope = "active" }: ArticlesPageProps) {
   const isArchiveView = archiveScope === "archived";
-  const { query, setPage } = useArticleFilters();
+  const { query, page, setPage } = useArticleFilters();
   const [showAddModal, setShowAddModal] = useState(false);
 
   const { data, isLoading, error } = useArticles({
@@ -51,6 +51,18 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const totalPages = data?.pagination?.total_pages ?? 0;
   const currentPage = data?.pagination?.page ?? 1;
 
+  // Archiving the last article on a page leaves the URL past the end, and the
+  // pager hides itself at a single page, so the user has no way back. Replace
+  // rather than push, so Back does not return to the page that just emptied
+  // and bounce the user forward again. `totalPages >= 1` skips loading and the
+  // empty list, neither of which has a page to clamp to. Same guard as
+  // BookmarksPage.tsx.
+  useEffect(() => {
+    if (totalPages >= 1 && page > totalPages) {
+      setPage(totalPages, { replace: true });
+    }
+  }, [page, totalPages, setPage]);
+
   // The flag comes off the article the list response gave us, so the toggle is
   // right at any bookmark count. Reading it out of a page of /api/bookmarks
   // broke past the first 100.
@@ -65,8 +77,10 @@ export default function ArticlesPage({ archiveScope = "active" }: ArticlesPagePr
   const recentBriefings = briefingsData?.briefings?.slice(0, 2) ?? [];
   const sources = data?.available_sources ?? [];
 
-  const startItem = (currentPage - 1) * perPage + 1;
+  // The start is capped at the end so the count never runs backwards on the
+  // render before an out-of-range page clamps, or on an empty list.
   const endItem = Math.min(currentPage * perPage, total);
+  const startItem = Math.min((currentPage - 1) * perPage + 1, endItem);
 
   const title = isArchiveView ? "Archive" : "Articles";
 
