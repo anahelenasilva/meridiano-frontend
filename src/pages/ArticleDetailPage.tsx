@@ -79,9 +79,12 @@ export default function ArticleDetail() {
   }
 
   const allArticles = allData?.articles ?? [];
+  // The rail only walks the fetched window, so an article outside it has no
+  // neighbour on either side.
   const articleIndex = allArticles.findIndex((a) => a.id === id);
-  const prevArticle = articleIndex > 0 ? allArticles[articleIndex - 1] : null;
-  const nextArticle = articleIndex < allArticles.length - 1 ? allArticles[articleIndex + 1] : null;
+  const isInWindow = articleIndex !== -1;
+  const prevArticle = (isInWindow ? allArticles[articleIndex - 1] : null) ?? null;
+  const nextArticle = (isInWindow ? allArticles[articleIndex + 1] : null) ?? null;
   const primaryCategory = article.categories?.[0];
   const related = allArticles
     .filter((a) => a.id !== article.id && primaryCategory && a.categories?.includes(primaryCategory))
