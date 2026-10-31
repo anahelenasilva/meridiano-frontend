@@ -34,14 +34,30 @@
     </script>
 
     <title>Meridiano</title>
-    <meta name="description" content="Meridiano" />
+    <!-- Stays byte-identical to og:description below so the two cannot drift; the "name=description repeats
+         og:description" case in src/head-assets.test.ts guards the pair. -->
+    <meta
+      name="description"
+      content="AI news briefings and article summaries from curated feeds, with bookmarks and YouTube transcriptions."
+    />
     <meta name="author" content="Meridiano" />
 
-    <meta property="og:title" content="Meridiano" />
-    <meta property="og:description" content="Meridiano" />
+    <!-- og:image is a relative path on purpose. Nothing on the internet reaches the Pi this deploys to
+         (deploy/README.md), so there is no public origin to put in an absolute URL, and the tailnet hostname
+         that does resolve stays out of this repo. Give Meridiano a public origin and this becomes
+         %VITE_PUBLIC_ORIGIN%/icon-512.png via Vite's HTML env replacement, plus an og:url. -->
+    <meta property="og:title" content="Meridiano: news briefings and article summaries" />
+    <meta
+      property="og:description"
+      content="AI news briefings and article summaries from curated feeds, with bookmarks and YouTube transcriptions."
+    />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="/icon-512.png" />
+    <meta property="og:image:alt" content="The Meridiano mark, an orange circle crossed by meridian lines." />
 
+    <!-- The 512x512 PNG is the icon fallback for a browser that does not render an SVG favicon. -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Playfair starts at 600 since every font-serif heading is semibold or heavier (prose h1 is 800).
