@@ -31,14 +31,19 @@ interface EditArticleModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Reduce an ISO / date string to the `yyyy-MM-dd` a date input expects. */
+/**
+ * Reduce an ISO / date string to the `yyyy-MM-dd` a date input expects, reading
+ * an instant as the Meridiano Day it falls on so the field agrees with the
+ * ceiling below and with the day the API resolved. A value that is already a
+ * bare `yyyy-MM-dd` is already that day and passes straight through: parsing it
+ * would read it as UTC midnight, which is the day before in Sao Paulo.
+ */
 function toDateInputValue(value: string | undefined): string {
   if (!value) return "";
-  const match = value.match(/^\d{4}-\d{2}-\d{2}/);
-  if (match) return match[0];
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toISOString().slice(0, 10);
+  return meridianoDayString(parsed);
 }
 
 function sameSet(a: string[], b: string[]): boolean {

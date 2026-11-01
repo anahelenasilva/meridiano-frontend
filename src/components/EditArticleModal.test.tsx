@@ -241,6 +241,29 @@ describe("EditArticleModal", () => {
       expect(screen.getByRole("button", { name: /save/i })).toBeDisabled();
       expect(screen.getByText(/not in the future/i)).toBeInTheDocument();
     });
+
+    // An article whose timestamp lands in that window: 21:30 on Oct 25 in Sao
+    // Paulo, already Oct 26 in UTC. Seeding the UTC day would clash with the
+    // ceiling and leave the whole form unsaveable.
+    const publishedLate: Article = {
+      ...baseArticle,
+      published_date: "2026-10-26T00:30:00.000Z",
+    };
+
+    it("seeds the date with the Meridiano Day the instant falls on", () => {
+      renderModal(publishedLate);
+      expect(screen.getByLabelText(/published date/i)).toHaveValue("2026-10-25");
+    });
+
+    it("leaves the rest of that article editable", () => {
+      renderModal(publishedLate);
+      fireEvent.change(screen.getByLabelText(/title/i), {
+        target: { value: "Corrected Title" },
+      });
+
+      expect(screen.queryByText(/not in the future/i)).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /save/i })).toBeEnabled();
+    });
   });
 
   it("on a failed save shows an error toast and does not close", async () => {
