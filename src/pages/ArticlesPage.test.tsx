@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ArticlesPage from "./ArticlesPage";
 import { ARTICLE_CATEGORIES } from "@/constants/categories";
@@ -74,11 +74,13 @@ function articlesResponse(articles: ReturnType<typeof article>[]) {
   };
 }
 
-function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Response>>> = {}) {
+function installFetchRoutes(
+  overrides: Partial<Record<string, (url: string) => Promise<Response>>> = {},
+) {
   fetchMock.mockImplementation((url: string, options: RequestInit = {}) => {
     const method = (options.method || "GET").toUpperCase();
     if (method === "GET" && url.includes("/api/articles")) {
-      return overrides.list?.() ?? Promise.resolve(jsonResponse(articlesResponse([article()])));
+      return overrides.list?.(url) ?? Promise.resolve(jsonResponse(articlesResponse([article()])));
     }
     if (method === "GET" && url.includes("/api/profiles")) {
       return Promise.resolve(jsonResponse([]));
@@ -87,7 +89,7 @@ function installFetchRoutes(overrides: Partial<Record<string, () => Promise<Resp
       return Promise.resolve(jsonResponse({ briefings: [], total: 0 }));
     }
     if (method === "GET" && url.includes("/api/audio/jobs")) {
-      return overrides.audioJobs?.() ?? Promise.resolve(jsonResponse({ jobs: [] }));
+      return overrides.audioJobs?.(url) ?? Promise.resolve(jsonResponse({ jobs: [] }));
     }
     return Promise.resolve(jsonResponse({}));
   });
@@ -570,5 +572,135 @@ describe("ArticlesPage archive view", () => {
     );
 
     await waitFor(() => expect(screen.getByText("Article One")).toBeInTheDocument());
+  });
+});
+
+describe("ArticlesPage page past the end of the list", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+  });
+
+  /**
+   * Answers /api/articles the way the API does: echoes the requested page,
+   * computes total_pages from the total, and returns an empty slice past the
+   * end. `total` is a function so a test can shrink the list mid-run.
+   */
+  function pagedList(total: () => number) {
+    const perPage = 20;
+    return (url: string) => {
+      const page = Number(new URL(url).searchParams.get("page") ?? 1);
+      const start = (page - 1) * perPage;
+      const count = Math.max(0, Math.min(perPage, total() - start));
+      return Promise.resolve(
+        jsonResponse({
+          articles: Array.from({ length: count }, (_, i) =>
+            article({ id: `art-${start + i + 1}`, title: `Article ${start + i + 1}` }),
+          ),
+          pagination: {
+            page,
+            per_page: perPage,
+            total_pages: Math.ceil(total() / perPage),
+            total_articles: total(),
+          },
+          available_sources: [] as string[],
+        }),
+      );
+    };
+  }
+
+  const requestedPages = () =>
+    fetchMock.mock.calls
+      .filter(([url]) => typeof url === "string" && url.includes("/api/articles?"))
+      .map(([url]) => new URL(url as string).searchParams.get("page"));
+
+  function LocationProbe({ onChange }: { onChange: (location: string) => void }) {
+    const { pathname, search } = useLocation();
+    onChange(pathname + search);
+    return null;
+  }
+
+  function GoBack() {
+    const navigate = useNavigate();
+    return <button onClick={() => navigate(-1)}>go back</button>;
+  }
+
+  /** Entered from /briefings, so Back has somewhere to land that is not the list. */
+  function renderList(url: string, archiveScope?: "active" | "archived") {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    let location = "";
+    const view = render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={["/briefings", url]} initialIndex={1}>
+          <LocationProbe
+            onChange={(next) => {
+              location = next;
+            }}
+          />
+          <GoBack />
+          <Routes>
+            <Route path="/briefings" element={<p>Briefings</p>} />
+            <Route path="/articles" element={<ArticlesPage archiveScope={archiveScope} />} />
+            <Route path="/archive" element={<ArticlesPage archiveScope={archiveScope} />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    return { ...view, location: () => location };
+  }
+
+  it("settles on the last page when the URL asks for one past the end", async () => {
+    // 20 articles, so the ?page=2 the user was on after archiving the 21st is
+    // empty and the pager has hidden itself.
+    installFetchRoutes({ list: pagedList(() => 20) });
+    const view = renderList("/articles?page=2");
+
+    await waitFor(() => expect(screen.getByText("Article 1")).toBeInTheDocument());
+    expect(view.location()).toBe("/articles");
+  });
+
+  it("replaces the out-of-range entry, so Back leaves the list", async () => {
+    installFetchRoutes({ list: pagedList(() => 20) });
+    const view = renderList("/articles?page=2");
+    await waitFor(() => expect(screen.getByText("Article 1")).toBeInTheDocument());
+
+    fireEvent.click(screen.getByText("go back"));
+
+    // Pushing instead would step Back onto ?page=2 and clamp forward again,
+    // leaving the user on /articles.
+    await waitFor(() => expect(view.location()).toBe("/briefings"));
+  });
+
+  it("settles the Archive view the same way", async () => {
+    installFetchRoutes({ list: pagedList(() => 20) });
+    const view = renderList("/archive?page=2", "archived");
+
+    await waitFor(() => expect(screen.getByText("Article 1")).toBeInTheDocument());
+    expect(view.location()).toBe("/archive");
+  });
+
+  it("holds the page when nothing matches at all, rather than asking for page 0", async () => {
+    installFetchRoutes({ list: pagedList(() => 0) });
+    const view = renderList("/articles?page=2");
+
+    await waitFor(() => expect(screen.getByText("No articles found.")).toBeInTheDocument());
+    expect(view.location()).toBe("/articles?page=2");
+    expect(requestedPages()).toEqual(["2"]);
+  });
+
+  it("leaves a page that is within range alone", async () => {
+    installFetchRoutes({ list: pagedList(() => 50) });
+    const view = renderList("/articles?page=2");
+
+    await waitFor(() => expect(screen.getByText("Article 21")).toBeInTheDocument());
+    expect(view.location()).toBe("/articles?page=2");
+  });
+
+  it("counts from 0 rather than backwards when the list is empty", async () => {
+    installFetchRoutes({ list: pagedList(() => 0) });
+    renderList("/articles");
+
+    await waitFor(() =>
+      expect(screen.getByText("Showing 0 - 0 of 0 articles")).toBeInTheDocument(),
+    );
   });
 });
