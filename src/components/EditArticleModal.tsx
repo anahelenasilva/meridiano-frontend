@@ -20,6 +20,7 @@ import {
 import { useArticles, useProfiles, useUpdateArticle } from "@/hooks/useApi";
 import type { Article, UpdateArticlePayload } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
+import { meridianoDayString } from "@/utils/meridiano-day";
 import { toast } from "@/utils/toast";
 import { Loader2 } from "lucide-react";
 import { useMemo, useState, type FormEvent } from "react";
@@ -80,7 +81,9 @@ export default function EditArticleModal({
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [articlesData, article.categories]);
 
-  const todayStr = toDateInputValue(new Date().toISOString());
+  // The ceiling is the current Meridiano Day, not the browser's or UTC's day,
+  // so the form never offers a date the API would read as tomorrow.
+  const todayStr = meridianoDayString(new Date());
 
   const trimmedTitle = title.trim();
   const trimmedSource = feedSource.trim();
