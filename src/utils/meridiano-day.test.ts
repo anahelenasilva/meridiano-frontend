@@ -1,4 +1,5 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { pinZone } from "@/test/pin-zone";
 import { meridianoDay, meridianoDayString } from "./meridiano-day";
 
 // 22:00 on 2026-10-25 in Sao Paulo, already 2026-10-26 in UTC and in Lisbon.
@@ -8,16 +9,8 @@ import { meridianoDay, meridianoDayString } from "./meridiano-day";
 const LATE_ON_OCT_25_IN_SAO_PAULO = new Date("2026-10-26T01:00:00Z");
 
 describe("meridiano-day", () => {
-  const hostZone = process.env.TZ;
-
   // The spec pins its own zone so it fails on a Brazilian machine too.
-  beforeAll(() => {
-    process.env.TZ = "Europe/Lisbon";
-  });
-
-  afterAll(() => {
-    process.env.TZ = hostZone;
-  });
+  pinZone("Europe/Lisbon");
 
   it("reads the Sao Paulo calendar day, not the UTC one", () => {
     expect(meridianoDayString(LATE_ON_OCT_25_IN_SAO_PAULO)).toBe("2026-10-25");
