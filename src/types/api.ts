@@ -804,16 +804,9 @@ export interface components {
             /** @enum {string} */
             feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
             generateAudio?: boolean;
-            metadata?: components["schemas"]["ExternalSubmissionMetadataDto"];
             source?: string;
             /** Format: uri */
             url: string;
-        };
-        ExternalSubmissionMetadataDto: {
-            chatId?: string;
-            messageId?: string;
-            note?: string;
-            username?: string;
         };
         GenerateBriefInputDto: {
             customPrompts?: components["schemas"]["CustomPromptsDto"];
@@ -942,6 +935,17 @@ export interface operations {
     ArticlesController_listArticles: {
         parameters: {
             query?: {
+                page?: number;
+                perPage?: number;
+                sortBy?: string;
+                direction?: string;
+                feedProfile?: string;
+                feedSource?: string;
+                searchTerm?: string;
+                startDate?: string;
+                endDate?: string;
+                preset?: string;
+                category?: string;
                 /** @description Defaults to active. Use archived for the Archive view. */
                 archive_scope?: "active" | "archived" | "all";
             };
@@ -1117,7 +1121,14 @@ export interface operations {
     };
     ArticlesController_listArticlesLean: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                perPage?: number;
+                feedProfile?: string;
+                feedSource?: string;
+                startDate?: string;
+                endDate?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1130,6 +1141,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
             };
             /** @description Missing or invalid bearer token */
             401: {
@@ -1764,6 +1784,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
             };
             /** @description Missing or invalid bearer token */
             401: {

@@ -2,12 +2,14 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { ArticleDetailResponse } from '@/types';
+import type { Article, ArticleDetailResponse } from '@/types';
 import ArticleDetailPage from './ArticleDetailPage';
 
 const mockGenerateAudio = vi.fn();
 let mockArticleData: ArticleDetailResponse;
 let mockBookmarked = false;
+// The window the prev/next rail reads, i.e. the `useArticles({ perPage: 50 })` page.
+let mockWindow: Article[] = [];
 
 vi.mock('react-router', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router')>();
@@ -27,7 +29,7 @@ vi.mock('@/hooks/useApi', () => ({
     add: { mutate: vi.fn() },
     remove: { mutate: vi.fn() },
   }),
-  useArticles: () => ({ data: { articles: [] } }),
+  useArticles: () => ({ data: { articles: mockWindow } }),
   useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
   useArchiveArticle: () => ({ mutate: vi.fn(), isPending: false }),
 }));
@@ -50,9 +52,31 @@ function renderWithProviders() {
   );
 }
 
+function articleFixture(id: string): Article {
+  return {
+    id,
+    title: `Article ${id}`,
+    url: 'https://example.com',
+    published_date: '2024-01-01',
+    feed_source: 'Test',
+    feed_profile: 'default',
+    summary: 'Summary',
+    processed_content_html: '<p>Content</p>',
+    content_html: '<p>Content</p>',
+    impact_rating: 1,
+    image_url: null,
+    categories: [],
+    audio: null,
+    has_audio: false,
+    archived_at: null,
+    is_bookmarked: false,
+  };
+}
+
 describe('ArticleDetailPage audio section (AC3, AC5)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWindow = [];
     mockArticleData = {
       article: {
         id: 'art-1',
@@ -118,6 +142,7 @@ describe('ArticleDetailPage audio section (AC3, AC5)', () => {
 describe('ArticleDetailPage cover and bookmark icon', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWindow = [];
     mockBookmarked = false;
     mockArticleData = {
       article: {
@@ -166,5 +191,50 @@ describe('ArticleDetailPage cover and bookmark icon', () => {
     const { container } = renderWithProviders();
     expect(container.querySelector('.lucide-bookmark-check')).toBeNull();
     expect(container.querySelector('.lucide-bookmark')).not.toBeNull();
+  });
+});
+
+describe('ArticleDetailPage prev/next rail', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockBookmarked = false;
+    mockWindow = [];
+    mockArticleData = { article: articleFixture('art-1') };
+  });
+
+  // The rail's `to` targets, as hrefs; null when the chevron is the disabled div.
+  function railHrefs(container: HTMLElement) {
+    const href = (iconClass: string) =>
+      container.querySelector(iconClass)?.closest('a')?.getAttribute('href') ?? null;
+    return { prev: href('.lucide-chevron-up'), next: href('.lucide-chevron-down') };
+  }
+
+  it('offers no neighbour when the open article is outside the window', () => {
+    mockWindow = [articleFixture('art-newest'), articleFixture('art-older')];
+    const { container } = renderWithProviders();
+    expect(railHrefs(container)).toEqual({ prev: null, next: null });
+  });
+
+  it('offers no neighbour when the window is empty', () => {
+    const { container } = renderWithProviders();
+    expect(railHrefs(container)).toEqual({ prev: null, next: null });
+  });
+
+  it('offers only next for the first article in the window', () => {
+    mockWindow = [articleFixture('art-1'), articleFixture('art-2')];
+    const { container } = renderWithProviders();
+    expect(railHrefs(container)).toEqual({ prev: null, next: '/articles/art-2' });
+  });
+
+  it('offers only prev for the last article in the window', () => {
+    mockWindow = [articleFixture('art-0'), articleFixture('art-1')];
+    const { container } = renderWithProviders();
+    expect(railHrefs(container)).toEqual({ prev: '/articles/art-0', next: null });
+  });
+
+  it('offers both immediate neighbours for an article in the middle', () => {
+    mockWindow = [articleFixture('art-0'), articleFixture('art-1'), articleFixture('art-2')];
+    const { container } = renderWithProviders();
+    expect(railHrefs(container)).toEqual({ prev: '/articles/art-0', next: '/articles/art-2' });
   });
 });

@@ -32,11 +32,50 @@ const DEFAULTS: ArticleFilterValues = {
 
 const fmt = (d: Date) => format(d, "yyyy-MM-dd");
 
-const presetStart: Record<DatePreset, (today: Date) => Date> = {
-  yesterday: (today) => subDays(today, 1),
-  week: (today) => subWeeks(today, 1),
-  "30d": (today) => subDays(today, 30),
-  "3m": (today) => subMonths(today, 3),
+/**
+ * A Meridiano Day is the calendar day in Sao Paulo, which is the day the API
+ * resolves a date string to. The zone is named, never an offset, so a Brazilian
+ * DST decision changes nothing here.
+ */
+const MERIDIANO_ZONE = "America/Sao_Paulo";
+
+const meridianoDayParts = new Intl.DateTimeFormat("en-US", {
+  timeZone: MERIDIANO_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * The Meridiano Day `instant` falls on, as a local `Date` at noon. The presets
+ * then do their calendar arithmetic and their formatting on that day with the
+ * browser's own getters, and noon keeps them clear of any local DST jump.
+ */
+function meridianoDay(instant: Date): Date {
+  const parts = meridianoDayParts.formatToParts(instant);
+  const part = (type: "year" | "month" | "day") =>
+    Number(parts.find((p) => p.type === type)?.value);
+  return new Date(part("year"), part("month") - 1, part("day"), 12);
+}
+
+type DateWindow = { startDate: string; endDate: string };
+
+/** One calendar day: both bounds are that day. */
+const calendarDay = (day: Date): DateWindow => ({ startDate: fmt(day), endDate: fmt(day) });
+/** A window that ends today and reaches back to `start`. */
+const trailing = (start: Date, today: Date): DateWindow => ({
+  startDate: fmt(start),
+  endDate: fmt(today),
+});
+
+// Each preset names both of its bounds, so a new one has to pick an end date
+// instead of inheriting today. `today` is a Meridiano Day, so every bound is
+// one too.
+const presetWindow: Record<DatePreset, (today: Date) => DateWindow> = {
+  yesterday: (today) => calendarDay(subDays(today, 1)),
+  week: (today) => trailing(subWeeks(today, 1), today),
+  "30d": (today) => trailing(subDays(today, 30), today),
+  "3m": (today) => trailing(subMonths(today, 3), today),
 };
 
 function isPreset(value: string | null): value is DatePreset {
@@ -47,9 +86,9 @@ function readFilters(params: URLSearchParams): ArticleFilterValues {
   const preset = params.get("preset");
   // A preset stays relative in the URL, so a shared "Last week" link means
   // last week whenever it is opened.
-  const today = new Date();
+  const today = meridianoDay(new Date());
   const dates = isPreset(preset)
-    ? { preset, startDate: fmt(presetStart[preset](today)), endDate: fmt(today) }
+    ? { preset, ...presetWindow[preset](today) }
     : {
         preset: null,
         startDate: params.get("startDate") ?? "",
