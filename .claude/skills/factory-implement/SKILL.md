@@ -1,6 +1,6 @@
 ---
 name: factory-implement
-description: Factory implementer run: take one ready-for-agent issue, build it, open a draft PR. Used by the meridiano-frontend-implement routine.
+description: Factory implementer run, take one ready-for-agent issue, build it, open a draft PR. Used by the meridiano-frontend-implement routine.
 ---
 
 # Factory implement

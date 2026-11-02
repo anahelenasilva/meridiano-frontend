@@ -1,6 +1,6 @@
 ---
 name: factory-review
-description: Factory review run: read a factory PR cold against the repo standards and its issue, comment pass or fail, label needs-rework on fail. Used by the meridiano-frontend-review routine.
+description: Factory review run, read a factory PR cold against the repo standards and its issue, comment pass or fail, label needs-rework on fail. Used by the meridiano-frontend-review routine.
 ---
 
 # Factory review

@@ -1,6 +1,6 @@
 ---
 name: factory-rework
-description: Factory rework run: fix only the findings of the last failed factory review on a PR and push. Used by the meridiano-frontend-rework routine.
+description: Factory rework run, fix only the findings of the last failed factory review on a PR and push. Used by the meridiano-frontend-rework routine.
 ---
 
 # Factory rework
