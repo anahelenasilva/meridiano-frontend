@@ -20,6 +20,7 @@ import {
 import { useArticles, useProfiles, useUpdateArticle } from "@/hooks/useApi";
 import type { Article, UpdateArticlePayload } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
+import { meridianoDayString } from "@/utils/meridiano-day";
 import { toast } from "@/utils/toast";
 import { Loader2 } from "lucide-react";
 import { useMemo, useState, type FormEvent } from "react";
@@ -30,14 +31,19 @@ interface EditArticleModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/** Reduce an ISO / date string to the `yyyy-MM-dd` a date input expects. */
+/**
+ * Reduce an ISO / date string to the `yyyy-MM-dd` a date input expects, reading
+ * an instant as the Meridiano Day it falls on so the field agrees with the
+ * ceiling below and with the day the API resolved. A value that is already a
+ * bare `yyyy-MM-dd` is already that day and passes straight through: parsing it
+ * would read it as UTC midnight, which is the day before in Sao Paulo.
+ */
 function toDateInputValue(value: string | undefined): string {
   if (!value) return "";
-  const match = value.match(/^\d{4}-\d{2}-\d{2}/);
-  if (match) return match[0];
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "";
-  return parsed.toISOString().slice(0, 10);
+  return meridianoDayString(parsed);
 }
 
 function sameSet(a: string[], b: string[]): boolean {
@@ -80,7 +86,9 @@ export default function EditArticleModal({
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [articlesData, article.categories]);
 
-  const todayStr = toDateInputValue(new Date().toISOString());
+  // The ceiling is the current Meridiano Day, not the browser's or UTC's day,
+  // so the form never offers a date the API would read as tomorrow.
+  const todayStr = meridianoDayString(new Date());
 
   const trimmedTitle = title.trim();
   const trimmedSource = feedSource.trim();

@@ -1,5 +1,6 @@
 import { usePageParam } from "@/hooks/usePageParam";
 import type { ArticlesQueryParams } from "@/types";
+import { meridianoDay } from "@/utils/meridiano-day";
 import { format, subDays, subMonths, subWeeks } from "date-fns";
 import { useSearchParams } from "react-router";
 
@@ -31,32 +32,6 @@ const DEFAULTS: ArticleFilterValues = {
 };
 
 const fmt = (d: Date) => format(d, "yyyy-MM-dd");
-
-/**
- * A Meridiano Day is the calendar day in Sao Paulo, which is the day the API
- * resolves a date string to. The zone is named, never an offset, so a Brazilian
- * DST decision changes nothing here.
- */
-const MERIDIANO_ZONE = "America/Sao_Paulo";
-
-const meridianoDayParts = new Intl.DateTimeFormat("en-US", {
-  timeZone: MERIDIANO_ZONE,
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-});
-
-/**
- * The Meridiano Day `instant` falls on, as a local `Date` at noon. The presets
- * then do their calendar arithmetic and their formatting on that day with the
- * browser's own getters, and noon keeps them clear of any local DST jump.
- */
-function meridianoDay(instant: Date): Date {
-  const parts = meridianoDayParts.formatToParts(instant);
-  const part = (type: "year" | "month" | "day") =>
-    Number(parts.find((p) => p.type === type)?.value);
-  return new Date(part("year"), part("month") - 1, part("day"), 12);
-}
 
 type DateWindow = { startDate: string; endDate: string };
 
