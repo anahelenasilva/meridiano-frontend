@@ -1,7 +1,8 @@
 import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router";
+import { pinZone } from "@/test/pin-zone";
 import { useArticleFilters } from "./useArticleFilters";
 
 function renderFilters(url: string) {
@@ -18,16 +19,8 @@ function renderFilters(url: string) {
 const LATE_ON_OCT_25_IN_SAO_PAULO = new Date("2026-10-26T01:00:00Z");
 
 describe("useArticleFilters date presets", () => {
-  const hostZone = process.env.TZ;
-
   // The spec pins its own zone so it fails on a Brazilian machine too.
-  beforeAll(() => {
-    process.env.TZ = "Europe/Lisbon";
-  });
-
-  afterAll(() => {
-    process.env.TZ = hostZone;
-  });
+  pinZone("Europe/Lisbon");
 
   afterEach(() => {
     vi.useRealTimers();

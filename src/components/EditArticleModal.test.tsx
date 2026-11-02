@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { pinZone } from "@/test/pin-zone";
 import type { Article } from "@/types";
 import { toast } from "@/utils/toast";
 import EditArticleModal from "./EditArticleModal";
@@ -208,20 +209,19 @@ describe("EditArticleModal", () => {
   // Only the last three hours of a Brazilian day split the two calendars, so
   // only an instant from that window can catch a UTC ceiling.
   describe("late on a Brazilian day", () => {
-    const hostZone = process.env.TZ;
     const LATE_ON_OCT_25_IN_SAO_PAULO = new Date("2026-10-26T01:00:00Z");
 
     // The spec pins its own zone so it fails on a Brazilian machine too, and
     // fakes Date alone so React and the query client keep their real timers.
+    pinZone("Europe/Lisbon");
+
     beforeAll(() => {
-      process.env.TZ = "Europe/Lisbon";
       vi.useFakeTimers({ toFake: ["Date"] });
       vi.setSystemTime(LATE_ON_OCT_25_IN_SAO_PAULO);
     });
 
     afterAll(() => {
       vi.useRealTimers();
-      process.env.TZ = hostZone;
     });
 
     it("caps the date picker at the current Meridiano Day", () => {
