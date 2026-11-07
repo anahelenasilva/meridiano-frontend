@@ -83,7 +83,7 @@ public/               # Static assets
 
 ## API Configuration
 
-Outside `pnpm dev`, the app calls the API on its own origin, and `vite preview` proxies `/api` to `http://127.0.0.1:3001` (`server.proxy` in `vite.config.ts`). Any hostname the page is opened under (localhost, a LAN IP, a Tailscale name) reaches the API without CORS.
+Outside `pnpm dev`, the app calls the API on its own origin, and `vite preview` proxies `/api` to `http://127.0.0.1:3001` (`server.proxy` in `vite.config.ts`). Any hostname the page is opened under (localhost, a LAN IP, a Tailscale name) reaches the API without CORS. Vite still answers 403 to a name missing from `ALLOWED_HOSTS` (see `deploy/README.md`).
 
 A `VITE_API_BASE_URL` containing `railway.app` overrides this.
 
