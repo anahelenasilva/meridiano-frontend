@@ -110,3 +110,21 @@ describe("saveNote", () => {
     );
   });
 });
+
+describe("apiFetch outside development", () => {
+  beforeEach(() => {
+    fetchMock.mockReset();
+    localStorage.clear();
+  });
+
+  it("calls the API on the page's own origin", async () => {
+    fetchMock.mockResolvedValue(mockJsonResponse({ bookmarks: [] }));
+
+    await fetchBookmarks(1, 20);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${window.location.origin}/api/bookmarks?page=1&per_page=20`,
+      expect.any(Object),
+    );
+  });
+});

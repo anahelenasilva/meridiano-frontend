@@ -13,6 +13,11 @@ export default defineConfig(() => ({
     hmr: {
       overlay: false,
     },
+    // preview.proxy inherits this. 127.0.0.1, since the API listens on IPv4
+    // only and localhost can resolve to ::1.
+    proxy: {
+      "/api": "http://127.0.0.1:3001",
+    },
   },
   plugins: [react()].filter(Boolean),
   resolve: {

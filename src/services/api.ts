@@ -44,12 +44,10 @@ export const getApiBaseUrl = (): string => {
     return `${import.meta.env.VITE_API_BASE_URL}`
   }
 
-  // If running in browser, use current hostname
+  // vite preview proxies /api to the API (server.proxy in vite.config.ts), so
+  // every name the page is opened under reaches it with no CORS.
   if (typeof window !== 'undefined') {
-    const protocol = window.location.protocol;
-    const hostname = window.location.hostname;
-    const port = '3001'; // Your API port
-    return `${protocol}//${hostname}:${port}`;
+    return window.location.origin;
   }
 
   // Fallback for server-side rendering (SSR)
