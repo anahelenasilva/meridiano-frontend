@@ -42,12 +42,7 @@ pnpm install
 
 2. Configure the API endpoint (optional):
 
-The API URL is **automatically detected** based on your current hostname. This means:
-- Accessing via `http://localhost:5173` (default Vite port) -> API calls go to `http://localhost:3001`
-- Accessing via `http://192.168.1.18:5173` -> API calls go to `http://192.168.1.18:3001`
-- Accessing via Tailscale `http://100.x.x.x:5173` -> API calls go to `http://100.x.x.x:3001`
-
-If needed, you can override this by creating a `.env` file:
+`pnpm dev` calls the API at `http://localhost:3001`. To point it elsewhere, create a `.env` file:
 
 ```env
 VITE_API_BASE_URL=http://localhost:3001
@@ -88,12 +83,9 @@ public/               # Static assets
 
 ## API Configuration
 
-The app **dynamically detects the API URL** based on the current hostname:
-- It automatically uses the same hostname as the frontend but with port `3001`
-- This works seamlessly with localhost, local network IPs, and Tailscale IPs
-- No configuration needed for different network environments!
+Outside `pnpm dev`, the app calls the API on its own origin, and `vite preview` proxies `/api` to `http://127.0.0.1:3001` (`server.proxy` in `vite.config.ts`). Any hostname the page is opened under (localhost, a LAN IP, a Tailscale name) reaches the API without CORS. Vite still answers 403 to a name missing from `ALLOWED_HOSTS` (see `deploy/README.md`).
 
-For production builds, you can set `VITE_API_BASE_URL` as a fallback in your `.env` file.
+A `VITE_API_BASE_URL` containing `railway.app` overrides this.
 
 ## Available Scripts
 

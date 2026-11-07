@@ -73,7 +73,7 @@ Page or component
 
 ### The fetch wrapper (`src/services/api.ts`)
 
-- `getApiBaseUrl()` returns `VITE_API_BASE_URL` in development (default `http://localhost:3001`), and otherwise derives the URL from the current hostname on port 3001 unless `VITE_API_BASE_URL` points at Railway.
+- `getApiBaseUrl()` returns `VITE_API_BASE_URL` in development (default `http://localhost:3001`), and otherwise the page's own origin, unless `VITE_API_BASE_URL` points at Railway. `vite preview` proxies `/api` to the API at `http://127.0.0.1:3001` (`server.proxy` in `vite.config.ts`), so the app needs no CORS under any hostname.
 - `apiFetch` reads the token from `localStorage` (`auth_token`) and sends it as `Authorization: Bearer <token>`.
 - A 401 with a token present expires the session: it clears stored auth and reloads, which drops the query cache and lands on the login form.
 - Other non-2xx responses throw the error built by `parseErrorResponse` in `src/utils/api-error.ts`.
