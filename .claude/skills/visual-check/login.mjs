@@ -6,6 +6,7 @@
 // its token has more than an hour left, so one real login covers about a day.
 // --fresh skips the cache. Reads E2E_USERNAME and E2E_PASSWORD from the main
 // checkout's .env.test. Prints the username, never the password or the token.
+/* global process, Buffer, console, fetch -- Node globals; eslint.config.mjs assumes the browser */
 import { execFileSync } from "node:child_process";
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
