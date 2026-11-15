@@ -178,6 +178,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer a question about one Article or YouTube Transcription */
+        post: operations["AskController_ask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audio": {
         parameters: {
             query?: never;
@@ -712,6 +729,23 @@ export interface components {
             per_page: number;
             total_articles: number;
             total_pages: number;
+        };
+        AskRequestDto: {
+            history?: components["schemas"]["AskTurnDto"][];
+            question: string;
+            /** Format: uuid */
+            source_id: string;
+            /** @enum {string} */
+            source_type: "article" | "transcription";
+        };
+        AskResponseDto: {
+            answer: string;
+            model: string;
+            truncated: boolean;
+        };
+        AskTurnDto: {
+            answer: string;
+            question: string;
         };
         CategoryResponseDto: {
             color: string;
@@ -1451,6 +1485,61 @@ export interface operations {
             };
             /** @description Audio job not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AskController_ask: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AskRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Source not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The chat model failed to answer */
+            502: {
                 headers: {
                     [name: string]: unknown;
                 };

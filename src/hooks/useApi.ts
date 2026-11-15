@@ -1,6 +1,8 @@
 import {
   addBookmark,
   archiveArticle,
+  ask,
+  type AskTurnInput,
   checkBookmark,
   createArticleByLink,
   createCategory,
@@ -624,5 +626,22 @@ export function useSaveNote() {
         );
       }
     },
+  });
+}
+
+/** Asks one question about a source. No cache: an Ask lives in the panel's state only. */
+export function useAsk() {
+  return useMutation({
+    mutationFn: ({
+      sourceType,
+      sourceId,
+      question,
+      history,
+    }: {
+      sourceType: "article" | "transcription";
+      sourceId: string;
+      question: string;
+      history: AskTurnInput[];
+    }) => ask(sourceType, sourceId, question, history),
   });
 }

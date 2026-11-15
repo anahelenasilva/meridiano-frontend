@@ -31,6 +31,7 @@ vi.mock('@/hooks/useApi', () => ({
   }),
   useArticles: () => ({ data: { articles: mockWindow } }),
   useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
+  useAsk: () => ({ mutate: vi.fn(), isPending: false }),
   useArchiveArticle: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 

@@ -15,7 +15,7 @@ import {
   YouTubeTranscriptionDetailResponse,
   YouTubeTranscriptionsResponse
 } from "@/types";
-import type { paths } from "@/types/api";
+import type { components, paths } from "@/types/api";
 import { parseErrorResponse } from "@/utils/api-error";
 
 function getAuthToken(): string | null {
@@ -473,5 +473,24 @@ export async function saveNote(
     source_type: sourceType,
     source_id: sourceId,
     content,
+  });
+}
+
+// ===== Ask =====
+
+export type AskTurnInput = components["schemas"]["AskTurnDto"];
+export type AskResponse = components["schemas"]["AskResponseDto"];
+
+export async function ask(
+  sourceType: "article" | "transcription",
+  sourceId: string,
+  question: string,
+  history: AskTurnInput[],
+): Promise<AskResponse> {
+  return typedApiFetch("/api/ask", "post", {
+    source_type: sourceType,
+    source_id: sourceId,
+    question,
+    history,
   });
 }
