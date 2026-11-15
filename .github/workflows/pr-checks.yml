@@ -40,6 +40,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # --prod audits only `dependencies`, the code that ships to the browser,
+      # so tooling advisories do not block PRs. A new advisory against a
+      # runtime dependency fails every open PR until someone bumps it.
+      - name: Audit runtime dependencies
+        run: pnpm audit --prod --audit-level moderate
+
       - name: Run linter
         run: pnpm lint
 
