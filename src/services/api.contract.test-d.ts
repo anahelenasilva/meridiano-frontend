@@ -19,6 +19,12 @@ export function requestBodyTypeProbes() {
   // @ts-expect-error SaveNoteDto requires 'content'
   void typedApiFetch("/api/notes", "post", { source_type: "article", source_id: "a-1" });
 
+  // POST /api/ask declares AskRequestDto; history is optional.
+  void typedApiFetch("/api/ask", "post", { source_type: "article", source_id: "a-1", question: "Why?" });
+
+  // @ts-expect-error AskRequestDto requires 'question'
+  void typedApiFetch("/api/ask", "post", { source_type: "article", source_id: "a-1" });
+
   // GET /api/profiles declares `requestBody?: never`, so it takes no body.
   void typedApiFetch("/api/profiles", "get");
 

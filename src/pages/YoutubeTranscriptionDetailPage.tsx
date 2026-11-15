@@ -2,6 +2,7 @@ import { AudioSection } from "@/components/AudioSection";
 import { BackButton } from "@/components/BackButton";
 import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
 import { NoteEditor } from "@/components/NoteEditor";
+import { AskPanel } from "@/components/AskPanel";
 import { YoutubeThumbnail } from "@/components/YoutubeThumbnail";
 import { useTranscription } from "@/hooks/useApi";
 import { useAudioGeneration } from "@/hooks/useAudioGeneration";
@@ -95,6 +96,8 @@ export default function YoutubeTranscriptionDetailPage() {
           </div>
         </div>
       )}
+
+      <AskPanel key={video.id} sourceType="transcription" sourceId={video.id} />
 
       <section className="mt-6">
         <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">

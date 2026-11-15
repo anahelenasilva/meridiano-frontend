@@ -4,6 +4,7 @@ import { AudioSection } from "@/components/AudioSection";
 import { CustomPromptDisplay } from "@/components/CustomPromptDisplay";
 import EditArticleModal from "@/components/EditArticleModal";
 import { NoteEditor } from "@/components/NoteEditor";
+import { AskPanel } from "@/components/AskPanel";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { useArticle, useArticles, useBookmarkCheck, useToggleBookmark } from "@/hooks/useApi";
@@ -211,6 +212,8 @@ export default function ArticleDetail() {
             />
           </div>
         )}
+
+        <AskPanel key={article.id} sourceType="article" sourceId={article.id} />
 
         {article.content_html && (
           <section className="mt-6">
