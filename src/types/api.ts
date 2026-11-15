@@ -195,6 +195,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ask/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the chat models an Ask can use */
+        get: operations["AskController_listModels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audio": {
         parameters: {
             query?: never;
@@ -730,8 +747,17 @@ export interface components {
             total_articles: number;
             total_pages: number;
         };
+        AskModelDto: {
+            /** @enum {string} */
+            id: "openai" | "deepseek";
+            is_default: boolean;
+            label: string;
+            model_name: string;
+        };
         AskRequestDto: {
             history?: components["schemas"]["AskTurnDto"][];
+            /** @enum {string} */
+            model?: "openai" | "deepseek";
             question: string;
             /** Format: uuid */
             source_id: string;
@@ -740,7 +766,8 @@ export interface components {
         };
         AskResponseDto: {
             answer: string;
-            model: string;
+            /** @enum {string} */
+            model: "openai" | "deepseek";
             truncated: boolean;
         };
         AskTurnDto: {
@@ -1544,6 +1571,34 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AskController_listModels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskModelDto"][];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
             };
         };
     };

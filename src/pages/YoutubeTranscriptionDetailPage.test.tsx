@@ -23,6 +23,7 @@ vi.mock('@/hooks/useApi', () => ({
   }),
   useSaveNote: () => ({ mutate: vi.fn(), isPending: false }),
   useAsk: () => ({ mutate: vi.fn(), isPending: false }),
+  useAskModels: () => ({ data: undefined }),
 }));
 
 vi.mock('@/hooks/useAudioGeneration', () => ({

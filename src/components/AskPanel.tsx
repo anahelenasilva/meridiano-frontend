@@ -1,8 +1,10 @@
 import { useState, type FormEvent, type KeyboardEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAsk } from "@/hooks/useApi";
+import { useAsk, useAskModels } from "@/hooks/useApi";
+import type { AskModel } from "@/services/api";
 import { getErrorMessage } from "@/utils/api-error";
 
 interface AskTurn {
@@ -27,6 +29,11 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
   const [question, setQuestion] = useState("");
   const [error, setError] = useState<string | null>(null);
   const askMutation = useAsk();
+  const { data: models } = useAskModels();
+  const [pickedModel, setPickedModel] = useState<AskModel["id"] | null>(null);
+  // Until the owner picks one, follow the server's default. If the list fails
+  // to load, the request leaves `model` out and the server uses its default.
+  const model = pickedModel ?? models?.find((candidate) => candidate.is_default)?.id;
 
   const canAsk = question.trim().length > 0 && !askMutation.isPending;
 
@@ -38,6 +45,7 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
         sourceType,
         sourceId,
         question,
+        model,
         history: turns.map((turn) => ({ question: turn.question, answer: turn.answer })),
       },
       {
@@ -111,6 +119,25 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
           <Button type="submit" size="sm" disabled={!canAsk}>
             {askMutation.isPending ? "Asking..." : "Ask"}
           </Button>
+          {models && models.length > 0 && (
+            <Select
+              value={model}
+              onValueChange={(value) =>
+                setPickedModel(models.find((candidate) => candidate.id === value)?.id ?? null)
+              }
+            >
+              <SelectTrigger aria-label="Chat model" className="h-9 w-[160px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {models.map((candidate) => (
+                  <SelectItem key={candidate.id} value={candidate.id}>
+                    {candidate.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
       </form>
       {error && <p className="text-xs text-destructive mt-2">{error}</p>}
