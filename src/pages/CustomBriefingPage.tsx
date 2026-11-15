@@ -1,4 +1,5 @@
 import ArticleFilters from "@/components/ArticleFilters";
+import { CUSTOM_PROMPT_MAX_LENGTH } from "@/components/CustomPromptInput";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/PageHeader";
 import PageNav from "@/components/PageNav";
@@ -249,8 +250,12 @@ export default function CustomBriefingPage() {
                 placeholder="E.g., Focus on market impact and competitive analysis..."
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
+                maxLength={CUSTOM_PROMPT_MAX_LENGTH}
                 className="min-h-[80px] text-sm"
               />
+              <p className="text-xs text-muted-foreground text-right mt-1">
+                {customPrompt.length}/{CUSTOM_PROMPT_MAX_LENGTH}
+              </p>
             </div>
 
             <Button
