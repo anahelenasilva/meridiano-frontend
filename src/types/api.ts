@@ -435,40 +435,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/users": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a new user account */
-        post: operations["UsersController_createUser"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a user by id */
-        get: operations["UsersController_getUserById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/youtube/categories": {
         parameters: {
             query?: never;
@@ -773,12 +739,6 @@ export interface components {
         CreateCategoryDto: {
             name: string;
         };
-        CreateUserDto: {
-            /** Format: email */
-            email: string;
-            password: string;
-            username: string;
-        };
         CreateYoutubeChannelDto: {
             categoryNames?: string[];
             channelId: string;
@@ -810,6 +770,12 @@ export interface components {
         };
         GenerateBriefInputDto: {
             customPrompts?: components["schemas"]["CustomPromptsDto"];
+            /** @enum {string} */
+            feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
+        };
+        GenerateCustomBriefInputDto: {
+            articleIds: string[];
+            customPrompt?: string;
             /** @enum {string} */
             feedProfile: "default" | "technology" | "politics" | "business" | "health" | "science" | "brasil" | "teclas" | "travel";
         };
@@ -887,15 +853,11 @@ export interface components {
             publishedDate?: string;
             title?: string;
         };
+        UpdateBriefTitleDto: {
+            customTitle: string;
+        };
         UpdateChannelEnabledDto: {
             enabled: boolean;
-        };
-        UserResponseDto: {
-            /** Format: date-time */
-            created_at: string;
-            email: string;
-            id: string;
-            username: string;
         };
         ValidationErrorResponseDto: {
             /** @example Bad Request */
@@ -1812,7 +1774,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateCustomBriefInputDto"];
+            };
+        };
         responses: {
             /** @description Generated custom briefing */
             201: {
@@ -1820,6 +1786,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
             };
             /** @description Missing or invalid bearer token */
             401: {
@@ -1946,7 +1921,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBriefTitleDto"];
+            };
+        };
         responses: {
             /** @description Brief title updated */
             200: {
@@ -1954,6 +1933,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
             };
             /** @description Missing or invalid bearer token */
             401: {
@@ -2049,75 +2037,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
-            };
-        };
-    };
-    UsersController_createUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateUserDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponseDto"];
-                };
-            };
-            /** @description Request failed class-validator validation */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
-                };
-            };
-        };
-    };
-    UsersController_getUserById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserResponseDto"];
-                };
-            };
-            /** @description Missing or invalid bearer token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
-                };
-            };
-            /** @description Invalid user */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
