@@ -13,12 +13,13 @@ interface CustomPromptInputProps {
   maxLength?: number;
 }
 
-const MAX_LENGTH = 500;
+/** The API rejects a customPrompt longer than this with a 400. */
+export const CUSTOM_PROMPT_MAX_LENGTH = 500;
 
 export function CustomPromptInput({
   value,
   onChange,
-  maxLength = MAX_LENGTH,
+  maxLength = CUSTOM_PROMPT_MAX_LENGTH,
 }: CustomPromptInputProps) {
   const [isOpen, setIsOpen] = useState(false);
 
