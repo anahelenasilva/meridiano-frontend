@@ -5,7 +5,7 @@ description: Use when Ana asks you to check a change in the browser, such as a v
 
 # Visual check
 
-One browser, one sign-in, pages opened by hand with the Playwright MCP tools (`mcp__playwright__browser_*`). You run your own servers on your own ports and leave Ana's alone. The check is an eyeball check of what the issue names; the CI tests are the proof.
+One browser, one cached login, pages opened by hand with the Playwright MCP tools (`mcp__playwright__browser_*`). You run your own servers on your own ports and leave Ana's alone. The check is an eyeball check of what the issue names; the CI tests are the proof.
 
 ## Steps
 
@@ -30,8 +30,28 @@ One browser, one sign-in, pages opened by hand with the Playwright MCP tools (`m
 
    Pointing `VITE_API_BASE_URL` at the frontend's own origin sends API calls through the Vite proxy (`/api` to 127.0.0.1:3001 in `vite.config.ts`), so sign-in is same-origin whatever `.env.local` says. If 5181 is taken, use the next free port and change both numbers. For before/after, start the main checkout (first line of `git worktree list`) the same way on the next port, and say so if it is not on `main`. Done when `curl` on `http://localhost:<port>/api/health` prints `200` for each frontend.
 
-4. **Sign in once per frontend.** `browser_resize` to 1440×900, `browser_navigate` to `http://localhost:<port>/` (signed out, every route shows the sign-in form), then ask Ana to sign in in that window and wait for her reply. The session lives in that origin's localStorage, so a before/after check needs one sign-in per port. Done when `browser_snapshot` shows the app's navigation, not the login form.
-   - The backend allows 5 logins per 15 minutes per IP (`meridiano-nestjs/src/auth/auth.controller.ts:16`). On a `429 Too Many Requests`, the counter is the key `rate_limit:127.0.0.1` in Homebrew Redis (not the Docker Redis); offer Ana `redis-cli -h 127.0.0.1 DEL rate_limit:127.0.0.1`.
+4. **Sign in with the agent session.** Run `node .claude/skills/visual-check/login.mjs`. It reuses the cached session or logs in once as the `.env.test` user, then prints the session file path. Then `browser_resize` to 1440×900, `browser_navigate` to `http://localhost:<port>/`, and run this with `browser_run_code_unsafe`, using the printed path:
+
+   ```js
+   async (page) => {
+     await page.route("**/__agent_session", (r) =>
+       r.fulfill({ path: "<session file path>", contentType: "application/json" }),
+     );
+     const who = await page.evaluate(async () => {
+       const s = await (await fetch("/__agent_session")).json();
+       localStorage.setItem("auth_token", s.access_token);
+       localStorage.setItem("meridiano_user", JSON.stringify(s.user));
+       return s.user.username;
+     });
+     await page.unroute("**/__agent_session");
+     await page.reload();
+     return who;
+   }
+   ```
+
+   The page reads the file through the routed fetch, so the token stays out of the transcript; keep the session file and localStorage values out of every command and result. localStorage is per origin, so a before/after check runs the snippet once per frontend port. Done when the snippet returns the username and the reloaded page shows its data, not the sign-in form.
+   - Sign-in form still showing: the cached token may predate a backend secret change, so rerun the script with `--fresh`.
+   - The backend allows 5 logins per 15 minutes per IP (`meridiano-nestjs/src/auth/auth.controller.ts:16`). On a 429 the script prints the reset command for the counter in Homebrew Redis; offer it to Ana.
 
 5. **Open each page and screenshot it.** For each page on the list:
    1. `browser_navigate` to it, and click into any state the item names (an expanded row, an open dialog).
