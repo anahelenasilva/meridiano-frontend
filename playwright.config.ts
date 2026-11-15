@@ -35,8 +35,8 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      command: "cd ../meridiano-nestjs && pnpm start:dev",
-      port: 3005,
+      command: "cd ../meridiano-nestjs && PORT=3001 pnpm start:dev",
+      port: 3001,
       timeout: 120 * 1000,
       reuseExistingServer: false
     },
