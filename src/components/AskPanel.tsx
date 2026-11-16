@@ -103,7 +103,7 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
   }
 
   return (
-    <section className="mb-6">
+    <section>
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg sm:text-xl font-semibold">Ask</h2>
         {turns.length > 0 && (

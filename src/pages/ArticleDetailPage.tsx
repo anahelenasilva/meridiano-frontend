@@ -199,8 +199,9 @@ export default function ArticleDetail() {
           </div>
         )}
 
-        <div className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <NoteEditor sourceType="article" sourceId={article.id} note={article.note} mode="expanded" />
+          <AskPanel key={article.id} sourceType="article" sourceId={article.id} />
         </div>
 
         {sanitizedProcessedContentHtml && (
@@ -212,8 +213,6 @@ export default function ArticleDetail() {
             />
           </div>
         )}
-
-        <AskPanel key={article.id} sourceType="article" sourceId={article.id} />
 
         {article.content_html && (
           <section className="mt-6">

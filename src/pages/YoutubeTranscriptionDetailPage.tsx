@@ -83,8 +83,9 @@ export default function YoutubeTranscriptionDetailPage() {
         </div>
       )}
 
-      <div className="mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <NoteEditor sourceType="transcription" sourceId={video.id} note={video.note} mode="expanded" />
+        <AskPanel key={video.id} sourceType="transcription" sourceId={video.id} />
       </div>
 
       {video.transcriptionSummary && (
@@ -96,8 +97,6 @@ export default function YoutubeTranscriptionDetailPage() {
           </div>
         </div>
       )}
-
-      <AskPanel key={video.id} sourceType="transcription" sourceId={video.id} />
 
       <section className="mt-6">
         <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
