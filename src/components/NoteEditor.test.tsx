@@ -11,6 +11,13 @@ vi.mock("@/hooks/useApi", () => ({
   }),
 }));
 
+const note = (content: string) => ({
+  id: "n1",
+  content,
+  created_at: "2024-01-01",
+  updated_at: "2024-01-02",
+});
+
 describe("NoteEditor", () => {
   beforeEach(() => {
     mockMutate.mockReset();
@@ -54,12 +61,6 @@ describe("NoteEditor", () => {
   });
 
   it("keeps unsaved typing when an Ask Turn is appended to the Note", () => {
-    const note = (content: string) => ({
-      id: "n1",
-      content,
-      created_at: "2024-01-01",
-      updated_at: "2024-01-02",
-    });
     const { rerender } = render(
       <NoteEditor sourceType="article" sourceId="article-1" note={note("Saved line")} />
     );
@@ -104,6 +105,21 @@ describe("NoteEditor", () => {
     expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue(
       "My idea\n\n**Q:** Why?\n\nBecause."
     );
+  });
+
+  it("keeps unsaved typing when the saved Note changes without an append", () => {
+    const { rerender } = render(
+      <NoteEditor sourceType="article" sourceId="article-1" note={note("Saved line")} />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/add a private note/i), {
+      target: { value: "Saved line, edited" },
+    });
+    rerender(
+      <NoteEditor sourceType="article" sourceId="article-1" note={note("Rewritten elsewhere")} />
+    );
+
+    expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue("Saved line, edited");
   });
 
   it("renders collapsed preview and expands into the editor", () => {

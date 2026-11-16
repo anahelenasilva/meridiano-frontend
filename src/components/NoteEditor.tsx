@@ -24,23 +24,23 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   const [isExpanded, setIsExpanded] = useState(mode === "expanded");
   const saveNoteMutation = useSaveNote();
 
-  // Re-seed the draft when the source or its saved note changes. When the saved
-  // note only grew at the end (an Ask Turn appended) and the owner has unsaved
-  // typing, keep the typing and add the new text after it: re-seeding would lose
-  // the typing, and skipping the new text would let the next Save overwrite it.
+  // Re-seed the draft when the source changes, or when its saved note changes and
+  // the owner has no unsaved typing. With unsaved typing, never drop it: when the
+  // saved note only grew at the end (an Ask Turn appended), add the new text after
+  // the typing so the next Save, which replaces the whole note, keeps the turn;
+  // any other change leaves the typing as is.
   const [seededFrom, setSeededFrom] = useState({ sourceId, savedContent });
   if (seededFrom.sourceId !== sourceId || seededFrom.savedContent !== savedContent) {
+    const sourceChanged = seededFrom.sourceId !== sourceId;
     const hasUnsavedTyping = content !== seededFrom.savedContent && content !== savedContent;
-    const wasAppended =
-      seededFrom.sourceId === sourceId && savedContent.startsWith(seededFrom.savedContent);
     setSeededFrom({ sourceId, savedContent });
-    if (hasUnsavedTyping && wasAppended) {
+    if (sourceChanged || !hasUnsavedTyping) {
+      setContent(savedContent);
+    } else if (savedContent.startsWith(seededFrom.savedContent)) {
       const tail = savedContent.slice(seededFrom.savedContent.length);
       // A Note the append created has no leading separator.
       const added = tail.startsWith(APPEND_SEPARATOR) ? tail.slice(APPEND_SEPARATOR.length) : tail;
       setContent(content.trim() === "" ? added : `${content}${APPEND_SEPARATOR}${added}`);
-    } else {
-      setContent(savedContent);
     }
     setError(null);
   }
