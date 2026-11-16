@@ -452,6 +452,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/notes/append": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append text to the authenticated user's note on a source after a blank line, creating the note when absent */
+        post: operations["NotesController_appendToNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/profiles": {
         parameters: {
             query?: never;
@@ -705,6 +722,13 @@ export interface components {
             /** Format: date-time */
             created_at: string;
             id: string;
+        };
+        AppendNoteDto: {
+            content: string;
+            /** Format: uuid */
+            source_id: string;
+            /** @enum {string} */
+            source_type: "article" | "transcription";
         };
         ArticleListItemDto: {
             /** Format: date-time */
@@ -2154,6 +2178,54 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+        };
+    };
+    NotesController_appendToNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppendNoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaveNoteResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Article or YouTube transcription not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
