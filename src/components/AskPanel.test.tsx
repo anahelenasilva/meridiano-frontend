@@ -13,6 +13,8 @@ type AskCallbacks = {
 };
 
 const mockMutate = vi.fn<(variables: AskVariables, callbacks: AskCallbacks) => void>();
+const mockAppend =
+  vi.fn<(variables: { sourceType: string; sourceId: string; content: string }) => Promise<unknown>>();
 
 const chatModels = [
   { id: "openai", label: "OpenAI", model_name: "gpt-6-luna", is_default: false },
@@ -22,6 +24,7 @@ const chatModels = [
 vi.mock("@/hooks/useApi", () => ({
   useAsk: () => ({ mutate: mockMutate, isPending: false }),
   useAskModels: () => ({ data: chatModels }),
+  useAppendNote: () => ({ mutateAsync: mockAppend }),
 }));
 
 function answerWith(answer: string, truncated = false) {
@@ -46,6 +49,7 @@ function openModelPicker() {
 describe("AskPanel", () => {
   beforeEach(() => {
     mockMutate.mockReset();
+    mockAppend.mockReset();
   });
 
   it("lists the server's chat models with the default selected", () => {
@@ -111,5 +115,37 @@ describe("AskPanel", () => {
     askQuestion("What happens at the end?");
 
     expect(screen.getByText(/only the first part of this source was read/i)).toBeInTheDocument();
+  });
+
+  it("appends the turn to the source's Note and marks it saved", async () => {
+    mockAppend.mockResolvedValue({ note: null });
+    answerWith("The guest said **three things**.");
+    render(<AskPanel sourceType="article" sourceId="article-1" />);
+    askQuestion("What did the guest say?");
+
+    fireEvent.click(screen.getByRole("button", { name: "Save to note" }));
+
+    expect(mockAppend).toHaveBeenCalledWith({
+      sourceType: "article",
+      sourceId: "article-1",
+      content: "**Q:** What did the guest say?\n\nThe guest said **three things**.",
+    });
+    expect(await screen.findByRole("button", { name: "Saved to note" })).toBeDisabled();
+  });
+
+  it("shows a failed save on that turn and lets the owner try again", async () => {
+    mockAppend.mockRejectedValue(new Error("The note would exceed 20000 characters"));
+    answerWith("First answer.");
+    answerWith("Second answer.");
+    render(<AskPanel sourceType="article" sourceId="article-1" />);
+    askQuestion("First question?");
+    askQuestion("Second question?");
+
+    const [firstTurn, secondTurn] = screen.getAllByRole("listitem");
+    fireEvent.click(within(secondTurn).getByRole("button", { name: "Save to note" }));
+
+    expect(await within(secondTurn).findByText(/exceed 20000 characters/i)).toBeInTheDocument();
+    expect(within(secondTurn).getByRole("button", { name: "Save to note" })).toBeEnabled();
+    expect(within(firstTurn).queryByText(/exceed 20000 characters/i)).not.toBeInTheDocument();
   });
 });

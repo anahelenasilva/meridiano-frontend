@@ -1,5 +1,6 @@
 import {
   addBookmark,
+  appendToNote,
   archiveArticle,
   ask,
   fetchAskModels,
@@ -59,7 +60,7 @@ import type {
 import { MESSAGES } from "@/constants/messages";
 import { getErrorMessage } from "@/utils/api-error";
 import { toast } from "@/utils/toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
 type UseQueryResult<T> = ReturnType<typeof useQuery<T, Error>>;
 
@@ -575,59 +576,71 @@ function replaceNoteById<T extends { id: string; note?: Note | null }>(
   return items.map((item) => (item.id === sourceId ? { ...item, note } : item));
 }
 
+type NoteWrite = {
+  sourceType: "article" | "transcription";
+  sourceId: string;
+  content: string;
+};
+
+/** Puts a source's new Note into every cached page that shows it, so the Note editor updates without a refetch. */
+function writeNoteToCaches(queryClient: QueryClient, { sourceType, sourceId }: NoteWrite, note: Note | null) {
+  if (sourceType === "article") {
+    queryClient.setQueriesData<ArticleDetailResponse>(
+      { queryKey: ["article", sourceId] },
+      (old) => (old ? { ...old, article: { ...old.article, note } } : old),
+    );
+    queryClient.setQueriesData<ArticlesResponse>(
+      { queryKey: ["articles"] },
+      (old) => (old ? { ...old, articles: replaceNoteById(old.articles, sourceId, note) } : old),
+    );
+    queryClient.setQueriesData<BookmarksResponse>(
+      { queryKey: ["bookmarks"] },
+      (old) => {
+        if (!old || !old.bookmarks.some((bookmark) => bookmark.article.id === sourceId)) {
+          return old;
+        }
+        return {
+          ...old,
+          bookmarks: old.bookmarks.map((bookmark) =>
+            bookmark.article.id === sourceId
+              ? { ...bookmark, article: { ...bookmark.article, note } }
+              : bookmark,
+          ),
+        };
+      },
+    );
+  } else {
+    queryClient.setQueriesData<YouTubeTranscriptionDetailResponse>(
+      { queryKey: ["youtube-transcription", sourceId] },
+      (old) => (old ? { ...old, transcription: { ...old.transcription, note } } : old),
+    );
+    queryClient.setQueriesData<YouTubeTranscriptionsResponse>(
+      { queryKey: ["youtube-transcriptions"] },
+      (old) =>
+        old
+          ? { ...old, transcriptions: replaceNoteById(old.transcriptions, sourceId, note) }
+          : old,
+    );
+  }
+}
+
+/** Replaces the source's Note with `content`; blank content deletes it. */
 export function useSaveNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      sourceType,
-      sourceId,
-      content,
-    }: {
-      sourceType: "article" | "transcription";
-      sourceId: string;
-      content: string;
-    }) => saveNote(sourceType, sourceId, content),
-    onSuccess: (data: { note: Note | null }, { sourceType, sourceId }) => {
-      if (sourceType === "article") {
-        queryClient.setQueriesData<ArticleDetailResponse>(
-          { queryKey: ["article", sourceId] },
-          (old) => (old ? { ...old, article: { ...old.article, note: data.note } } : old),
-        );
-        queryClient.setQueriesData<ArticlesResponse>(
-          { queryKey: ["articles"] },
-          (old) => (old ? { ...old, articles: replaceNoteById(old.articles, sourceId, data.note) } : old),
-        );
-        queryClient.setQueriesData<BookmarksResponse>(
-          { queryKey: ["bookmarks"] },
-          (old) => {
-            if (!old || !old.bookmarks.some((bookmark) => bookmark.article.id === sourceId)) {
-              return old;
-            }
-            return {
-              ...old,
-              bookmarks: old.bookmarks.map((bookmark) =>
-                bookmark.article.id === sourceId
-                  ? { ...bookmark, article: { ...bookmark.article, note: data.note } }
-                  : bookmark,
-              ),
-            };
-          },
-        );
-      } else {
-        queryClient.setQueriesData<YouTubeTranscriptionDetailResponse>(
-          { queryKey: ["youtube-transcription", sourceId] },
-          (old) => (old ? { ...old, transcription: { ...old.transcription, note: data.note } } : old),
-        );
-        queryClient.setQueriesData<YouTubeTranscriptionsResponse>(
-          { queryKey: ["youtube-transcriptions"] },
-          (old) =>
-            old
-              ? { ...old, transcriptions: replaceNoteById(old.transcriptions, sourceId, data.note) }
-              : old,
-        );
-      }
-    },
+    mutationFn: ({ sourceType, sourceId, content }: NoteWrite) => saveNote(sourceType, sourceId, content),
+    onSuccess: (data, variables) => writeNoteToCaches(queryClient, variables, data.note),
+  });
+}
+
+/** Adds `content` after a blank line in the source's Note, creating the Note when there is none. */
+export function useAppendNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sourceType, sourceId, content }: NoteWrite) => appendToNote(sourceType, sourceId, content),
+    onSuccess: (data, variables) => writeNoteToCaches(queryClient, variables, data.note),
   });
 }
 

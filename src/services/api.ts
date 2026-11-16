@@ -476,6 +476,19 @@ export async function saveNote(
   });
 }
 
+/** The server adds `content` after a blank line, or creates the Note when the source has none. */
+export async function appendToNote(
+  sourceType: "article" | "transcription",
+  sourceId: string,
+  content: string,
+): Promise<{ note: Note | null }> {
+  return typedApiFetch("/api/notes/append", "post", {
+    source_type: sourceType,
+    source_id: sourceId,
+    content,
+  });
+}
+
 // ===== Ask =====
 
 export type AskTurnInput = components["schemas"]["AskTurnDto"];

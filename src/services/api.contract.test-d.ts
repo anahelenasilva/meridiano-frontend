@@ -19,6 +19,12 @@ export function requestBodyTypeProbes() {
   // @ts-expect-error SaveNoteDto requires 'content'
   void typedApiFetch("/api/notes", "post", { source_type: "article", source_id: "a-1" });
 
+  // POST /api/notes/append declares AppendNoteDto, so its exact shape compiles.
+  void typedApiFetch("/api/notes/append", "post", { source_type: "article", source_id: "a-1", content: "hello" });
+
+  // @ts-expect-error AppendNoteDto requires 'content'
+  void typedApiFetch("/api/notes/append", "post", { source_type: "article", source_id: "a-1" });
+
   // POST /api/ask declares AskRequestDto; history is optional.
   void typedApiFetch("/api/ask", "post", { source_type: "article", source_id: "a-1", question: "Why?" });
 
