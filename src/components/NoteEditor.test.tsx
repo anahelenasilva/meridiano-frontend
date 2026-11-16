@@ -106,6 +106,27 @@ describe("NoteEditor", () => {
     );
   });
 
+  it("keeps unsaved typing when the saved Note changes without an append", () => {
+    const note = (content: string) => ({
+      id: "n1",
+      content,
+      created_at: "2024-01-01",
+      updated_at: "2024-01-02",
+    });
+    const { rerender } = render(
+      <NoteEditor sourceType="article" sourceId="article-1" note={note("Saved line")} />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/add a private note/i), {
+      target: { value: "Saved line, edited" },
+    });
+    rerender(
+      <NoteEditor sourceType="article" sourceId="article-1" note={note("Rewritten elsewhere")} />
+    );
+
+    expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue("Saved line, edited");
+  });
+
   it("renders collapsed preview and expands into the editor", () => {
     render(
       <NoteEditor
