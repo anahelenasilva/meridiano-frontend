@@ -31,9 +31,10 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   // any other change leaves the typing as is.
   const [seededFrom, setSeededFrom] = useState({ sourceId, savedContent });
   if (seededFrom.sourceId !== sourceId || seededFrom.savedContent !== savedContent) {
+    const sourceChanged = seededFrom.sourceId !== sourceId;
     const hasUnsavedTyping = content !== seededFrom.savedContent && content !== savedContent;
     setSeededFrom({ sourceId, savedContent });
-    if (seededFrom.sourceId !== sourceId || !hasUnsavedTyping) {
+    if (sourceChanged || !hasUnsavedTyping) {
       setContent(savedContent);
     } else if (savedContent.startsWith(seededFrom.savedContent)) {
       const tail = savedContent.slice(seededFrom.savedContent.length);
