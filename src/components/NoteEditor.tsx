@@ -7,6 +7,8 @@ import { getErrorMessage } from "@/utils/api-error";
 
 const MAX_LENGTH = 20000;
 const WARNING_THRESHOLD = 500;
+// The separator POST /api/notes/append puts before the text it adds.
+const APPEND_SEPARATOR = "\n\n";
 
 interface NoteEditorProps {
   sourceType: "article" | "transcription";
@@ -22,11 +24,24 @@ export function NoteEditor({ sourceType, sourceId, note, mode = "expanded" }: No
   const [isExpanded, setIsExpanded] = useState(mode === "expanded");
   const saveNoteMutation = useSaveNote();
 
-  // Re-seed the draft when the source or its saved note changes.
+  // Re-seed the draft when the source or its saved note changes. When the saved
+  // note only grew at the end (an Ask Turn appended) and the owner has unsaved
+  // typing, keep the typing and add the new text after it: re-seeding would lose
+  // the typing, and skipping the new text would let the next Save overwrite it.
   const [seededFrom, setSeededFrom] = useState({ sourceId, savedContent });
   if (seededFrom.sourceId !== sourceId || seededFrom.savedContent !== savedContent) {
+    const hasUnsavedTyping = content !== seededFrom.savedContent && content !== savedContent;
+    const wasAppended =
+      seededFrom.sourceId === sourceId && savedContent.startsWith(seededFrom.savedContent);
     setSeededFrom({ sourceId, savedContent });
-    setContent(savedContent);
+    if (hasUnsavedTyping && wasAppended) {
+      const tail = savedContent.slice(seededFrom.savedContent.length);
+      // A Note the append created has no leading separator.
+      const added = tail.startsWith(APPEND_SEPARATOR) ? tail.slice(APPEND_SEPARATOR.length) : tail;
+      setContent(content.trim() === "" ? added : `${content}${APPEND_SEPARATOR}${added}`);
+    } else {
+      setContent(savedContent);
+    }
     setError(null);
   }
 

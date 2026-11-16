@@ -53,6 +53,59 @@ describe("NoteEditor", () => {
     expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue("");
   });
 
+  it("keeps unsaved typing when an Ask Turn is appended to the Note", () => {
+    const note = (content: string) => ({
+      id: "n1",
+      content,
+      created_at: "2024-01-01",
+      updated_at: "2024-01-02",
+    });
+    const { rerender } = render(
+      <NoteEditor sourceType="article" sourceId="article-1" note={note("Saved line")} />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/add a private note/i), {
+      target: { value: "Saved line, edited" },
+    });
+    rerender(
+      <NoteEditor
+        sourceType="article"
+        sourceId="article-1"
+        note={note("Saved line\n\n**Q:** Why?\n\nBecause.")}
+      />
+    );
+
+    expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue(
+      "Saved line, edited\n\n**Q:** Why?\n\nBecause."
+    );
+  });
+
+  it("keeps unsaved typing when an Ask Turn creates the Note", () => {
+    const { rerender } = render(
+      <NoteEditor sourceType="article" sourceId="article-1" note={null} />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/add a private note/i), {
+      target: { value: "My idea" },
+    });
+    rerender(
+      <NoteEditor
+        sourceType="article"
+        sourceId="article-1"
+        note={{
+          id: "n1",
+          content: "**Q:** Why?\n\nBecause.",
+          created_at: "2024-01-01",
+          updated_at: "2024-01-02",
+        }}
+      />
+    );
+
+    expect(screen.getByPlaceholderText(/add a private note/i)).toHaveValue(
+      "My idea\n\n**Q:** Why?\n\nBecause."
+    );
+  });
+
   it("renders collapsed preview and expands into the editor", () => {
     render(
       <NoteEditor
