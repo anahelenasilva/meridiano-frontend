@@ -1,6 +1,6 @@
 ---
 name: visual-check
-description: Use when Ana asks you to check a change in the browser, such as a visual check, a screenshot of a page, or an issue's "done when" item that needs eyes on the UI.
+description: Use when Ana asks you to check a change in the browser, such as a visual check, a screenshot of a page, screenshots for a PR, or an issue's "done when" item that needs eyes on the UI.
 ---
 
 # Visual check
@@ -61,4 +61,4 @@ One browser, one cached login, pages opened by hand with the Playwright MCP tool
 
    Done when every page on the list has a screenshot you read and a pass or fail against its observation.
 
-6. **Hand over and clean up.** Copy the screenshots to `~/Desktop/dev/.scratch/YYYY-MM-DD-meridiano-frontend-<issue>-visual/`, write the per-page results in an evidence file there, and send the screenshots that prove the item with `SendUserFile`. Stop every server you started with `TaskStop`, and leave the ones you reused running. Done when the reply gives pass or fail per page and `lsof` shows nothing listening on the ports you started.
+6. **Hand over and clean up.** Copy the screenshots to `~/Desktop/dev/.scratch/YYYY-MM-DD-meridiano-frontend-<issue>-visual/`, write the per-page results in an evidence file there, and send the screenshots that prove the item with `SendUserFile`. When the check backs a PR, put the screenshots in the PR body yourself: reference each one by local path in the body file (`![After: Note and Ask side by side](./after.png)`) and pass the same path to `--attach` on `gh pr create` or `gh pr edit`, which uploads it to GitHub and rewrites the reference to the uploaded URL. Stop every server you started with `TaskStop`, and leave the ones you reused running. Done when the reply gives pass or fail per page, `gh pr view --json body` (when there is a PR) shows an uploaded URL in place of every local screenshot path, and `lsof` shows nothing listening on the ports you started.
