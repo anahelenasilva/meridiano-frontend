@@ -195,6 +195,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ask/models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the chat models an Ask can use */
+        get: operations["AskController_listModels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audio": {
         parameters: {
             query?: never;
@@ -429,6 +446,23 @@ export interface paths {
         put?: never;
         /** Save an authenticated user note */
         post: operations["NotesController_saveNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notes/append": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Append text to the authenticated user's note on a source after a blank line, creating the note when absent */
+        post: operations["NotesController_appendToNote"];
         delete?: never;
         options?: never;
         head?: never;
@@ -689,6 +723,13 @@ export interface components {
             created_at: string;
             id: string;
         };
+        AppendNoteDto: {
+            content: string;
+            /** Format: uuid */
+            source_id: string;
+            /** @enum {string} */
+            source_type: "article" | "transcription";
+        };
         ArticleListItemDto: {
             /** Format: date-time */
             archived_at?: string | null;
@@ -730,8 +771,17 @@ export interface components {
             total_articles: number;
             total_pages: number;
         };
+        AskModelDto: {
+            /** @enum {string} */
+            id: "openai" | "deepseek";
+            is_default: boolean;
+            label: string;
+            model_name: string;
+        };
         AskRequestDto: {
             history?: components["schemas"]["AskTurnDto"][];
+            /** @enum {string} */
+            model?: "openai" | "deepseek";
             question: string;
             /** Format: uuid */
             source_id: string;
@@ -740,7 +790,8 @@ export interface components {
         };
         AskResponseDto: {
             answer: string;
-            model: string;
+            /** @enum {string} */
+            model: "openai" | "deepseek";
             truncated: boolean;
         };
         AskTurnDto: {
@@ -1547,6 +1598,34 @@ export interface operations {
             };
         };
     };
+    AskController_listModels: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AskModelDto"][];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+        };
+    };
     AudioController_listAudio: {
         parameters: {
             query?: never;
@@ -2099,6 +2178,54 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+        };
+    };
+    NotesController_appendToNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppendNoteDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SaveNoteResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description Article or YouTube transcription not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

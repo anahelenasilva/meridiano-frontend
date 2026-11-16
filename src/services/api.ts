@@ -480,17 +480,25 @@ export async function saveNote(
 
 export type AskTurnInput = components["schemas"]["AskTurnDto"];
 export type AskResponse = components["schemas"]["AskResponseDto"];
+export type AskModel = components["schemas"]["AskModelDto"];
 
+export async function fetchAskModels(): Promise<AskModel[]> {
+  return typedApiFetch("/api/ask/models", "get");
+}
+
+/** Leave `model` undefined to answer with the server's default chat model. */
 export async function ask(
   sourceType: "article" | "transcription",
   sourceId: string,
   question: string,
   history: AskTurnInput[],
+  model?: AskModel["id"],
 ): Promise<AskResponse> {
   return typedApiFetch("/api/ask", "post", {
     source_type: sourceType,
     source_id: sourceId,
     question,
     history,
+    model,
   });
 }

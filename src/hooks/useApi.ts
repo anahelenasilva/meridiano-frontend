@@ -2,6 +2,8 @@ import {
   addBookmark,
   archiveArticle,
   ask,
+  fetchAskModels,
+  type AskModel,
   type AskTurnInput,
   checkBookmark,
   createArticleByLink,
@@ -637,11 +639,22 @@ export function useAsk() {
       sourceId,
       question,
       history,
+      model,
     }: {
       sourceType: "article" | "transcription";
       sourceId: string;
       question: string;
       history: AskTurnInput[];
-    }) => ask(sourceType, sourceId, question, history),
+      model?: AskModel["id"];
+    }) => ask(sourceType, sourceId, question, history, model),
+  });
+}
+
+/** The chat models the Ask panel can pick from. They change only when the server is redeployed. */
+export function useAskModels() {
+  return useQuery({
+    queryKey: ["ask-models"],
+    queryFn: fetchAskModels,
+    staleTime: Infinity,
   });
 }

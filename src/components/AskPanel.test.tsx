@@ -1,8 +1,12 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AskPanel } from "./AskPanel";
 
-type AskVariables = { question: string; history: { question: string; answer: string }[] };
+type AskVariables = {
+  question: string;
+  model?: string;
+  history: { question: string; answer: string }[];
+};
 type AskCallbacks = {
   onSuccess: (data: { answer: string; model: string; truncated: boolean }) => void;
   onError: (error: Error) => void;
@@ -10,8 +14,14 @@ type AskCallbacks = {
 
 const mockMutate = vi.fn<(variables: AskVariables, callbacks: AskCallbacks) => void>();
 
+const chatModels = [
+  { id: "openai", label: "OpenAI", model_name: "gpt-6-luna", is_default: false },
+  { id: "deepseek", label: "DeepSeek", model_name: "deepseek-flash", is_default: true },
+];
+
 vi.mock("@/hooks/useApi", () => ({
   useAsk: () => ({ mutate: mockMutate, isPending: false }),
+  useAskModels: () => ({ data: chatModels }),
 }));
 
 function answerWith(answer: string, truncated = false) {
@@ -27,9 +37,33 @@ function askQuestion(question: string) {
   fireEvent.click(screen.getByRole("button", { name: "Ask" }));
 }
 
+function openModelPicker() {
+  const picker = screen.getByRole("combobox", { name: /chat model/i });
+  fireEvent.keyDown(picker, { key: "Enter" });
+  return screen.getByRole("listbox");
+}
+
 describe("AskPanel", () => {
   beforeEach(() => {
     mockMutate.mockReset();
+  });
+
+  it("lists the server's chat models with the default selected", () => {
+    render(<AskPanel sourceType="article" sourceId="article-1" />);
+
+    expect(screen.getByRole("combobox", { name: /chat model/i })).toHaveTextContent("DeepSeek");
+    const options = within(openModelPicker()).getAllByRole("option");
+    expect(options.map((option) => option.textContent)).toEqual(["OpenAI", "DeepSeek"]);
+  });
+
+  it("sends the picked model with the next question", () => {
+    answerWith("An answer.");
+    render(<AskPanel sourceType="article" sourceId="article-1" />);
+
+    fireEvent.click(within(openModelPicker()).getByRole("option", { name: "OpenAI" }));
+    askQuestion("Which model is this?");
+
+    expect(mockMutate.mock.calls[0][0]).toMatchObject({ model: "openai" });
   });
 
   it("shows the question and the answer rendered as markdown, with the model that answered", () => {
