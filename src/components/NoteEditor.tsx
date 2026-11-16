@@ -5,7 +5,7 @@ import { useSaveNote } from "@/hooks/useApi";
 import type { Note } from "@/types";
 import { getErrorMessage } from "@/utils/api-error";
 
-const MAX_LENGTH = 5000;
+const MAX_LENGTH = 20000;
 const WARNING_THRESHOLD = 500;
 
 interface NoteEditorProps {

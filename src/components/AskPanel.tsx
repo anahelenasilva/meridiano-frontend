@@ -3,16 +3,21 @@ import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { useAsk, useAskModels } from "@/hooks/useApi";
+import { useAppendNote, useAsk, useAskModels } from "@/hooks/useApi";
 import type { AskModel } from "@/services/api";
 import { getErrorMessage } from "@/utils/api-error";
+
+type NoteSave = { state: "saving" } | { state: "saved" } | { state: "failed"; error: string };
 
 interface AskTurn {
   question: string;
   answer: string;
   model: string;
   truncated: boolean;
+  noteSave?: NoteSave;
 }
+
+const saveButtonLabel = { idle: "Save to note", saving: "Saving...", saved: "Saved to note", failed: "Save to note" } as const;
 
 interface AskPanelProps {
   sourceType: "article" | "transcription";
@@ -29,6 +34,7 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
   const [question, setQuestion] = useState("");
   const [error, setError] = useState<string | null>(null);
   const askMutation = useAsk();
+  const appendNoteMutation = useAppendNote();
   const { data: models } = useAskModels();
   const [pickedModel, setPickedModel] = useState<AskModel["id"] | null>(null);
   // Until the owner picks one, follow the server's default. If the list fails
@@ -70,6 +76,27 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
     }
   }
 
+  function setNoteSave(index: number, noteSave: NoteSave) {
+    setTurns((previous) => previous.map((turn, i) => (i === index ? { ...turn, noteSave } : turn)));
+  }
+
+  // mutateAsync, not mutate: mutate's per-call callbacks fire only for the
+  // latest call, so two turns saved at once would lose the first one's result.
+  async function saveToNote(index: number) {
+    const turn = turns[index];
+    setNoteSave(index, { state: "saving" });
+    try {
+      await appendNoteMutation.mutateAsync({
+        sourceType,
+        sourceId,
+        content: `**Q:** ${turn.question}\n\n${turn.answer}`,
+      });
+      setNoteSave(index, { state: "saved" });
+    } catch (err) {
+      setNoteSave(index, { state: "failed", error: getErrorMessage(err) });
+    }
+  }
+
   function clearConversation() {
     setTurns([]);
     setError(null);
@@ -99,7 +126,21 @@ export function AskPanel({ sourceType, sourceId }: AskPanelProps) {
                   Only the first part of this source was read, so this answer may miss the end.
                 </p>
               )}
-              <p className="text-xs text-muted-foreground mt-2">Answered by {turn.model}</p>
+              <div className="flex items-center justify-between gap-2 mt-2">
+                <p className="text-xs text-muted-foreground">Answered by {turn.model}</p>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={turn.noteSave?.state === "saving" || turn.noteSave?.state === "saved"}
+                  onClick={() => saveToNote(index)}
+                >
+                  {saveButtonLabel[turn.noteSave?.state ?? "idle"]}
+                </Button>
+              </div>
+              {turn.noteSave?.state === "failed" && (
+                <p className="text-xs text-destructive mt-2">{turn.noteSave.error}</p>
+              )}
             </li>
           ))}
         </ol>
