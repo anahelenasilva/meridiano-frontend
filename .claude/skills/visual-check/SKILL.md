@@ -1,6 +1,7 @@
 ---
 name: visual-check
 description: Use when Ana asks you to check a change in the browser, such as a visual check, a screenshot of a page, screenshots for a PR, or an issue's "done when" item that needs eyes on the UI.
+allowed-tools: Bash(npx playwright cli:*)
 ---
 
 # Visual check
