@@ -19,7 +19,7 @@ The input is one GitHub issue number `<n>`. Ask Ana for it when her message name
 | 4. Code review | reviews and fixes the branch | `<n>`, plan path, worktree path | review notes path |
 | 5. PR | pushes and opens the PR | `<n>`, worktree path, review notes path | PR URL |
 
-- **Plan:** `/Users/anahelenadasilva/Desktop/dev/.scratch/YYYY-MM-DD-meridiano-frontend-issue-<n>-plan.md`
+- **Plan:** `~/Desktop/dev/.scratch/YYYY-MM-DD-meridiano-frontend-issue-<n>-plan.md`
 - **Review notes:** the same name ending in `-review.md`.
 - **Worktree:** `.claude/worktrees/issue-<n>` under the main checkout (the first line of `git worktree list`), on branch `claude/issue-<n>-<slug>`, where the slug is the issue title in lowercase with hyphens, at most 5 words.
 - **Checks:** `pnpm typecheck && pnpm lint && pnpm exec vitest run --maxWorkers=2`. Two workers, because Ana runs several sessions on this Mac at once.
