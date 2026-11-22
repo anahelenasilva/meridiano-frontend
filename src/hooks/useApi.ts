@@ -33,6 +33,7 @@ import {
   removeBookmark,
   renameCategory,
   saveNote,
+  submitFeedback,
   setChannelCategories,
   unarchiveArticle,
   updateArticle,
@@ -78,6 +79,14 @@ export function useArticle(id: string | undefined, includeAudio = true): UseQuer
     queryKey: ["article", id, includeAudio],
     queryFn: () => fetchArticle(id as string, includeAudio),
     enabled: Boolean(id),
+  });
+}
+
+/** Feedback lives on GitHub, not in any cached query, so success touches no cache. */
+export function useSubmitFeedback() {
+  return useMutation({
+    mutationFn: ({ message, pageContext }: { message: string; pageContext?: string }) =>
+      submitFeedback(message, pageContext),
   });
 }
 

@@ -24,6 +24,7 @@ import {
   useState,
 } from "react";
 import { Link, useNavigate } from "react-router";
+import FeedbackButton from "./FeedbackButton";
 import ThemeToggle from "./ThemeToggle";
 
 type SidebarContextValue = {
@@ -291,6 +292,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className={cn("transition-all duration-200", pinned ? "md:pl-52" : "md:pl-14")}>
           {children}
         </div>
+        <FeedbackButton />
       </div>
     </SidebarContext.Provider>
   );

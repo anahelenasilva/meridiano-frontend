@@ -3,6 +3,7 @@ export const MESSAGES = {
     ARTICLE_ARCHIVED: 'Article archived',
     ARTICLE_UNARCHIVED: 'Article restored',
     AUDIO_GENERATION_QUEUED: 'Audio is being generated. Please refresh the page soon.',
+    FEEDBACK_SENT: 'Issue created',
   },
 
   ERROR: {
@@ -35,6 +36,8 @@ export const MESSAGES = {
     AUDIO_GENERATION: 'Error generating audio:',
     AUDIO_GENERATION_FAILED: 'Audio generation failed',
     AUDIO_STATUS_CHECK: 'Error checking audio status:',
+    FEEDBACK_RATE_LIMITED: 'You have sent a lot of feedback. Please try again in an hour.',
+    FEEDBACK_FAILED: 'Could not send your feedback. Please try again.',
   },
 
   VALIDATION: {
