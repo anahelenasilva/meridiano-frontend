@@ -16,5 +16,10 @@ export default defineConfig([
       "react-refresh/only-export-components": "warn",
     },
   },
-  globalIgnores(["archive/**", "dist/**", "node_modules/**"]),
+  globalIgnores([
+    "archive/**",
+    "dist/**",
+    "node_modules/**",
+    ".claude/worktrees/**",
+  ]),
 ]);
