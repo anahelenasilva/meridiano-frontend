@@ -95,6 +95,19 @@ A `VITE_API_BASE_URL` containing `railway.app` overrides this.
 - `pnpm serve` - Start production server (port 8080)
 - `pnpm lint` - Run ESLint
 
+## Software factory
+
+Agents build and review issues in GitHub Actions. You start each step with a label:
+
+| Label | On | Workflow | What happens |
+| --- | --- | --- | --- |
+| `agent:explore` | issues | `agent-explore.yml` | One read-only run over every labelled issue: a findings comment each, duplicates closed, easy calls handed on with `agent:implement` |
+| `agent:implement` | an issue | `agent-implement.yml` | Builds the issue, opens a draft PR, labels it `agent:review` |
+| `agent:review` | a PR | `agent-review.yml` | A fresh agent reviews the PR, fixes what it can, comments the rest, marks it ready |
+| `agent:implement-spec` | a spec issue | `agent-implement-spec.yml` | Cuts the spec into `agent:queued` tickets, then builds them one run at a time. A ticket waits until the PRs of the tickets it depends on merge |
+
+Nothing merges on its own. The agent scripts and prompts live in `.sandcastle/agent-workflows/`. The jobs have no backend, so agents take their screenshots against mocked `/api` answers, per `.sandcastle/agent-workflows/shared/screenshots.md`.
+
 ## Learn More
 
 - [Vite Documentation](https://vitejs.dev/)

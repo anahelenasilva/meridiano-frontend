@@ -13,4 +13,4 @@ A Vite + React application for viewing news briefings and articles, powered by A
 - Before exploring the codebase, or when naming a domain concept, read [domain](./docs/agents/domain.md)
 - When creating, reading, or commenting on an issue, use [issue-tracker](./docs/agents/issue-tracker.md)
 - When applying a triage label to an issue, use [triage-labels](./docs/agents/triage-labels.md)
-- When running as a factory task (implement, review, rework), read [factory](./docs/agents/factory.md)
+- When labelling an issue or PR for the software factory, or editing `.github/workflows/agent-*.yml` or `.sandcastle/`, read [README, Software factory](./README.md#software-factory)
