@@ -462,6 +462,13 @@ export async function deleteTranscription(id: string) {
   return apiFetch<{ success: boolean }>(`/api/youtube/transcriptions/${id}`, { method: "DELETE" });
 }
 
+// ===== Feedback =====
+
+/** The server files the feedback as a GitHub issue and returns its number and URL. */
+export async function submitFeedback(message: string, pageContext?: string) {
+  return typedApiFetch("/api/feedback", "post", { message, pageContext });
+}
+
 // ===== Notes =====
 
 export async function saveNote(

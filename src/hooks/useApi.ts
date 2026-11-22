@@ -34,6 +34,7 @@ import {
   renameCategory,
   saveNote,
   setChannelCategories,
+  submitFeedback,
   unarchiveArticle,
   updateArticle,
   updateBriefingTitle,
@@ -560,6 +561,16 @@ export function useUpdateBriefingTitle() {
       queryClient.invalidateQueries({ queryKey: ["briefing", id] });
       queryClient.invalidateQueries({ queryKey: ["briefings"] });
     },
+  });
+}
+
+// ===== Feedback =====
+
+/** Feedback lives on GitHub, not in any cached query, so success touches no cache. */
+export function useSubmitFeedback() {
+  return useMutation({
+    mutationFn: ({ message, pageContext }: { message: string; pageContext?: string }) =>
+      submitFeedback(message, pageContext),
   });
 }
 
