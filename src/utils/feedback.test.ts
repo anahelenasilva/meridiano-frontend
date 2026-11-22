@@ -25,12 +25,12 @@ describe("canSubmitFeedback", () => {
 describe("feedbackPageContext", () => {
   it("joins the path and the query string", () => {
     expect(feedbackPageContext("/articles", "?page=2")).toBe("/articles?page=2");
-    expect(feedbackPageContext("/articles/123")).toBe("/articles/123");
+    expect(feedbackPageContext("/articles/123", "")).toBe("/articles/123");
   });
 
   it("drops line breaks and fits the backend limit", () => {
-    expect(feedbackPageContext("/a\r\nb")).toBe("/a b");
-    const long = feedbackPageContext(`/${"x".repeat(1000)}`);
+    expect(feedbackPageContext("/a\r\nb", "")).toBe("/a b");
+    const long = feedbackPageContext(`/${"x".repeat(1000)}`, "");
     expect(long).toHaveLength(FEEDBACK_PAGE_CONTEXT_MAX_LENGTH);
   });
 });

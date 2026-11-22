@@ -17,7 +17,7 @@ export function canSubmitFeedback(message: string): boolean {
  * The route the user was on: path plus query string, so filters and pages
  * come along. The backend rejects line breaks and anything over its limit.
  */
-export function feedbackPageContext(pathname: string, search = ""): string {
+export function feedbackPageContext(pathname: string, search: string): string {
   return `${pathname}${search}`
     .replace(/[\r\n]+/g, " ")
     .slice(0, FEEDBACK_PAGE_CONTEXT_MAX_LENGTH);
