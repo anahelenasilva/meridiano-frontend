@@ -36,7 +36,7 @@ export const MESSAGES = {
     AUDIO_GENERATION: 'Error generating audio:',
     AUDIO_GENERATION_FAILED: 'Audio generation failed',
     AUDIO_STATUS_CHECK: 'Error checking audio status:',
-    FEEDBACK_RATE_LIMITED: 'You have sent a lot of feedback. Please try again in an hour.',
+    FEEDBACK_RATE_LIMITED: 'You have sent a lot of feedback. Please try again later.',
     FEEDBACK_FAILED: 'Could not send your feedback. Please try again.',
   },
 
