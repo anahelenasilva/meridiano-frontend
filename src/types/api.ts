@@ -843,6 +843,11 @@ export interface components {
         };
         CreateFeedbackDto: {
             message: string;
+            /**
+             * @description Where the user was when they wrote the feedback, such as the route
+             * @example /articles/123
+             */
+            pageContext?: string;
         };
         CreateYoutubeChannelDto: {
             categoryNames?: string[];

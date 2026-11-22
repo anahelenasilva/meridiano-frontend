@@ -34,6 +34,8 @@
 | CustomPromptDisplay | `CustomPromptDisplay.tsx` | Custom prompt display |
 | CustomPromptBadge | `CustomPromptBadge.tsx` | Custom prompt badge |
 | ThemeToggle | `ThemeToggle.tsx` | Dark/light theme toggle |
+| FeedbackButton | `FeedbackButton.tsx` | Floating button on every page under the layout; opens FeedbackModal |
+| FeedbackModal | `FeedbackModal.tsx` | Sends feedback with the current route; the backend files it as a GitHub issue |
 
 ---
 

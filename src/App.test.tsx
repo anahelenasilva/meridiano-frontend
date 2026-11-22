@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router";
 import type { ReactNode } from "react";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -75,13 +76,15 @@ beforeEach(() => {
 
 function renderSidebarAt(path: string) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <ThemeProvider>
-        <Layout>
-          <div />
-        </Layout>
-      </ThemeProvider>
-    </MemoryRouter>,
+    <QueryClientProvider client={new QueryClient()}>
+      <MemoryRouter initialEntries={[path]}>
+        <ThemeProvider>
+          <Layout>
+            <div />
+          </Layout>
+        </ThemeProvider>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -148,6 +151,27 @@ describe("routes", () => {
         ([url]) => typeof url === "string" && url.includes("archive_scope=archived"),
       ),
     ).toBe(true);
+  });
+});
+
+describe("feedback button", () => {
+  beforeAll(() => import("@/pages/ArticlesPage"));
+
+  it("floats on a page under the layout", async () => {
+    renderAppAt("/articles");
+
+    await waitFor(() =>
+      expect(screen.getByRole("heading", { name: "Articles" })).toBeInTheDocument(),
+    );
+    expect(screen.getByRole("button", { name: "Send feedback" })).toBeInTheDocument();
+  });
+
+  it("is not on the login form", () => {
+    auth.isAuthenticated = false;
+    renderAppAt("/login");
+
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send feedback" })).not.toBeInTheDocument();
   });
 });
 
