@@ -34,6 +34,12 @@ export default function FeedbackModal({ open, onOpenChange }: FeedbackModalProps
   const submitFeedbackMutation = useSubmitFeedback();
 
   const isPending = submitFeedbackMutation.isPending;
+
+  // A failed send's error belongs to that attempt; the typed text stays for the next one.
+  const handleOpenChange = (next: boolean) => {
+    if (!next) setError(null);
+    onOpenChange(next);
+  };
   const canSubmit = canSubmitFeedback(message) && !isPending;
 
   const handleSubmit = async (event: FormEvent) => {
@@ -56,7 +62,7 @@ export default function FeedbackModal({ open, onOpenChange }: FeedbackModalProps
         { autoClose: 8000, closeOnClick: false },
       );
       setMessage("");
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (e) {
       // The typed text stays, so the user can retry without losing it.
       setError(feedbackErrorMessage(e));
@@ -64,7 +70,7 @@ export default function FeedbackModal({ open, onOpenChange }: FeedbackModalProps
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Send feedback</DialogTitle>
@@ -98,7 +104,7 @@ export default function FeedbackModal({ open, onOpenChange }: FeedbackModalProps
           </div>
 
           <DialogFooter className="mt-4 min-w-0 flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit" disabled={!canSubmit}>

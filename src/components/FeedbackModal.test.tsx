@@ -129,4 +129,20 @@ describe("FeedbackModal", () => {
     expect(field()).toHaveValue("Broken");
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
+
+  it("drops a failed send's error when the dialog closes, and keeps the text", async () => {
+    fetchMock.mockImplementation(() => respond(429));
+    renderAt("/articles");
+
+    fireEvent.change(field(), { target: { value: "Too much" } });
+    fireEvent.click(submitButton());
+    await screen.findByRole("alert");
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Send feedback" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(field()).toHaveValue("Too much");
+  });
 });
