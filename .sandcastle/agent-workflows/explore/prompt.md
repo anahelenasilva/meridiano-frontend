@@ -34,7 +34,7 @@ Include filenames, and lines of code. Remember that the agent that implements wi
      - the blast radius, in prose: the 2–3 places that matter (pages under src/pages/, components under src/components/, query hooks in src/hooks/useApi.ts, routes in src/App.tsx). A change that needs a new or changed backend endpoint goes first, and loudly;
      - whether it's a one-way or a two-way door
      - the duplicates closed onto it, crediting by number any detail only they had;
-     - whether the issue ends with a `## Done when` checklist, per docs/agents/issue-tracker.md. If it does not, write the checklist you would give it;
+     - whether the issue ends with a `## Done when` checklist, per docs/agents/issue-tracker.md. If it does not, write the checklist you would give it. Put this part under a real Markdown heading, the line `## Done when` on its own, so a human can paste the checklist into the issue as-is. Do not make it a bold label like the other parts, and do not wrap it in backticks;
      - last, the open questions a human has to settle. An empty list is a claim, and usually a wrong one.
    - When an issue shows in the UI, save a screenshot of it as /tmp/evidence/<issue-number>-<name>.png. Reference it in that issue's comment by its absolute path, e.g. `![now](/tmp/evidence/12-now.png)`. The workflow uploads them.
 
