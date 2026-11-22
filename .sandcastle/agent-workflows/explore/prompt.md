@@ -20,6 +20,7 @@ Include filenames, and lines of code. Remember that the agent that implements wi
 3. DUPLICATES. Confirm a group from the code, not the wording. An issue that is the same bug, root cause or request as an older one gets `duplicate_of` set to the OLDEST (lowest number), which survives. Issues that need separate changes are related, not duplicates: both survive.
 
 4. VERDICT. Give each issue one `tag`. The workflow branches on it.
+
    - `easy-call`: the right change is clear, nobody would disagree with any decision in it, and you would be happy for the pull request to land without you. It goes straight to the implementer.
    - `needs-a-human`: somebody has to decide something first (a design, a name, a new dependency, a trade), or the issue's claims did not hold up.
    - `blocked`: waiting on something outside this repository, or on information only the reporter has. An endpoint or field missing from src/types/api.ts after `pnpm generate:api-types` waits on the backend, meridiano-nestjs.
