@@ -36,12 +36,19 @@ const SidebarContext = createContext<SidebarContextValue>({
   setPinned: () => {},
 });
 
+// Drawn as an outline in currentColor so it matches the lucide nav icons. overflow="visible"
+// keeps the stroke from clipping, since the path touches the viewBox edges.
 function YouTubeIcon({ className }: { className?: string }) {
   return (
     <svg
       role="img"
       className={className}
       viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinejoin="round"
+      overflow="visible"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
@@ -137,7 +144,7 @@ function CollapsibleSidebar() {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={cn(
-          "fixed left-0 top-0 z-50 hidden md:flex h-screen flex-col border-r border-border bg-background py-4 transition-all duration-200 ease-in-out",
+          "fixed left-0 top-0 z-50 hidden md:flex h-screen flex-col border-r border-border bg-sidebar py-4 transition-all duration-200 ease-in-out",
           expanded ? "w-52" : "w-14"
         )}
       >
@@ -228,7 +235,7 @@ function MobileHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 md:hidden border-b border-border bg-background/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 md:hidden border-b border-border bg-sidebar/90 backdrop-blur-md">
       <div className="flex h-12 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
@@ -243,7 +250,7 @@ function MobileHeader() {
         </button>
       </div>
       {open && (
-        <nav className="border-t border-border bg-background p-2">
+        <nav className="border-t border-border bg-sidebar p-2">
           {navItems.map((item) => (
             <DrawerLink key={item.to} item={item} onClick={() => setOpen(false)} />
           ))}

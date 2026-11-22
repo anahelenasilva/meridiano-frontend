@@ -54,10 +54,10 @@ export default function AudioPlayer({ audio }: AudioPlayerProps) {
   }, []);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm p-4 sm:p-6">
+    <div className="bg-card rounded-lg border border-border shadow-sm p-4 sm:p-6">
       <div className="flex items-center gap-3 mb-4">
-        <Music className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <Music className="h-5 w-5 text-primary" />
+        <h3 className="text-lg font-semibold text-foreground">
           Audio Article
         </h3>
       </div>
@@ -74,12 +74,12 @@ export default function AudioPlayer({ audio }: AudioPlayerProps) {
               ref={audioRef}
               src={audio.presigned_url}
               controls
-              className="w-full h-10 rounded-md bg-gray-100 dark:bg-gray-700"
+              className="w-full h-10 rounded-md bg-secondary"
             />
           </div>
 
           {/* Metadata */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-muted-foreground">
             {audio.duration_seconds !== undefined && audio.duration_seconds > 0 && (
               <div className="flex items-center gap-2">
                 <span className="font-medium">Duration:</span>
