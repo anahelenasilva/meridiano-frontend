@@ -10,7 +10,7 @@
     "serve": "vite preview --port 8080 --host ::",
     "generate:api-types": "openapi-typescript ${OPENAPI_SPEC_URL:-https://raw.githubusercontent.com/anahelenasilva/meridiano-nestjs/main/openapi.json} -o src/types/api.ts",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p .sandcastle/agent-workflows",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -41,6 +41,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@ai-hero/sandcastle": "^0.13.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.3.5",
@@ -60,10 +61,12 @@
     "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.33",
     "tailwindcss": "^4.3.5",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "zod": "^3.25.76"
   },
   "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72",
   "engines": {

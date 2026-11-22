@@ -418,6 +418,23 @@ export interface paths {
         patch: operations["BriefingsController_updateBriefTitle"];
         trace?: never;
     };
+    "/api/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send feedback, filed as a GitHub issue labelled feedback */
+        post: operations["FeedbackController_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health": {
         parameters: {
             query?: never;
@@ -824,6 +841,9 @@ export interface components {
         CreateCategoryDto: {
             name: string;
         };
+        CreateFeedbackDto: {
+            message: string;
+        };
         CreateYoutubeChannelDto: {
             categoryNames?: string[];
             channelId: string;
@@ -852,6 +872,12 @@ export interface components {
             source?: string;
             /** Format: uri */
             url: string;
+        };
+        FeedbackResponseDto: {
+            /** @example 412 */
+            issueNumber: number;
+            /** @example https://github.com/owner/repo/issues/412 */
+            issueUrl: string;
         };
         GenerateBriefInputDto: {
             customPrompts?: components["schemas"]["CustomPromptsDto"];
@@ -2119,6 +2145,68 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UnauthorizedResponseDto"];
                 };
+            };
+        };
+    };
+    FeedbackController_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFeedbackDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedbackResponseDto"];
+                };
+            };
+            /** @description Request failed class-validator validation */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponseDto"];
+                };
+            };
+            /** @description Missing or invalid bearer token */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnauthorizedResponseDto"];
+                };
+            };
+            /** @description More than 5 feedback requests from this user in 60 minutes */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description GitHub did not create the issue */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description GITHUB_FEEDBACK_TOKEN or GITHUB_FEEDBACK_REPO is unset */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
