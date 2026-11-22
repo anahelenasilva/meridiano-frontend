@@ -206,7 +206,7 @@ export default function ArticleDetail() {
 
         {sanitizedProcessedContentHtml && (
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400 mb-4">AI Summary</h2>
+            <h2 className="text-lg sm:text-xl font-semibold text-primary mb-4">AI Summary</h2>
 
             <div className="prose max-w-none mt-6 rounded-lg border border-border bg-card p-4 mb-6"
               dangerouslySetInnerHTML={{ __html: sanitizedProcessedContentHtml }}

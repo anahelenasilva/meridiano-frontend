@@ -57,6 +57,9 @@
     --background: 30 5% 96%;
     --foreground: 30 5% 10%;
 
+    /* The nav sidebar and mobile header. Matches the background in light mode, sits darker in dark mode. */
+    --sidebar: var(--background);
+
     --card: 0 0% 100%;
     --card-foreground: 30 5% 10%;
 
@@ -86,23 +89,25 @@
   }
 
   .dark {
-    --background: 30 5% 7%;
-    --foreground: 30 5% 88%;
+    --background: 215 15% 15%;
+    --foreground: 210 15% 88%;
 
-    --card: 30 4% 10%;
-    --card-foreground: 30 5% 88%;
+    --sidebar: 215 16% 12%;
 
-    --popover: 30 4% 10%;
-    --popover-foreground: 30 5% 88%;
+    --card: 215 14% 18%;
+    --card-foreground: 210 15% 88%;
 
-    --primary: 24 90% 55%;
-    --primary-foreground: 30 5% 7%;
+    --popover: 215 14% 19%;
+    --popover-foreground: 210 15% 88%;
 
-    --secondary: 30 4% 14%;
-    --secondary-foreground: 30 5% 80%;
+    --primary: 24 90% 60%;
+    --primary-foreground: 215 15% 10%;
 
-    --muted: 30 4% 14%;
-    --muted-foreground: 30 3% 55%;
+    --secondary: 215 13% 22%;
+    --secondary-foreground: 210 12% 82%;
+
+    --muted: 215 13% 22%;
+    --muted-foreground: 212 10% 63%;
 
     --accent: var(--secondary);
     --accent-foreground: var(--secondary-foreground);
@@ -110,8 +115,8 @@
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 4% 16%;
-    --input: 30 4% 16%;
+    --border: 215 12% 26%;
+    --input: 215 12% 28%;
     --ring: var(--primary);
   }
 }
